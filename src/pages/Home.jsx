@@ -9,6 +9,7 @@ import { MAX_DIVE_POINTS } from '../game/tiers.js';
 import PixelSprite from '../components/PixelSprite.jsx';
 import Icon from '../components/Icon.jsx';
 import SwimmingTitle from '../components/SwimmingTitle.jsx';
+import { PAGES } from '../seo.js';
 
 export default function Home() {
   const cat = useProgress((s) => s.category);
@@ -32,7 +33,7 @@ export default function Home() {
       <div className="home-title">
         <SwimmingTitle />
         <p className="tagline">THE DAILY ASCENT</p>
-        <p className="sub">7 ascents · learn, then prove it · no timers · swim for the surface</p>
+        <p className="sub">{PAGES['/'].description}</p>
       </div>
 
       <div className="home-actions">
@@ -55,6 +56,7 @@ export default function Home() {
           {done && <span className="done-badge">✓ {done.points}/{MAX_DIVE_POINTS}</span>}
         </div>
         <div className="home-links">
+          <Link className="btn btn-small" to="/faq">How to play</Link>
           <Link className="btn btn-small" to="/unlimited">
             Unlimited ∞
           </Link>

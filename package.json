@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-search-pages.mjs",
     "preview": "vite preview",
     "check:content": "node scripts/check-content.mjs",
     "make:icon": "node scripts/make-icon.mjs",

@@ -3,15 +3,16 @@ import PageShell from './PageShell.jsx';
 import { TIERS, ASCENT_MAX, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { TEST_TYPES } from '../game/tests.js';
 import Icon, { TierIcon } from '../components/Icon.jsx';
+import { KRILLION_GUIDE, PAGES } from '../seo.js';
 
 const QA = [
   {
     q: 'What is Shrimpion?',
     a: (
       <>
-        A daily trivia game that teaches instead of quizzing you cold. You start at the bottom of the Challenger Deep and swim up
-        through seven ascents. Each ascent teaches you seven facts with no timer, then tests you on them. Reach the surface and
-        you’ve learned 42 new things.
+        Shrimpion is a free daily trivia game. Start at the bottom of the Challenger Deep and swim through seven ascents.
+        The first six each teach you seven facts with no timer and then quiz you on them. The seventh is the 14-question
+        Surface Exam, which reviews all six rounds.
       </>
     ),
   },
@@ -77,15 +78,12 @@ const QA = [
     q: 'What is Urchin Party?',
     a: 'A multiplayer mode we’re building where friends learn together instead of competing. The urchin is ready; the party is coming soon.',
   },
-  {
-    q: 'Is Shrimpion related to Krillion?',
-    a: 'Shrimpion is a learning-first companion inspired by the daily-dive format Krillion made popular. Krillion tests how deep your knowledge goes; Shrimpion helps you build it, one ascent at a time.',
-  },
 ];
 
 export default function FAQ() {
+  const page = PAGES['/faq'];
   return (
-    <PageShell v={6.6} kicker="Questions from the shallows" title="FAQ" wide>
+    <PageShell v={6.6} kicker="Questions from the shallows" title={page.heading} intro={page.description} wide>
       <div className="faq">
         {QA.map((item) => (
           <details key={item.q} className="panel faq-item">
@@ -94,6 +92,13 @@ export default function FAQ() {
           </details>
         ))}
       </div>
+
+      <section className="panel creator">
+        <h2>{KRILLION_GUIDE.heading}</h2>
+        <p>{KRILLION_GUIDE.description}</p>
+        <p>{KRILLION_GUIDE.tip}</p>
+        <Link to="/archive" className="btn btn-primary">Browse past ascents</Link>
+      </section>
 
       <section className="panel creator">
         <p className="kicker">Who made this?</p>

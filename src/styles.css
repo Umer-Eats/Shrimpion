@@ -647,7 +647,8 @@ input:focus {
 .sub {
   color: var(--muted);
   font-size: 22px;
-  margin: 0;
+  max-width: 38ch;
+  margin: 0 auto;
 }
 .home-actions {
   margin-top: auto;

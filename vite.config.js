@@ -16,8 +16,9 @@ function devApi(mode) {
   };
 }
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode, isPreview }) => ({
   plugins: [react(), devApi(mode)],
+  appType: isPreview ? 'mpa' : 'spa',
   server: { port: 5173 },
   build: {
     rollupOptions: {

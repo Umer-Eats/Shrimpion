@@ -26,11 +26,13 @@ Without Firebase keys the game runs in **local mode**: progress lives in the bro
 
 ## Deploy to Vercel
 
-1. Push this folder to GitHub and import it in Vercel. `vercel.json` sets the Vite framework, `npm run build`, the `dist` output, and an SPA rewrite (everything except `/api/*`) so routes like `/faq` work on refresh.
+1. Push this folder to GitHub and import it in Vercel. The build creates HTML for each route, plus `robots.txt` and `sitemap.xml`. Vercel serves the HTML at extensionless routes such as `/faq`.
 2. In **Project → Settings → Environment Variables**, add every key from `.env.example`:
    - the six `VITE_FIREBASE_*` values (public, inlined into the browser bundle at build time), and
    - `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` (**server-only**: never prefix them with `VITE_`).
 3. Redeploy. Vite inlines `VITE_*` variables at build time, so rebuild after changing them.
+
+The canonical domain is set in `src/seo.js`. Connect `shrimpion.io` to the Vercel project and make it the primary domain. After deployment, submit `https://shrimpion.io/sitemap.xml` in Google Search Console and use URL Inspection to request indexing for the homepage and FAQ.
 
 ## Firebase setup (sign-in only)
 

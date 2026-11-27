@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import OceanScene from './scene/OceanScene.jsx';
 import { scene } from './scene/sceneStore.js';
 import TopBar from './components/TopBar.jsx';
@@ -17,18 +17,31 @@ import Friends from './pages/Friends.jsx';
 import SevenSeas from './pages/SevenSeas.jsx';
 import FAQ from './pages/FAQ.jsx';
 import UrchinParty from './pages/UrchinParty.jsx';
+import PageShell from './pages/PageShell.jsx';
+import { getPageHead, NOT_FOUND } from './seo.js';
 
-const TITLES = {
-  '/': 'Shrimpion · the daily ascent',
-  '/dive': 'Ascending · Shrimpion',
-  '/unlimited': 'Unlimited · Shrimpion',
-  '/archive': 'Archive · Shrimpion',
-  '/me': 'My Shrimpion',
-  '/friends': 'Friends · Shrimpion',
-  '/seas': 'The 7 Seas · Shrimpion',
-  '/faq': 'FAQ · Shrimpion',
-  '/urchin-party': 'Urchin Party · Shrimpion',
-};
+function updatePageHead(pathname) {
+  const current = [...document.head.querySelectorAll('[data-route-seo]')];
+  const next = getPageHead(pathname).map(({ tag, attrs = {}, text }) => {
+    const element = document.createElement(tag);
+    element.setAttribute('data-route-seo', '');
+    for (const [name, value] of Object.entries(attrs)) element.setAttribute(name, value);
+    if (text !== undefined) element.textContent = text;
+    return element;
+  });
+  if (current.length === next.length && current.every((element, i) => element.isEqualNode(next[i]))) return;
+
+  current.forEach((element) => element.remove());
+  document.head.append(...next);
+}
+
+function NotFound() {
+  return (
+    <PageShell title={NOT_FOUND.heading} intro={NOT_FOUND.description}>
+      <Link to="/" className="btn btn-primary">Play Shrimpion</Link>
+    </PageShell>
+  );
+}
 
 export default function App() {
   const { pathname } = useLocation();
@@ -52,7 +65,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.title = TITLES[pathname] || 'Shrimpion';
+    updatePageHead(pathname);
     window.scrollTo(0, 0);
   }, [pathname]);
 
@@ -72,7 +85,7 @@ export default function App() {
         <Route path="/seas" element={<SevenSeas />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/urchin-party" element={<UrchinParty />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       </ErrorBoundary>
       <AuthModal />
