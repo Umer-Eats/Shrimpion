@@ -34,14 +34,15 @@ writeFileSync(join(root, 'public', 'favicon.svg'), svg(false));
 writeFileSync(join(root, 'public', 'icon.svg'), svg(false));
 console.log(`Wrote public/favicon.svg and public/icon.svg (${size}x${size}).`);
 
-// Square raster logo for search engines (schema.org Organization logo, apple-touch-icon).
-// Google wants a crawlable raster image at least 112x112; 512x512 covers every use.
-function writePng(file, px, scale, bg) {
+// Raster copies of the tab favicon (transparent shrimp, no background tile) for search engines.
+// Google shows a site's favicon in results; it wants a square that's a multiple of 48px, and it
+// also reads apple-touch-icon and falls back to /favicon.ico, so every icon is the same shrimp.
+function pngBuffer(px) {
+  const scale = Math.floor(px / size);
   const pad = Math.floor((px - size * scale) / 2);
   const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
   const grid = rows.map((row) => [...row].map((ch) => (ch === '.' || !pal[ch] ? null : hex(pal[ch]))));
   const raw = Buffer.alloc((px * 4 + 1) * px);
-  const [br, bgG, bb] = hex(bg);
   for (let y = 0; y < px; y++) {
     raw[y * (px * 4 + 1)] = 0;
     for (let x = 0; x < px; x++) {
@@ -49,7 +50,7 @@ function writePng(file, px, scale, bg) {
       const sy = Math.floor((y - pad) / scale) - oy;
       const c = x >= pad && y >= pad ? grid[sy]?.[sx] : null;
       const o = y * (px * 4 + 1) + 1 + x * 4;
-      [raw[o], raw[o + 1], raw[o + 2], raw[o + 3]] = c ? [...c, 255] : [br, bgG, bb, 255];
+      [raw[o], raw[o + 1], raw[o + 2], raw[o + 3]] = c ? [...c, 255] : [0, 0, 0, 0];
     }
   }
   const crcTable = Array.from({ length: 256 }, (_, n) => {
@@ -74,13 +75,39 @@ function writePng(file, px, scale, bg) {
   ihdr.writeUInt32BE(px, 0);
   ihdr.writeUInt32BE(px, 4);
   ihdr.set([8, 6, 0, 0, 0], 8);
-  writeFileSync(file, Buffer.concat([
+  return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk('IHDR', ihdr),
     chunk('IDAT', deflateSync(raw)),
     chunk('IEND', Buffer.alloc(0)),
-  ]));
+  ]);
 }
-writePng(join(root, 'public', 'logo-512.png'), 512, Math.floor(448 / size), '#12051a');
-writePng(join(root, 'public', 'apple-touch-icon.png'), 180, Math.floor(156 / size), '#12051a');
-console.log('Wrote public/logo-512.png and public/apple-touch-icon.png.');
+
+// An .ico file that wraps PNG images (supported by every current browser and by Google).
+function icoBuffer(sizes) {
+  const images = sizes.map((px) => ({ px, data: pngBuffer(px) }));
+  const header = Buffer.alloc(6 + 16 * images.length);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(images.length, 4);
+  let offset = header.length;
+  images.forEach(({ px, data }, i) => {
+    const e = 6 + 16 * i;
+    header[e] = px >= 256 ? 0 : px;
+    header[e + 1] = px >= 256 ? 0 : px;
+    header.writeUInt16LE(1, e + 4);
+    header.writeUInt16LE(32, e + 6);
+    header.writeUInt32LE(data.length, e + 8);
+    header.writeUInt32LE(offset, e + 12);
+    offset += data.length;
+  });
+  return Buffer.concat([header, ...images.map(({ data }) => data)]);
+}
+
+const out = (name) => join(root, 'public', name);
+writeFileSync(out('favicon-48.png'), pngBuffer(48));
+writeFileSync(out('favicon-192.png'), pngBuffer(192));
+writeFileSync(out('apple-touch-icon.png'), pngBuffer(180));
+writeFileSync(out('logo-512.png'), pngBuffer(512));
+writeFileSync(out('favicon.ico'), icoBuffer([16, 32, 48]));
+console.log('Wrote favicon.ico, favicon-48.png, favicon-192.png, apple-touch-icon.png and logo-512.png.');
