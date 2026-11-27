@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import OceanScene from './scene/OceanScene.jsx';
 import { scene } from './scene/sceneStore.js';
@@ -66,6 +66,9 @@ export default function App() {
 
   useEffect(() => {
     updatePageHead(pathname);
+  }, [pathname]);
+
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
@@ -81,7 +84,7 @@ export default function App() {
         <Route path="/unlimited" element={<Unlimited key={auth.user?.uid ?? 'guest'} />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/me" element={<MyShrimpion />} />
-        <Route path="/friends" element={<Friends />} />
+        <Route path="/friends" element={<Friends key={auth.user?.uid ?? 'guest'} />} />
         <Route path="/seas" element={<SevenSeas />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/urchin-party" element={<UrchinParty />} />

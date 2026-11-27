@@ -85,8 +85,8 @@ export default function DiveRunner({ mode, date, cat }) {
   // park the camera at the current stop
   useEffect(() => {
     if (travel) return;
-    if (!run || run.phase === 'surface' || run.phase === 'over') scene.setPose(MAX_V);
-    else scene.setPose(run.ascent);
+    const stop = !run || run.phase === 'surface' || run.phase === 'over' ? MAX_V : run.ascent;
+    scene.setPose(stop, { glide: Math.abs(stop - scene.camV) <= 2.5 });
   }, [run, travel]);
 
   // finish a daily ascent once we reach the surface
@@ -179,7 +179,8 @@ export default function DiveRunner({ mode, date, cat }) {
     const toV = run.ascent + 1;
     setTravel({ dir: 'up', toV });
     play('ascend');
-    await scene.travelTo(toV, ASCENT_MS);
+    const arrived = await scene.travelTo(toV, ASCENT_MS);
+    if (!arrived) return;
     if (toV >= 7) play('splash');
     setTravel(null);
     if (run.ascent + 1 < 7) update({ ascent: run.ascent + 1, phase: 'learn' });
@@ -189,7 +190,8 @@ export default function DiveRunner({ mode, date, cat }) {
   const diveAgain = async () => {
     setTravel({ dir: 'down', toV: 0 });
     play('descend');
-    await scene.travelTo(0, DESCENT_MS);
+    const arrived = await scene.travelTo(0, DESCENT_MS);
+    if (!arrived) return;
     setTravel(null);
     const nextBlock = run.block + 1;
     update({

@@ -70,7 +70,8 @@ code {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
+  z-index: -1;
+  pointer-events: none;
   image-rendering: pixelated;
 }
 
@@ -1836,6 +1837,9 @@ input:focus {
   margin: 0;
   color: var(--aqua);
 }
+.stage-panel.unlimited-intro {
+  animation: none;
+}
 .unlimited-intro h2 {
   font-family: var(--display);
   font-size: 28px;
@@ -1845,9 +1849,6 @@ input:focus {
 /* ---------------- Content pages ---------------- */
 
 .page {
-  /* own layer above the ocean canvas, or its headings get painted over */
-  position: relative;
-  z-index: 1;
   min-height: 100vh;
   padding: 84px 18px 60px;
   display: flex;
@@ -2207,16 +2208,32 @@ input:focus {
 .friend-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 8px 0;
 }
 .friend-name {
-  flex: 1;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
 }
 .friend-actions {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+.friend-request-status {
+  align-self: center;
+}
+.friend-remove-dialog {
+  width: min(440px, calc(100% - 32px));
+  margin: auto;
+  color: var(--ink);
+}
+.friend-remove-dialog::backdrop {
+  background: rgba(10, 2, 14, 0.72);
+}
+.friend-remove-actions {
+  justify-content: flex-end;
 }
 .friend-grid {
   list-style: none;

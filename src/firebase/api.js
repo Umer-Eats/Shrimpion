@@ -175,16 +175,14 @@ export async function sendFriendRequest(_me, username) {
   return r;
 }
 
-function watchRequests(key, cb) {
-  const unsub = poll(() => rpc('friends.requests'), (r) => cb(r[key] || []));
+export function watchFriendRequests(cb, onError) {
+  const unsub = poll(() => rpc('friends.requests'), cb, onError);
   friendWatchers.add(unsub);
   return () => {
     friendWatchers.delete(unsub);
     unsub();
   };
 }
-export const watchIncomingRequests = (_uid, cb) => watchRequests('incoming', cb);
-export const watchOutgoingRequests = (_uid, cb) => watchRequests('outgoing', cb);
 
 export async function acceptRequest(_myUid, req) {
   await rpc('friends.accept', { from: req.from });
