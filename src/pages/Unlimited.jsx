@@ -14,7 +14,7 @@ export default function Unlimited() {
   const active = runs[`unlimited:${cat}`];
 
   useEffect(() => {
-    if (!started && !active) scene.setPose(0, { dim: 0.4 });
+    if (!started && !active) scene.setPose(1, { dim: 0.4 }); // one stop above the Daily Swim's trench floor
   }, [started, active]);
 
   if (started || active) return <DiveRunner mode="unlimited" cat={cat} />;

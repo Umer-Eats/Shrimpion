@@ -1,20 +1,43 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { isCloseEnough } from '../game/fuzzy.js';
+import { matchAnswer } from '../game/fuzzy.js';
+import { play } from '../audio/sfx.js';
 
 /* ------------------------------------------------------------------ */
 /* Shared: one question at a time, immediate feedback, no timer.       */
+/* Progress is reported through onDraft so a closed tab can resume.    */
 /* ------------------------------------------------------------------ */
 
-function useSequence(items, onComplete) {
-  const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState([]); // { ok, given }
+function validDraft(draft, n) {
+  return (
+    draft &&
+    Number.isInteger(draft.idx) &&
+    Array.isArray(draft.answers) &&
+    draft.idx >= 0 &&
+    draft.idx < n &&
+    draft.answers.length <= n &&
+    draft.answers.length >= draft.idx
+  );
+}
+
+function useSequence(items, onComplete, draft, onDraft) {
+  const resume = validDraft(draft, items.length) ? draft : null;
+  const [idx, setIdx] = useState(resume ? resume.idx : 0);
+  const [answers, setAnswers] = useState(resume ? resume.answers : []); // { ok, given }
   const current = items[idx];
   const answered = answers.length > idx;
+
+  useEffect(() => {
+    onDraft?.({ idx, answers });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, answers]);
+
   const record = (ok, given) => {
     if (answered) return;
+    play(ok ? 'correct' : 'wrong');
     setAnswers((a) => [...a, { ok, given }]);
   };
   const next = () => {
+    play('tap');
     if (idx + 1 < items.length) setIdx(idx + 1);
     else {
       const correct = answers.filter((a) => a.ok).length;
@@ -22,6 +45,8 @@ function useSequence(items, onComplete) {
         correct,
         total: items.length,
         misses: items.filter((_, i) => !answers[i]?.ok).map((it) => it.fact),
+        // kept on the finished ascent so the Archive can replay every question
+        answers: items.map((it, i) => ({ id: it.fact.id, ok: Boolean(answers[i]?.ok), given: answers[i]?.given ?? null })),
       });
     }
   };
@@ -75,10 +100,19 @@ function NextButton({ seq }) {
 
 const PAIR_COLORS = ['#4ff0c8', '#ff4fa0', '#ffe08a', '#4ade80', '#c77dff', '#ff9f43', '#8affdf'];
 
-export function MatchTest({ test, onComplete }) {
+export function MatchTest({ test, onComplete, draft, onDraft }) {
+  const resume = draft && typeof draft.pairs === 'object' && draft.pairs ? draft : null;
   const [sel, setSel] = useState(null);
-  const [pairs, setPairs] = useState({}); // leftId -> rightId
-  const [checked, setChecked] = useState(false);
+  const [pairs, setPairs] = useState(() => {
+    if (!resume) return {};
+    const ids = new Set(test.left.map((l) => l.id));
+    return Object.fromEntries(Object.entries(resume.pairs).filter(([l, r]) => ids.has(l) && ids.has(r)));
+  }); // leftId -> rightId
+  const [checked, setChecked] = useState(Boolean(resume?.checked));
+  useEffect(() => {
+    onDraft?.({ pairs, checked });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pairs, checked]);
   const order = Object.keys(pairs);
   const colorOf = (leftId) => PAIR_COLORS[order.indexOf(leftId) % PAIR_COLORS.length];
   const rightOwner = (rightId) => Object.keys(pairs).find((l) => pairs[l] === rightId);
@@ -93,6 +127,7 @@ export function MatchTest({ test, onComplete }) {
         const p = { ...pairs };
         delete p[owner];
         setPairs(p);
+        play('undo');
       }
       return;
     }
@@ -101,6 +136,7 @@ export function MatchTest({ test, onComplete }) {
     if (owner) delete p[owner];
     p[sel] = rid;
     setPairs(p);
+    play('pair');
     const nextLeft = test.left.find((l) => !p[l.id]);
     setSel(nextLeft ? nextLeft.id : null);
   };
@@ -118,7 +154,11 @@ export function MatchTest({ test, onComplete }) {
                 key={l.id}
                 className={`match-item ${sel === l.id ? 'is-sel' : ''} ${checked ? (ok ? 'is-ok' : 'is-bad') : ''}`}
                 style={paired && !checked ? { borderColor: colorOf(l.id), boxShadow: `inset 4px 0 0 ${colorOf(l.id)}` } : undefined}
-                onClick={() => !checked && setSel(l.id)}
+                onClick={() => {
+                  if (checked) return;
+                  setSel(l.id);
+                  play('select');
+                }}
                 aria-pressed={sel === l.id}
               >
                 {l.text}
@@ -152,7 +192,14 @@ export function MatchTest({ test, onComplete }) {
       <p className="muted small center">{sel ? 'Now tap the matching answer.' : done ? 'All paired. Check when ready.' : 'Tap a question to start pairing.'}</p>
       <div className="stage-actions">
         {!checked ? (
-          <button className="btn btn-primary" disabled={!done} onClick={() => setChecked(true)}>
+          <button
+            className="btn btn-primary"
+            disabled={!done}
+            onClick={() => {
+              setChecked(true);
+              play(correct >= Math.ceil(test.left.length / 2) ? 'correct' : 'wrong');
+            }}
+          >
             Check my pairs
           </button>
         ) : (
@@ -167,6 +214,7 @@ export function MatchTest({ test, onComplete }) {
                   correct,
                   total: test.left.length,
                   misses: test.facts.filter((f) => pairs[f.id] !== f.id),
+                  answers: test.facts.map((f) => ({ id: f.id, ok: pairs[f.id] === f.id, given: pairs[f.id] ?? null })),
                 })
               }
             >
@@ -183,8 +231,8 @@ export function MatchTest({ test, onComplete }) {
 /* 2 · Truth or Tall Tale                                               */
 /* ------------------------------------------------------------------ */
 
-export function TrueFalseTest({ test, onComplete }) {
-  const seq = useSequence(test.items, onComplete);
+export function TrueFalseTest({ test, onComplete, draft, onDraft }) {
+  const seq = useSequence(test.items, onComplete, draft, onDraft);
   const it = seq.current;
   const answer = (saysTrue) => seq.record(saysTrue === it.isTrue, saysTrue);
   return (
@@ -218,11 +266,10 @@ export function TrueFalseTest({ test, onComplete }) {
 /* 3 · Spot the Fake                                                    */
 /* ------------------------------------------------------------------ */
 
-export function SpotFakeTest({ test, onComplete }) {
-  const seq = useSequence(test.items, onComplete);
+export function SpotFakeTest({ test, onComplete, draft, onDraft }) {
+  const seq = useSequence(test.items, onComplete, draft, onDraft);
   const it = seq.current;
-  const [picked, setPicked] = useState(null);
-  useEffect(() => setPicked(null), [seq.idx]);
+  const picked = seq.answered ? seq.last.given : null;
   return (
     <div className="seq">
       <Progress idx={seq.idx} total={test.items.length} answers={seq.answers} />
@@ -235,10 +282,7 @@ export function SpotFakeTest({ test, onComplete }) {
               key={k}
               className={`option option-long ${state} ${k === picked ? 'is-picked' : ''}`}
               disabled={seq.answered}
-              onClick={() => {
-                setPicked(k);
-                seq.record(o.fake, k);
-              }}
+              onClick={() => seq.record(o.fake, k)}
             >
               <span className="opt-letter">{'ABC'[k]}</span>
               {o.text}
@@ -259,8 +303,8 @@ export function SpotFakeTest({ test, onComplete }) {
 /* 4 · Fill the Gap                                                     */
 /* ------------------------------------------------------------------ */
 
-export function FillTest({ test, onComplete }) {
-  const seq = useSequence(test.items, onComplete);
+export function FillTest({ test, onComplete, draft, onDraft }) {
+  const seq = useSequence(test.items, onComplete, draft, onDraft);
   const it = seq.current;
   const [val, setVal] = useState('');
   const [hint, setHint] = useState(false);
@@ -285,7 +329,9 @@ export function FillTest({ test, onComplete }) {
           onSubmit={(e) => {
             e.preventDefault();
             if (!val.trim()) return;
-            seq.record(isCloseEnough(val, it.fact.a), val);
+            // Fill the Gap autocorrects: typos and other ways of writing the answer count
+            // (Letter Tiles stays exact)
+            seq.record(matchAnswer(val, it.fact).ok, val);
           }}
         >
           <input
@@ -301,7 +347,15 @@ export function FillTest({ test, onComplete }) {
           <button className="btn btn-primary" type="submit">
             Check
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => setHint(true)} disabled={hint}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => {
+              setHint(true);
+              play('select');
+            }}
+            disabled={hint}
+          >
             Hint
           </button>
           {hint && <p className="hint">Starts like: <code>{it.hint}</code></p>}
@@ -310,7 +364,19 @@ export function FillTest({ test, onComplete }) {
         <Feedback
           ok={seq.last.ok}
           fact={it.fact}
-          extra={!seq.last.ok && <p>You wrote “{seq.last.given}”. The answer is <strong>{it.fact.a}</strong>.</p>}
+          extra={
+            !seq.last.ok ? (
+              <p>
+                You wrote “{seq.last.given}”. The answer is <strong>{it.fact.a}</strong>.
+              </p>
+            ) : (
+              matchAnswer(seq.last.given, it.fact).corrected && (
+                <p className="autocorrect">
+                  Autocorrected “{String(seq.last.given).trim()}” → <strong>{it.fact.a}</strong>
+                </p>
+              )
+            )
+          }
         />
       )}
       <div className="stage-actions">
@@ -324,8 +390,8 @@ export function FillTest({ test, onComplete }) {
 /* 5 · Letter Tiles                                                     */
 /* ------------------------------------------------------------------ */
 
-export function TilesTest({ test, onComplete }) {
-  const seq = useSequence(test.items, onComplete);
+export function TilesTest({ test, onComplete, draft, onDraft }) {
+  const seq = useSequence(test.items, onComplete, draft, onDraft);
   const it = seq.current;
   // Placed tile ids, tagged with the question they belong to so a stale list from the
   // previous question is never read against the new question's tiles.
@@ -366,16 +432,34 @@ export function TilesTest({ test, onComplete }) {
         <>
           <div className="tiles">
             {it.tiles.map((t) => (
-              <button key={t.id} className="tile" disabled={placed.includes(t.id)} onClick={() => setPlaced((p) => [...p, t.id])}>
+              <button key={t.id} className="tile" disabled={placed.includes(t.id)} onClick={() => {
+                  play('tile');
+                  setPlaced((p) => [...p, t.id]);
+                }}
+              >
                 {t.ch}
               </button>
             ))}
           </div>
           <div className="stage-actions">
-            <button className="btn btn-ghost" disabled={!placed.length} onClick={() => setPlaced((p) => p.slice(0, -1))}>
+            <button
+              className="btn btn-ghost"
+              disabled={!placed.length}
+              onClick={() => {
+                play('undo');
+                setPlaced((p) => p.slice(0, -1));
+              }}
+            >
               ⌫ Undo
             </button>
-            <button className="btn btn-ghost" disabled={!placed.length} onClick={() => setPlaced(() => [])}>
+            <button
+              className="btn btn-ghost"
+              disabled={!placed.length}
+              onClick={() => {
+                play('undo');
+                setPlaced(() => []);
+              }}
+            >
               Clear
             </button>
           </div>
@@ -394,11 +478,10 @@ export function TilesTest({ test, onComplete }) {
 /* 6 · Reverse Reef  &  7 · Surface Exam (multiple choice)             */
 /* ------------------------------------------------------------------ */
 
-function ChoiceTest({ test, onComplete, mode }) {
-  const seq = useSequence(test.items, onComplete);
+function ChoiceTest({ test, onComplete, mode, draft, onDraft }) {
+  const seq = useSequence(test.items, onComplete, draft, onDraft);
   const it = seq.current;
-  const [picked, setPicked] = useState(null);
-  useEffect(() => setPicked(null), [seq.idx]);
+  const picked = seq.answered ? seq.last.given : null;
 
   useEffect(() => {
     const onKey = (e) => {
@@ -414,7 +497,6 @@ function ChoiceTest({ test, onComplete, mode }) {
   const label = (opt) => (mode === 'reverse' ? opt.text : opt);
   const choose = (k) => {
     if (seq.answered) return;
-    setPicked(k);
     seq.record(isRight(it.options[k]), k);
   };
 

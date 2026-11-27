@@ -1,7 +1,7 @@
-// Firebase is optional until the keys are added (see .env.example).
+// Firebase handles sign-in only (game data lives in Turso via /api/rpc).
+// Optional until the keys are added (see .env.example).
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -16,5 +16,4 @@ export const firebaseReady = Boolean(config.apiKey && config.projectId);
 
 export const app = firebaseReady ? initializeApp(config) : null;
 export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
 export const googleProvider = app ? new GoogleAuthProvider() : null;

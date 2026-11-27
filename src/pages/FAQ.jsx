@@ -67,7 +67,7 @@ const QA = [
   },
   {
     q: 'What are the 7 Seas?',
-    a: 'The global leaderboards: today’s Daily Dive, one board per category, and Unlimited. Only your first attempt each day counts, and archive replays don’t post.',
+    a: 'The global leaderboards: today’s Daily Swim, one board per category, and Unlimited. Only your first attempt each day counts, and archive replays don’t post.',
   },
   {
     q: 'How do I unlock new profile shrimp?',
@@ -85,7 +85,7 @@ const QA = [
 
 export default function FAQ() {
   return (
-    <PageShell v={6} kicker="Questions from the shallows" title="FAQ" wide>
+    <PageShell v={6.6} kicker="Questions from the shallows" title="FAQ" wide>
       <div className="faq">
         {QA.map((item) => (
           <details key={item.q} className="panel faq-item">

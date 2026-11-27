@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import PixelSprite from '../components/PixelSprite.jsx';
+import { play } from '../audio/sfx.js';
 
 const SPRITE_FOR = {
   cucumber: { name: 'cucumber', variant: null, scale: 7 },
@@ -16,6 +18,10 @@ const SPRITE_FOR = {
 export default function TierReveal({ tier, big = true }) {
   const s = SPRITE_FOR[tier.id];
   const isTop = tier.id === 'shrimpion';
+  useEffect(() => {
+    const t = setTimeout(() => play(isTop ? 'shrimpion' : 'reveal'), 250);
+    return () => clearTimeout(t);
+  }, [isTop]);
   return (
     <div className="tier-water" style={{ '--tier': tier.color }}>
       <div className={`tier-reveal tier-${tier.id} ${isTop ? 'is-shrimpion' : ''}`}>

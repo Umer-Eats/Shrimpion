@@ -14,7 +14,7 @@ export default function Archive() {
   const days = [today, ...pastDays(today)];
 
   return (
-    <PageShell v={2} kicker="⟲ The logbook" title="Archive" intro="Every past ascent, ready to replay. Archive ascents still teach you facts, but they don’t extend your streak or count on the 7 Seas.">
+    <PageShell v={3} kicker="⟲ The logbook" title="Archive" intro="Every past ascent, ready to replay. Archive ascents still teach you facts, but they don’t extend your streak or count on the 7 Seas.">
       <div className="chip-row" role="radiogroup" aria-label="Category">
         {CATEGORIES.map((c) => (
           <button key={c.id} role="radio" aria-checked={cat === c.id} className={`chip ${cat === c.id ? 'is-on' : ''}`} onClick={() => actions.setCategory(c.id)}>

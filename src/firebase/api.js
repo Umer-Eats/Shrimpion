@@ -1,211 +1,196 @@
-// Firestore reads and writes for profiles, leaderboards (the 7 Seas) and friends.
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-  onSnapshot,
-  runTransaction,
-  serverTimestamp,
-  writeBatch,
-} from 'firebase/firestore';
-import { db } from './client.js';
+// Game data lives in Turso, behind the /api/rpc serverless function (server/rpc.js).
+// Firebase is only used to sign in; every private call carries the user's Firebase ID token.
+import { onIdTokenChanged } from 'firebase/auth';
+import { auth } from './client.js';
 import { mergeStatObjects } from '../data/progress.js';
 
 export const USERNAME_RE = /^[a-zA-Z0-9_]{3,16}$/;
 export const ONLINE_WINDOW_MS = 2.5 * 60 * 1000;
+const POLL_MS = 25000;
 
-const userRef = (uid) => doc(db, 'users', uid);
+// Last known token, so a closing tab can still save synchronously.
+let cachedToken = null;
+if (auth) onIdTokenChanged(auth, async (u) => (cachedToken = u ? await u.getIdToken() : null));
+
+async function rpc(action, args = {}, { signedIn = true } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (signedIn) {
+    const u = auth?.currentUser;
+    if (!u) throw new Error('Sign in first.');
+    headers.Authorization = `Bearer ${await u.getIdToken()}`;
+  }
+  const res = await fetch('/api/rpc', { method: 'POST', headers, body: JSON.stringify({ action, ...args }) });
+  let json = null;
+  try {
+    json = await res.json();
+  } catch {
+    /* not JSON */
+  }
+  if (!res.ok || !json?.ok) {
+    const err = new Error(json?.error || 'Couldn’t reach the deep sea right now.');
+    err.status = res.status;
+    throw err;
+  }
+  return json.data;
+}
+
+/** Call fn now and every POLL_MS (while the tab is visible). Returns an unsubscribe function. */
+function poll(fn, cb) {
+  let alive = true;
+  const run = () => {
+    if (!alive || document.visibilityState === 'hidden') return;
+    fn()
+      .then((v) => alive && cb(v))
+      .catch(() => {});
+  };
+  run();
+  const id = setInterval(run, POLL_MS);
+  const onVis = () => document.visibilityState === 'visible' && run();
+  document.addEventListener('visibilitychange', onVis);
+  const unsub = () => {
+    alive = false;
+    clearInterval(id);
+    document.removeEventListener('visibilitychange', onVis);
+  };
+  unsub.refresh = run;
+  return unsub;
+}
+
+/* ---------- profile ---------- */
 
 /** Create the user's profile on first sign-in, or merge local progress into it. */
 export async function ensureUserDoc(user, local) {
-  const ref = userRef(user.uid);
-  const snap = await getDoc(ref);
-  if (snap.exists()) {
-    const data = snap.data();
-    const stats = mergeStatObjects(data.stats, local.stats);
-    await updateDoc(ref, { stats, lastSeen: serverTimestamp() });
-    return { id: user.uid, ...data, stats };
-  }
-  const base = (local.profile.username || user.displayName || 'shrimp').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 10) || 'shrimp';
-  let username = null;
-  for (let i = 0; i < 8 && !username; i++) {
-    const candidate = i === 0 && USERNAME_RE.test(base) ? base : `${base.slice(0, 10)}${Math.floor(1000 + Math.random() * 9000)}`;
-    try {
-      await claimUsername(user.uid, candidate, null);
-      username = candidate;
-    } catch {
-      /* taken: try another */
-    }
-  }
-  const profile = {
-    username: username || `shrimp${user.uid.slice(0, 6)}`,
-    usernameLower: (username || `shrimp${user.uid.slice(0, 6)}`).toLowerCase(),
+  const p = await rpc('me.ensure', {
+    username: local.profile.username || user.displayName || '',
     pfp: local.profile.pfp || 'basic',
     stats: mergeStatObjects(local.stats, {}),
-    createdAt: serverTimestamp(),
-    lastSeen: serverTimestamp(),
-  };
-  await setDoc(ref, profile);
-  return { id: user.uid, ...profile };
+  });
+  const stats = mergeStatObjects(p.stats, local.stats);
+  if (JSON.stringify(stats) !== JSON.stringify(p.stats)) await rpc('me.save', { stats }).catch(() => {});
+  return { ...p, stats };
 }
 
 /** Reserve a unique username (case-insensitive). Throws if taken. */
-export async function claimUsername(uid, desired, previous) {
+export async function claimUsername(_uid, desired) {
   if (!USERNAME_RE.test(desired)) throw new Error('Use 3–16 letters, numbers or underscores.');
-  const lower = desired.toLowerCase();
-  await runTransaction(db, async (tx) => {
-    const nameRef = doc(db, 'usernames', lower);
-    const taken = await tx.get(nameRef);
-    if (taken.exists() && taken.data().uid !== uid) throw new Error('That username is taken.');
-    const uref = userRef(uid);
-    const usnap = await tx.get(uref);
-    tx.set(nameRef, { uid });
-    if (previous && previous.toLowerCase() !== lower) tx.delete(doc(db, 'usernames', previous.toLowerCase()));
-    if (usnap.exists()) tx.update(uref, { username: desired, usernameLower: lower });
-  });
+  await rpc('me.claimUsername', { username: desired });
+  userWatchers.forEach((w) => w.refresh?.());
 }
 
-export function watchUser(uid, cb) {
-  return onSnapshot(userRef(uid), (s) => s.exists() && cb({ id: s.id, ...s.data() }));
+const userWatchers = new Set();
+export function watchUser(_uid, cb) {
+  const unsub = poll(() => rpc('me.get'), (p) => p && cb(p));
+  userWatchers.add(unsub);
+  return () => {
+    userWatchers.delete(unsub);
+    unsub();
+  };
 }
 
-export function heartbeat(uid) {
-  return updateDoc(userRef(uid), { lastSeen: serverTimestamp() }).catch(() => {});
+export function heartbeat() {
+  return rpc('me.heartbeat').catch(() => {});
 }
 
-export function saveProfileFields(uid, fields) {
-  return updateDoc(userRef(uid), fields);
+export function saveProfileFields(_uid, fields) {
+  return rpc('me.save', fields);
 }
 
 export function isOnline(profile) {
-  const t = profile?.lastSeen?.toMillis?.();
+  const t = Number(profile?.lastSeen) || 0;
   return Boolean(t && Date.now() - t < ONLINE_WINDOW_MS);
+}
+
+/* ---------- in-progress ascents ---------- */
+
+export const fetchRuns = () => rpc('runs.list');
+export const putRun = (id, data, updatedAt) => rpc('runs.put', { id, data, updatedAt });
+export const deleteRun = (id) => rpc('runs.delete', { id }).catch(() => {});
+export const fetchHistory = () => rpc('history.list');
+export const putHistory = (records) => rpc('history.put', { records });
+
+/** Fire-and-forget save that survives the tab closing (keepalive fetch). */
+export function beaconRun(id, data, updatedAt) {
+  if (!cachedToken || !auth?.currentUser) return;
+  try {
+    fetch('/api/rpc', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cachedToken}` },
+      body: JSON.stringify({ action: 'runs.put', id, data, updatedAt }),
+    }).catch(() => {});
+  } catch {
+    /* ignore */
+  }
 }
 
 /* ---------- The 7 Seas (leaderboards) ---------- */
 
-const boardId = (date, cat) => `${date}_${cat}`;
-
-export async function submitDailyScore({ uid, username, pfp, date, cat, points, pct }) {
-  const ref = doc(db, 'daily', boardId(date, cat), 'scores', uid);
-  const existing = await getDoc(ref);
-  if (existing.exists()) return false; // first attempt only
-  await setDoc(ref, { uid, username, pfp, points, pct, at: serverTimestamp() });
-  return true;
+export function submitDailyScore({ date, cat, points, pct }) {
+  return rpc('daily.submit', { date, cat, points, pct });
 }
 
-export async function fetchDailyBoard(date, cat, n = 50) {
-  const q = query(collection(db, 'daily', boardId(date, cat), 'scores'), orderBy('points', 'desc'), limit(n));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data());
+export function fetchDailyBoard(date, cat) {
+  return rpc('daily.board', { date, cat }, { signedIn: false });
 }
 
-export async function submitUnlimited({ uid, username, pfp, points, ascents }) {
-  const ref = doc(db, 'unlimited', uid);
-  const existing = await getDoc(ref);
-  if (existing.exists() && (existing.data().points || 0) >= points) return false;
-  await setDoc(ref, { uid, username, pfp, points, ascents, at: serverTimestamp() });
-  return true;
+export function submitUnlimited({ points, ascents }) {
+  return rpc('unlimited.submit', { points, ascents });
 }
 
-export async function fetchUnlimitedBoard(n = 50) {
-  const q = query(collection(db, 'unlimited'), orderBy('points', 'desc'), limit(n));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data());
+export function fetchUnlimitedBoard() {
+  return rpc('unlimited.board', {}, { signedIn: false });
+}
+
+/** A 7 Seas board ranked by `type` (daily: today, accuracy, week, alltime, friends · unlimited: best, ascents, friends). */
+export function fetchSeasBoard({ board, type, date }) {
+  if (type === 'friends') return rpc('seas.friends', { board, date });
+  return rpc('seas.board', { board, type, date }, { signedIn: false });
 }
 
 /* ---------- Friends ---------- */
 
-export async function sendFriendRequest(me, username) {
-  const lower = username.trim().toLowerCase();
-  if (!lower) throw new Error('Type a username.');
-  const nameSnap = await getDoc(doc(db, 'usernames', lower));
-  if (!nameSnap.exists()) throw new Error('No shrimp by that name.');
-  const to = nameSnap.data().uid;
-  if (to === me.id) throw new Error('That’s you!');
-  const already = await getDoc(doc(db, 'users', me.id, 'friends', to));
-  if (already.exists()) throw new Error('You’re already friends.');
-  // if they already asked us, accept instead
-  const reverse = await getDoc(doc(db, 'friendRequests', `${to}_${me.id}`));
-  if (reverse.exists()) {
-    await acceptRequest(me.id, { id: reverse.id, ...reverse.data() });
-    return 'accepted';
-  }
-  await setDoc(doc(db, 'friendRequests', `${me.id}_${to}`), {
-    from: me.id,
-    to,
-    fromName: me.username,
-    fromPfp: me.pfp || 'basic',
-    createdAt: serverTimestamp(),
-  });
-  return 'sent';
+const friendWatchers = new Set();
+const refreshFriends = () => friendWatchers.forEach((w) => w.refresh?.());
+
+export async function sendFriendRequest(_me, username) {
+  if (!username.trim()) throw new Error('Type a username.');
+  const r = await rpc('friends.request', { username: username.trim() });
+  refreshFriends();
+  return r;
 }
 
-export function watchIncomingRequests(uid, cb) {
-  const q = query(collection(db, 'friendRequests'), where('to', '==', uid));
-  return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
-}
-
-export function watchOutgoingRequests(uid, cb) {
-  const q = query(collection(db, 'friendRequests'), where('from', '==', uid));
-  return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
-}
-
-export async function acceptRequest(myUid, req) {
-  const batch = writeBatch(db);
-  batch.set(doc(db, 'users', myUid, 'friends', req.from), { since: serverTimestamp() });
-  batch.set(doc(db, 'users', req.from, 'friends', myUid), { since: serverTimestamp() });
-  batch.delete(doc(db, 'friendRequests', req.id));
-  await batch.commit();
-}
-
-export function declineRequest(req) {
-  return deleteDoc(doc(db, 'friendRequests', req.id));
-}
-
-export async function removeFriend(myUid, friendUid) {
-  const batch = writeBatch(db);
-  batch.delete(doc(db, 'users', myUid, 'friends', friendUid));
-  batch.delete(doc(db, 'users', friendUid, 'friends', myUid));
-  await batch.commit();
-}
-
-/** Live list of friend profiles (with online status). */
-export function watchFriends(uid, cb) {
-  const profileUnsubs = new Map();
-  const profiles = new Map();
-  const emit = () => cb([...profiles.values()]);
-  const unsub = onSnapshot(collection(db, 'users', uid, 'friends'), (snap) => {
-    const ids = new Set(snap.docs.map((d) => d.id));
-    for (const [id, u] of profileUnsubs) {
-      if (!ids.has(id)) {
-        u();
-        profileUnsubs.delete(id);
-        profiles.delete(id);
-      }
-    }
-    for (const id of ids) {
-      if (profileUnsubs.has(id)) continue;
-      profileUnsubs.set(
-        id,
-        onSnapshot(userRef(id), (s) => {
-          if (s.exists()) profiles.set(id, { id, ...s.data() });
-          emit();
-        }),
-      );
-    }
-    emit();
-  });
+function watchRequests(key, cb) {
+  const unsub = poll(() => rpc('friends.requests'), (r) => cb(r[key] || []));
+  friendWatchers.add(unsub);
   return () => {
+    friendWatchers.delete(unsub);
     unsub();
-    profileUnsubs.forEach((u) => u());
+  };
+}
+export const watchIncomingRequests = (_uid, cb) => watchRequests('incoming', cb);
+export const watchOutgoingRequests = (_uid, cb) => watchRequests('outgoing', cb);
+
+export async function acceptRequest(_myUid, req) {
+  await rpc('friends.accept', { from: req.from });
+  refreshFriends();
+}
+
+export async function declineRequest(req) {
+  await rpc('friends.decline', { from: req.from, to: req.to });
+  refreshFriends();
+}
+
+export async function removeFriend(_myUid, friendUid) {
+  await rpc('friends.remove', { fid: friendUid });
+  refreshFriends();
+}
+
+/** Friend profiles (with online status), refreshed every ~25 s. */
+export function watchFriends(_uid, cb) {
+  const unsub = poll(() => rpc('friends.list'), cb);
+  friendWatchers.add(unsub);
+  return () => {
+    friendWatchers.delete(unsub);
+    unsub();
   };
 }

@@ -8,6 +8,7 @@ import CategoryPicker from '../components/CategoryPicker.jsx';
 import { MAX_DIVE_POINTS } from '../game/tiers.js';
 import PixelSprite from '../components/PixelSprite.jsx';
 import Icon from '../components/Icon.jsx';
+import SwimmingTitle from '../components/SwimmingTitle.jsx';
 
 export default function Home() {
   const cat = useProgress((s) => s.category);
@@ -29,25 +30,23 @@ export default function Home() {
   return (
     <main className="home">
       <div className="home-title">
-        <h1 className="logo" aria-label="Shrimpion">
-          <span className="logo-text" data-text="SHRIMPION">
-            SHRIMPION
-          </span>
-        </h1>
+        <SwimmingTitle />
         <p className="tagline">THE DAILY ASCENT</p>
         <p className="sub">7 ascents · learn, then prove it · no timers · swim for the surface</p>
       </div>
 
       <div className="home-actions">
         <Link to={`/dive?cat=${cat}`} className="btn btn-ascend btn-huge">
-          ▲ {done ? 'View today’s ascent' : inProgress ? 'Continue ascent' : 'Ascend'} ▲
+          <span className="btn-arrow" aria-hidden="true">▲</span>
+          <span className="btn-label">{done ? 'View today’s ascent' : inProgress ? 'Continue ascent' : 'Ascend'}</span>
+          <span className="btn-arrow" aria-hidden="true">▲</span>
         </Link>
         <button className="btn btn-cat" onClick={() => setPicking(true)} aria-haspopup="dialog">
           <span className="btn-cat-label">Category</span>
-          <span>
+          <span className="btn-cat-value">
             <Icon name={category.icon} /> {category.name}
           </span>
-          <span aria-hidden="true">▾</span>
+          <span className="btn-cat-caret" aria-hidden="true">▾</span>
         </button>
         <div className="home-meta">
           <span>ASCENT #{dayNumber(today)}</span>

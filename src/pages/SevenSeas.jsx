@@ -9,7 +9,7 @@ import { CATEGORIES, categoryName } from '../game/content/index.js';
 import { todayKey, dayNumber } from '../game/daily.js';
 import { useProgress } from '../data/progress.js';
 
-const BOARDS = [...CATEGORIES.map((c) => ({ id: c.id, icon: c.icon, label: c.id === 'random' ? 'Daily Dive' : c.name })), { id: 'unlimited', label: '∞ Unlimited' }];
+const BOARDS = [...CATEGORIES.map((c) => ({ id: c.id, icon: c.icon, label: c.id === 'random' ? 'Daily Swim' : c.name })), { id: 'unlimited', label: '∞ Unlimited' }];
 
 export default function SevenSeas() {
   const auth = useAuth();
@@ -28,7 +28,7 @@ export default function SevenSeas() {
     const p = board === 'unlimited' ? fetchUnlimitedBoard() : fetchDailyBoard(today, board);
     p.then(setRows).catch((e) => {
       setRows([]);
-      setError(e.code === 'permission-denied' ? 'The leaderboard rules haven’t been deployed yet.' : 'Couldn’t reach the 7 Seas right now.');
+      setError(e.message || 'Couldn’t reach the 7 Seas right now.');
     });
   }, [board, today, auth.configured]);
 
@@ -36,7 +36,7 @@ export default function SevenSeas() {
 
   return (
     <PageShell
-      v={3}
+      v={4}
       kicker="Global rankings"
       title="The 7 Seas"
       intro={

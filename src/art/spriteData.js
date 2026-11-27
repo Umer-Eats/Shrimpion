@@ -421,6 +421,32 @@ export const SPRITES = {
     ],
     pal: { r: '#ff4fa0', w: '#ffd6ea' },
   },
+  'icon-sound': {
+    rows: [
+      '...m.....',
+      '..mm..w..',
+      'mmmm...w.',
+      'mmmm.w.w.',
+      'mmmm.w.w.',
+      'mmmm...w.',
+      '..mm..w..',
+      '...m.....',
+    ],
+    pal: { m: '#4ff0c8', w: '#c9fff0' },
+  },
+  'icon-mute': {
+    rows: [
+      '...m.....',
+      '..mm.....',
+      'mmmm.x.x.',
+      'mmmm..x..',
+      'mmmm.x.x.',
+      'mmmm.....',
+      '..mm.....',
+      '...m.....',
+    ],
+    pal: { m: '#c9a3c4', x: '#ff4fa0' },
+  },
 };
 
 /** Shrimp profile pictures: palette swaps of the hero shrimp. */

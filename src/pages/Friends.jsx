@@ -48,7 +48,7 @@ export default function Friends() {
 
   if (!auth.user || !me) {
     return (
-      <PageShell v={5} kicker="Better with company" title="Friends">
+      <PageShell v={6} kicker="Better with company" title="Friends">
         <section className="panel">
           <p>Sign in to add friends, see who’s online, compare stats, and get ready for Urchin Party together.</p>
           <button className="btn btn-save" onClick={auth.openAuth}>
@@ -64,7 +64,7 @@ export default function Friends() {
   const today = todayKey();
 
   return (
-    <PageShell v={5} kicker="Better with company" title="Friends" wide>
+    <PageShell v={6} kicker="Better with company" title="Friends" wide>
       <section className="panel">
         <h3>Add a friend</h3>
         <form
@@ -185,7 +185,9 @@ export default function Friends() {
           <ul className="friend-list">
             {outgoing.map((r) => (
               <li key={r.id} className="friend-row">
-                <span className="friend-name muted">request sent</span>
+                <Pfp id={r.toPfp} size="sm" />
+                <span className="friend-name">{r.toName || 'a shrimp'}</span>
+                <span className="muted small">request sent</span>
                 <button className="btn btn-ghost btn-small" onClick={() => declineRequest(r)}>
                   Cancel
                 </button>

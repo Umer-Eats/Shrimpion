@@ -11,6 +11,7 @@ import { auth, firebaseReady, googleProvider } from './client.js';
 import { ensureUserDoc, watchUser, heartbeat, claimUsername, saveProfileFields } from './api.js';
 import { actions, getProgress, subscribeProgress } from '../data/progress.js';
 import { todayKey } from '../game/daily.js';
+import { startRunSync } from '../data/runSync.js';
 
 const AuthCtx = createContext(null);
 
@@ -51,6 +52,9 @@ export function AuthProvider({ children }) {
       setReady(true);
     });
   }, []);
+
+  // keep in-progress ascents on the account so a closed tab resumes mid-ascent
+  useEffect(() => (user ? startRunSync() : undefined), [user]);
 
   // live profile + presence heartbeat
   useEffect(() => {

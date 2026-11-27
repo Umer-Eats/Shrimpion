@@ -1,4 +1,5 @@
-// Local progress (works signed-out). When signed in, stats are mirrored to Firestore.
+// Local progress (works signed-out, saved in localStorage). When signed in, stats and
+// in-progress ascents are mirrored to your account in Turso (see data/runSync.js).
 import { useSyncExternalStore } from 'react';
 import { todayKey, addDays } from '../game/daily.js';
 
@@ -86,7 +87,30 @@ export const actions = {
     commit({ ...state, profile: { ...state.profile, username } });
   },
   saveRun(id, run) {
-    commit({ ...state, runs: { ...state.runs, [id]: run } });
+    commit({ ...state, runs: { ...state.runs, [id]: { ...run, updatedAt: Date.now() } } });
+  },
+  /** Adopt runs saved to your account when they're newer than this browser's copy. */
+  mergeRuns(remote) {
+    let changed = false;
+    const runs = { ...state.runs };
+    for (const { id, data, updatedAt } of remote) {
+      if (!data || typeof data !== 'object' || state.history[id]) continue; // already finished here
+      if ((runs[id]?.updatedAt || 0) >= updatedAt) continue;
+      runs[id] = { ...data, updatedAt, fromServer: true };
+      changed = true;
+    }
+    if (changed) commit({ ...state, runs });
+  },
+  /** Add finished ascents saved to your account that this browser doesn't have yet. */
+  mergeHistory(remote) {
+    const history = { ...state.history };
+    let changed = false;
+    for (const rec of remote || []) {
+      if (!rec?.id || history[rec.id]) continue;
+      history[rec.id] = rec;
+      changed = true;
+    }
+    if (changed) commit({ ...state, history });
   },
   clearRun(id) {
     const runs = { ...state.runs };

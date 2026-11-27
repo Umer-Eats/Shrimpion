@@ -7,6 +7,7 @@ import AuthModal from './components/AuthModal.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { useProgress } from './data/progress.js';
 import { useAuth } from './firebase/AuthContext.jsx';
+import { play } from './audio/sfx.js';
 import Home from './pages/Home.jsx';
 import Dive from './pages/Dive.jsx';
 import Unlimited from './pages/Unlimited.jsx';
@@ -33,11 +34,22 @@ export default function App() {
   const { pathname } = useLocation();
   const auth = useAuth();
   const pfp = useProgress((s) => s.profile.pfp);
-  const inGame = pathname === '/dive' || pathname === '/unlimited';
+  const inGame = pathname === '/dive';
 
   useEffect(() => {
     scene.shrimpVariant = auth.profile?.pfp || pfp || 'basic';
   }, [pfp, auth.profile?.pfp]);
+
+  // soft click for menus and buttons outside the ascent (the ascent has its own sounds)
+  useEffect(() => {
+    const onClick = (e) => {
+      const el = e.target.closest?.('a[href], button');
+      if (!el || el.disabled || el.closest('.stage') || el.classList.contains('sound-btn')) return;
+      play('tap');
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
 
   useEffect(() => {
     document.title = TITLES[pathname] || 'Shrimpion';

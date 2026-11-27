@@ -4,9 +4,25 @@ import { useAuth } from '../firebase/AuthContext.jsx';
 import { useProgress } from '../data/progress.js';
 import Pfp from './Pfp.jsx';
 import Icon from './Icon.jsx';
+import { useMuted, setMuted } from '../audio/sfx.js';
+
+function SoundToggle() {
+  const muted = useMuted();
+  return (
+    <button
+      className="icon-btn sound-btn"
+      aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+      aria-pressed={!muted}
+      title={muted ? 'Sound off' : 'Sound on'}
+      onClick={() => setMuted(!muted)}
+    >
+      <Icon name={muted ? 'icon-mute' : 'icon-sound'} />
+    </button>
+  );
+}
 
 export const NAV = [
-  { to: '/', label: 'Daily Dive', icon: '▲' },
+  { to: '/', label: 'Daily Swim', icon: '▲' },
   { to: '/unlimited', label: 'Unlimited', icon: '∞' },
   { to: '/urchin-party', label: 'Urchin Party', icon: '✺' },
   { to: '/archive', label: 'Archive', icon: '⟲' },
@@ -46,6 +62,7 @@ export default function TopBar({ compact = false }) {
           </nav>
         )}
         <div className="topbar-right">
+          <SoundToggle />
           {user ? (
             <Link to="/me" className="me-chip">
               <Pfp id={profile?.pfp || local.pfp} size="xs" />

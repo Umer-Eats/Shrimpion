@@ -44,7 +44,7 @@ export default function MyShrimpion() {
   };
 
   return (
-    <PageShell v={4} kicker="Your diver’s logbook" title="My Shrimpion" wide>
+    <PageShell v={5} kicker="Your diver’s logbook" title="My Shrimpion" wide>
       <section className="panel profile-card">
         <Pfp id={pfp} size="xl" />
         <div className="profile-main">
@@ -131,21 +131,23 @@ export default function MyShrimpion() {
 
       <section className="panel">
         <h3>Change profile shrimp</h3>
-        <p className="muted small">Learn more every day to unlock new shrimp. You start with the Basic Shrimp.</p>
+        <p className="muted small">Click any shrimp to equip it. Learn more every day to unlock the rest for good.</p>
         <div className="pfp-grid">
           {PFPS.map((p) => {
             const prog = pfpProgress(p, stats);
+            const on = pfp === p.id;
             return (
               <button
                 key={p.id}
-                className={`pfp-option ${pfp === p.id ? 'is-on' : ''}`}
-                disabled={!prog.unlocked}
-                onClick={() => auth.changePfp(p.id)}
-                aria-pressed={pfp === p.id}
+                type="button"
+                className={`pfp-option ${on ? 'is-on' : ''}`}
+                onClick={() => !on && auth.changePfp(p.id)}
+                aria-pressed={on}
+                title={on ? `${p.name} (equipped)` : `Equip ${p.name}`}
               >
-                <Pfp id={p.id} size="md" locked={!prog.unlocked} />
+                <Pfp id={p.id} size="md" locked={!prog.unlocked && !on} />
                 <span className="pfp-name">{p.name}</span>
-                <span className="pfp-req">{prog.unlocked ? (pfp === p.id ? 'Equipped' : 'Unlocked') : p.label}</span>
+                <span className="pfp-req">{on ? 'Equipped' : prog.unlocked ? 'Unlocked' : p.label}</span>
                 {!prog.unlocked && (
                   <span className="meter" aria-label={`${prog.cur} of ${prog.goal}`}>
                     <span style={{ width: `${(prog.cur / prog.goal) * 100}%` }} />

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LEVELS } from '../game/content/index.js';
+import { play } from '../audio/sfx.js';
 
 function Highlight({ fact }) {
   const i = fact.f.indexOf(fact.a);
@@ -14,16 +15,27 @@ function Highlight({ fact }) {
 }
 
 /** Seven fact cards, no timer. Flip through them, then take the test. */
-export default function LearnPhase({ facts, ascentIdx, testName, onReady }) {
-  const [i, setI] = useState(0);
-  const [seen, setSeen] = useState(() => new Set([0]));
+export default function LearnPhase({ facts, ascentIdx, testName, onReady, draft, onDraft }) {
+  const start = Number.isInteger(draft?.i) && draft.i >= 0 && draft.i < facts.length ? draft.i : 0;
+  const [i, setI] = useState(start);
+  const [seen, setSeen] = useState(
+    () => new Set([start, ...(Array.isArray(draft?.seen) ? draft.seen.filter((k) => Number.isInteger(k) && k >= 0 && k < facts.length) : [])]),
+  );
   const [list, setList] = useState(false);
   const f = facts[i];
   const allSeen = seen.size >= facts.length;
+  const first = useRef(true);
 
   useEffect(() => {
-    setSeen((s) => new Set(s).add(i));
+    setSeen((s) => (s.has(i) ? s : new Set(s).add(i)));
+    if (first.current) first.current = false;
+    else play('flip');
   }, [i]);
+
+  useEffect(() => {
+    onDraft?.({ i, seen: [...seen] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i, seen]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -105,11 +117,23 @@ export default function LearnPhase({ facts, ascentIdx, testName, onReady }) {
             ) : null}
           </>
         )}
-        <button className="btn btn-ghost" onClick={() => setList((l) => !l)}>
+        <button
+          className="btn btn-ghost"
+          onClick={() => {
+            play('flip');
+            setList((l) => !l);
+          }}
+        >
           {list ? 'Card view' : 'See all 7'}
         </button>
         {(allSeen || list) && (
-          <button className="btn btn-ascend" onClick={onReady}>
+          <button
+            className="btn btn-ascend"
+            onClick={() => {
+              play('select');
+              onReady();
+            }}
+          >
             I’m ready, test me ▲
           </button>
         )}

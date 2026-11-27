@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DiveHUD from './DiveHUD.jsx';
 import LearnPhase from './LearnPhase.jsx';
@@ -17,6 +17,7 @@ import { scene } from '../scene/sceneStore.js';
 import { depthAtV, zoneFor, MAX_V } from '../scene/depth.js';
 import { useAuth } from '../firebase/AuthContext.jsx';
 import { submitDailyScore, submitUnlimited } from '../firebase/api.js';
+import { play } from '../audio/sfx.js';
 
 const ASCENT_MS = 3800;
 const DESCENT_MS = 2600;
@@ -24,7 +25,7 @@ const DESCENT_MS = 2600;
 function newRun(mode, { date, cat, id }) {
   if (mode === 'daily') {
     const plan = dailyPlan(date, cat);
-    return { ...plan, block: 0, ascent: 0, phase: 'learn', results: [] };
+    return { ...plan, block: 0, ascent: 0, phase: 'learn', results: [], started: Date.now() };
   }
   const seed = `unl|${randomId()}`;
   return {
@@ -63,10 +64,18 @@ export default function DiveRunner({ mode, date, cat }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // persist the run so a refresh resumes where you were
+  // persist the run (including mid-phase progress) so a refresh or closed tab resumes where you were
   useEffect(() => {
     if (run && !['surface', 'over'].includes(run.phase)) actions.saveRun(id, run);
   }, [run, id]);
+
+  // a newer copy of this run arrived from your account (e.g. started on another device)
+  useEffect(() => {
+    if (savedRun?.fromServer && !travel) {
+      const { fromServer, ...rest } = savedRun;
+      setRun(rest);
+    }
+  }, [savedRun, travel]);
 
   // park the camera at the current stop
   useEffect(() => {
@@ -92,7 +101,20 @@ export default function DiveRunner({ mode, date, cat }) {
       tiers: run.results.map((r) => r.tier),
       perAscent: run.results.map((r) => r.points),
       learned: LEARN_ASCENTS * TOPICS_PER_DIVE,
+      started: run.started || null,
       at: Date.now(),
+      // enough to rebuild every question for the Archive (tests are seeded, so they rebuild identically)
+      seed: run.seed,
+      topics: run.blocks[0]?.topics || [],
+      results: run.results.map(({ ascent, type, correct, total, points, tier, answers }) => ({
+        ascent,
+        type,
+        correct,
+        total,
+        points,
+        tier,
+        answers: answers || null,
+      })),
     });
     actions.clearRun(id);
   }, [run, id]);
@@ -122,6 +144,11 @@ export default function DiveRunner({ mode, date, cat }) {
   }, [run]);
   const totalPoints = run ? run.results.reduce((s, r) => s + r.points, 0) : 0;
 
+  // in-phase progress (which card, which answers) lives on run.draft, keyed to the current stop
+  const draftKey = run ? `${run.block}-${run.ascent}-${run.phase}` : '';
+  const draft = run?.draft?.key === draftKey ? run.draft.data : null;
+  const onDraft = useCallback((data) => setRun((r) => (r ? { ...r, draft: { key: draftKey, data } } : r)), [draftKey]);
+
   /* ---------- finished daily ---------- */
   if (!run || (run.mode === 'daily' && run.phase === 'surface')) {
     if (!record) return null;
@@ -136,7 +163,7 @@ export default function DiveRunner({ mode, date, cat }) {
   const type = testTypeForAscent(run.ascent);
   const learning = run.ascent < LEARN_ASCENTS;
   const facts = learning ? learnFacts(block, run.ascent) : null;
-  const update = (patch) => setRun((r) => ({ ...r, ...patch }));
+  const update = (patch) => setRun((r) => ({ ...r, ...patch, draft: null }));
 
   const label =
     run.mode === 'daily'
@@ -146,7 +173,9 @@ export default function DiveRunner({ mode, date, cat }) {
   const ascend = async () => {
     const toV = run.ascent + 1;
     setTravel({ dir: 'up', toV });
+    play('ascend');
     await scene.travelTo(toV, ASCENT_MS);
+    if (toV >= 7) play('splash');
     setTravel(null);
     if (run.ascent + 1 < 7) update({ ascent: run.ascent + 1, phase: 'learn' });
     else update({ phase: 'surface' });
@@ -154,6 +183,7 @@ export default function DiveRunner({ mode, date, cat }) {
 
   const diveAgain = async () => {
     setTravel({ dir: 'down', toV: 0 });
+    play('descend');
     await scene.travelTo(0, DESCENT_MS);
     setTravel(null);
     const nextBlock = run.block + 1;
@@ -194,7 +224,17 @@ export default function DiveRunner({ mode, date, cat }) {
       </div>
     );
   } else if (run.phase === 'learn' && learning) {
-    body = <LearnPhase key={`${run.block}-${run.ascent}`} facts={facts} ascentIdx={run.ascent} testName={type.name} onReady={() => update({ phase: 'test' })} />;
+    body = (
+      <LearnPhase
+        key={`${run.block}-${run.ascent}-${run.updatedAt || 0}`}
+        facts={facts}
+        ascentIdx={run.ascent}
+        testName={type.name}
+        draft={draft}
+        onDraft={onDraft}
+        onReady={() => update({ phase: 'test' })}
+      />
+    );
   } else if (run.phase === 'learn' && !learning) {
     const n = finalFacts(run.blocks, run.block, run.seed).length;
     body = (
@@ -232,9 +272,11 @@ export default function DiveRunner({ mode, date, cat }) {
           <p className="muted">{type.how}</p>
         </header>
         <Comp
-          key={`${run.block}-${run.ascent}`}
+          key={`${run.block}-${run.ascent}-${run.updatedAt || 0}`}
           test={test}
-          onComplete={({ correct, total, misses }) => {
+          draft={draft}
+          onDraft={onDraft}
+          onComplete={({ correct, total, misses, answers }) => {
             const points = pointsFor(correct, total, run.ascent);
             const result = {
               block: run.block,
@@ -246,6 +288,7 @@ export default function DiveRunner({ mode, date, cat }) {
               maxPoints: ascentMax(run.ascent),
               tier: tierForPoints(points).id,
               missIds: misses.map((f) => f.id),
+              answers,
             };
             actions.recordAscent({ correct, total, learned: learning ? TOPICS_PER_DIVE : 0 });
             update({ results: [...run.results, result], phase: 'result' });
