@@ -24,7 +24,7 @@ function renderHeadTag({ tag, attrs = {}, text }) {
   return `${open}${content}</${tag}>`;
 }
 
-function renderSitemapEntry(url, lastModified) {
+function renderSitemapEntry(url, lastModified, images = []) {
   if (lastModified) {
     const date = new Date(lastModified);
     if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== lastModified) {
@@ -32,7 +32,10 @@ function renderSitemapEntry(url, lastModified) {
     }
   }
   const lastmod = lastModified ? `\n    <lastmod>${lastModified}</lastmod>` : '';
-  return `  <url>\n    <loc>${escapeHtml(url)}</loc>${lastmod}\n  </url>`;
+  const imageTags = images
+    .map((src) => `\n    <image:image>\n      <image:loc>${escapeHtml(src)}</image:loc>\n    </image:image>`)
+    .join('');
+  return `  <url>\n    <loc>${escapeHtml(url)}</loc>${lastmod}${imageTags}\n  </url>`;
 }
 
 function renderIntro(path, page) {
@@ -69,7 +72,8 @@ for (const [path, page] of [...Object.entries(PAGES), ['/404', NOT_FOUND]]) {
     if (canonical !== new URL(path, SITE_URL).href) {
       throw new Error(`Missing or incorrect canonical URL for ${path}.`);
     }
-    sitemapEntries.push(renderSitemapEntry(canonical, page.lastModified));
+    const images = path === '/' ? [`${SITE_URL}/shrimpion-share.png`, `${SITE_URL}/logo-512.png`] : [];
+    sitemapEntries.push(renderSitemapEntry(canonical, page.lastModified, images));
   }
   const html = template
     .replace(headPlaceholder, () => head.map(renderHeadTag).join('\n    '))
@@ -79,8 +83,9 @@ for (const [path, page] of [...Object.entries(PAGES), ['/404', NOT_FOUND]]) {
 }
 
 writeFileSync(new URL('sitemap.xml', dist), `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${sitemapEntries.join('\n')}
 </urlset>
 `);
-writeFileSync(new URL('robots.txt', dist), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+writeFileSync(new URL('robots.txt', dist), `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);

@@ -17,18 +17,18 @@ export const KRILLION_GUIDE = {
 // Set lastModified when a page's main content changes. Deploys alone do not change it.
 export const PAGES = {
   '/': {
-    title: 'Shrimpion | Free Daily Trivia Game & Study App',
+    title: 'Shrimpion: Free Daily Trivia Game & Study App | Shrimpion.io',
     heading: 'Shrimpion',
-    description: 'Play Shrimpion, a free daily trivia game and study app. Learn 42 facts in six rounds, then test your recall in the 14-question Surface Exam.',
+    description: 'Shrimpion is a free daily trivia game and study app. Learn 42 facts in six rounds, then test your recall in the 14-question Surface Exam. No download needed.',
     index: true,
-    lastModified: '2026-11-26',
+    lastModified: '2026-11-27',
   },
   '/faq': {
-    title: 'How to Play Shrimpion | Trivia & Krillion Study Guide',
+    title: 'How to Play Shrimpion & Krillion Study Guide | Shrimpion',
     heading: 'How to Play Shrimpion',
-    description: 'Learn how Shrimpion’s daily trivia game works, from fact cards to the Surface Exam, and how to use it to study for Krillion.',
+    description: 'How the Shrimpion trivia game works, from fact cards to the Surface Exam, plus a Krillion study guide: how to use Shrimpion to study for Krillion.',
     index: true,
-    lastModified: '2026-11-26',
+    lastModified: '2026-11-27',
   },
   '/unlimited': {
     title: 'Unlimited Trivia Practice | Shrimpion',
@@ -113,18 +113,97 @@ export function getPageHead(pathname) {
     ...Object.entries(social).map(([property, content]) => ({ tag: 'meta', attrs: { property, content } })),
     ...Object.entries(twitter).map(([name, content]) => ({ tag: 'meta', attrs: { name, content } })),
   ];
-  if (path === '/') {
+  const graph = structuredData(path, page, url);
+  if (graph.length) {
     tags.push({
       tag: 'script',
       attrs: { type: 'application/ld+json' },
-      text: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Shrimpion',
-        alternateName: 'Shrimpion.io',
-        url,
-      }),
+      text: JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }),
     });
   }
   return tags;
+}
+
+// Other names people search for. Google reads alternateName when choosing the site name
+// shown in results, so "shrimpion io", "shrimpion app" and "shrimpion game" all resolve to us.
+const ALTERNATE_NAMES = ['Shrimpion.io', 'Shrimpion App', 'Shrimpion Game', 'Shrimpion Study', 'Shrimpion Trivia'];
+
+function structuredData(path, page, url) {
+  const site = { '@id': SITE_URL + '/#website' };
+  const org = { '@id': SITE_URL + '/#organization' };
+  const breadcrumb = path === '/' ? [] : [{
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Shrimpion', item: SITE_URL + '/' },
+      { '@type': 'ListItem', position: 2, name: page.heading, item: url },
+    ],
+  }];
+  const webPage = {
+    '@type': path === '/faq' ? ['WebPage', 'FAQPage'] : 'WebPage',
+    '@id': url + '#webpage',
+    url,
+    name: page.title,
+    description: page.description,
+    isPartOf: site,
+    about: { '@id': SITE_URL + '/#app' },
+    inLanguage: 'en',
+    ...(page.lastModified && { dateModified: page.lastModified }),
+    ...(path === '/faq' && {
+      mainEntity: [{
+        '@type': 'Question',
+        name: KRILLION_GUIDE.heading,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: [KRILLION_GUIDE.description, ...KRILLION_GUIDE.steps].join(' '),
+        },
+      }],
+    }),
+  };
+  if (path !== '/') return [webPage, ...breadcrumb];
+
+  return [
+    {
+      '@type': 'WebSite',
+      ...site,
+      url: SITE_URL + '/',
+      name: 'Shrimpion',
+      alternateName: ALTERNATE_NAMES,
+      description: page.description,
+      publisher: org,
+      inLanguage: 'en',
+    },
+    {
+      '@type': 'Organization',
+      ...org,
+      name: 'Shrimpion',
+      alternateName: 'Shrimpion.io',
+      url: SITE_URL + '/',
+      logo: {
+        '@type': 'ImageObject',
+        url: SITE_URL + '/logo-512.png',
+        width: 512,
+        height: 512,
+      },
+    },
+    {
+      '@type': ['WebApplication', 'VideoGame'],
+      '@id': SITE_URL + '/#app',
+      name: 'Shrimpion',
+      alternateName: ALTERNATE_NAMES,
+      url: SITE_URL + '/',
+      description: page.description,
+      image: SITE_URL + '/shrimpion-share.png',
+      applicationCategory: 'GameApplication',
+      applicationSubCategory: 'Trivia',
+      genre: ['Trivia', 'Educational', 'Quiz'],
+      gamePlatform: 'Web browser',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      publisher: org,
+      inLanguage: 'en',
+    },
+    webPage,
+  ];
 }
