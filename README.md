@@ -32,7 +32,9 @@ Without Firebase keys the game runs in **local mode**: progress lives in the bro
    - `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` (**server-only**: never prefix them with `VITE_`).
 3. Redeploy. Vite inlines `VITE_*` variables at build time, so rebuild after changing them.
 
-The canonical domain is set in `src/seo.js`. Connect `shrimpion.io` to the Vercel project and make it the primary domain. After deployment, submit `https://shrimpion.io/sitemap.xml` in Google Search Console and use URL Inspection to request indexing for the homepage and FAQ.
+The canonical hostname is `www.shrimpion.io`, set in `src/seo.js` to match the Vercel domain redirect. After deployment, submit `https://www.shrimpion.io/sitemap.xml` in Google Search Console and use URL Inspection to request indexing for the homepage and FAQ.
+
+The sitemap uses the canonical URL emitted for each indexable page. Update a page's optional `lastModified` date in `src/seo.js` when its main content changes. Leave the date unset for pages whose content changes outside the build and has no reliable modification date available at build time.
 
 ## Firebase setup (sign-in only)
 

@@ -30,15 +30,22 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [ready, setReady] = useState(!firebaseReady);
   const [authOpen, setAuthOpen] = useState(false);
+  const [pendingPfp, setPendingPfp] = useState(null);
+  const profileSession = useRef(null);
   const lastSynced = useRef('');
 
   useEffect(() => {
     if (!auth) return undefined;
-    return onAuthStateChanged(auth, async (u) => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      const session = u ? { user: u, setup: ensureUserDoc(u, getProgress()), pfpWrites: Promise.resolve() } : null;
+      profileSession.current = session;
       setUser(u);
-      if (u) {
+      setProfile(null);
+      setPendingPfp(null);
+      if (session) {
         try {
-          const p = await ensureUserDoc(u, getProgress());
+          const p = await session.setup;
+          if (profileSession.current !== session) return;
           actions.mergeStats(p.stats);
           if (p.pfp) actions.setPfp(p.pfp);
           if (p.username) actions.setUsername(p.username);
@@ -46,11 +53,13 @@ export function AuthProvider({ children }) {
         } catch (e) {
           console.error('Profile setup failed', e);
         }
-      } else {
-        setProfile(null);
       }
-      setReady(true);
+      if (profileSession.current === session) setReady(true);
     });
+    return () => {
+      profileSession.current = null;
+      unsubscribe();
+    };
   }, []);
 
   // keep in-progress ascents on the account so a closed tab resumes mid-ascent
@@ -59,7 +68,9 @@ export function AuthProvider({ children }) {
   // live profile + presence heartbeat
   useEffect(() => {
     if (!user) return undefined;
-    const unsub = watchUser(user.uid, setProfile);
+    const unsub = watchUser(user.uid, (p) => {
+      if (profileSession.current?.user === user) setProfile(p);
+    });
     heartbeat(user.uid);
     const id = setInterval(() => heartbeat(user.uid), 60000);
     const onVis = () => document.visibilityState === 'visible' && heartbeat(user.uid);
@@ -103,6 +114,7 @@ export function AuthProvider({ children }) {
       ready,
       user,
       profile,
+      pfp: pendingPfp?.user === user ? pendingPfp.id : profile?.pfp,
       authOpen,
       openAuth: () => setAuthOpen(true),
       closeAuth: () => setAuthOpen(false),
@@ -128,11 +140,36 @@ export function AuthProvider({ children }) {
         actions.setUsername(name);
       },
       async changePfp(id) {
-        actions.setPfp(id);
-        if (user) await saveProfileFields(user.uid, { pfp: id });
+        if (!user) {
+          actions.setPfp(id);
+          return;
+        }
+        const session = profileSession.current;
+        if (session?.user !== user) return;
+        const selection = { user, id };
+        session.selection = selection;
+        setPendingPfp(selection);
+
+        // Serialize writes so rapid clicks leave the last choice saved on the account.
+        const save = session.pfpWrites.then(async () => {
+          await session.setup;
+          if (profileSession.current !== session || auth.currentUser !== user || session.selection !== selection) return;
+          await saveProfileFields(user.uid, { pfp: id });
+          if (profileSession.current !== session || auth.currentUser !== user) return;
+          setProfile((current) => current && { ...current, pfp: id });
+          actions.setPfp(id);
+        });
+        session.pfpWrites = save.catch(() => {});
+        try {
+          await save;
+        } catch (error) {
+          if (profileSession.current === session && session.selection === selection) throw error;
+        } finally {
+          if (profileSession.current === session && session.selection === selection) setPendingPfp(null);
+        }
       },
     }),
-    [ready, user, profile, authOpen],
+    [ready, user, profile, pendingPfp, authOpen],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

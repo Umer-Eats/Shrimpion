@@ -338,7 +338,8 @@ const PRIVATE = {
     if (!sets.length) return true;
     sets.push('last_seen = ?');
     args.push(now(), me.uid);
-    await db().execute({ sql: `UPDATE users SET ${sets.join(', ')} WHERE uid = ?`, args });
+    const result = await db().execute({ sql: `UPDATE users SET ${sets.join(', ')} WHERE uid = ?`, args });
+    if (pfp !== undefined && !result.rowsAffected) throw new HttpError(409, 'Profile not set up yet.');
     return true;
   },
 

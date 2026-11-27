@@ -1,23 +1,34 @@
-export const SITE_URL = 'https://shrimpion.io';
+export const SITE_URL = 'https://www.shrimpion.io';
 
 export const KRILLION_GUIDE = {
   heading: 'Can Shrimpion help me study for Krillion?',
   description: 'Shrimpion is a free daily trivia game inspired by Krillion’s daily dives. If you’re studying for Krillion, use Shrimpion to build general trivia knowledge with fact cards, recall quizzes, and a daily review exam.',
-  tip: 'Start with a category you want to improve. After each quiz, review the facts you missed, then replay a past ascent or try Unlimited mode for more practice.',
+  steps: [
+    'Pick a category you want to improve. Try Geography for places and landmarks, or use Daily Random for a mix of topics.',
+    'After each fact card, look away and say the answer from memory. Use the quiz review to revisit the facts you missed.',
+    'Return the next day and recall a few facts from your last session before starting a new ascent. Play a past ascent to quiz yourself on those facts again.',
+  ],
+  links: [
+    { path: '/archive', label: 'Replay past trivia games' },
+    { path: '/unlimited', label: 'Practice in Unlimited' },
+  ],
 };
 
+// Set lastModified when a page's main content changes. Deploys alone do not change it.
 export const PAGES = {
   '/': {
     title: 'Shrimpion | Free Daily Trivia Game & Study App',
     heading: 'Shrimpion',
-    description: 'Shrimpion is a free daily trivia game and study app. Learn 42 facts, quiz yourself at your own pace, and swim through seven ascents to reach the surface.',
+    description: 'Play Shrimpion, a free daily trivia game and study app. Learn 42 facts in six rounds, then test your recall in the 14-question Surface Exam.',
     index: true,
+    lastModified: '2026-11-26',
   },
   '/faq': {
     title: 'How to Play Shrimpion | Trivia & Krillion Study Guide',
     heading: 'How to Play Shrimpion',
     description: 'Learn how Shrimpion’s daily trivia game works, from fact cards to the Surface Exam, and how to use it to study for Krillion.',
     index: true,
+    lastModified: '2026-11-26',
   },
   '/unlimited': {
     title: 'Unlimited Trivia Practice | Shrimpion',

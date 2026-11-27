@@ -3,7 +3,6 @@ import { getPageHead, KRILLION_GUIDE, NOT_FOUND, PAGES, SITE_URL } from '../src/
 
 const dist = new URL('../dist/', import.meta.url);
 const template = readFileSync(new URL('index.html', dist), 'utf8');
-const publicPages = Object.entries(PAGES).filter(([, page]) => page.index);
 const headPlaceholder = '<title data-route-seo>Shrimpion</title>';
 const rootPlaceholder = '<div id="root"></div>';
 
@@ -25,6 +24,17 @@ function renderHeadTag({ tag, attrs = {}, text }) {
   return `${open}${content}</${tag}>`;
 }
 
+function renderSitemapEntry(url, lastModified) {
+  if (lastModified) {
+    const date = new Date(lastModified);
+    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== lastModified) {
+      throw new Error(`Invalid sitemap lastModified for ${url}: ${lastModified}. Expected YYYY-MM-DD.`);
+    }
+  }
+  const lastmod = lastModified ? `\n    <lastmod>${lastModified}</lastmod>` : '';
+  return `  <url>\n    <loc>${escapeHtml(url)}</loc>${lastmod}\n  </url>`;
+}
+
 function renderIntro(path, page) {
   const links = path === '/'
     ? [
@@ -38,8 +48,10 @@ function renderIntro(path, page) {
   const guide = path === '/faq'
     ? `<section class="panel"><h2>${escapeHtml(KRILLION_GUIDE.heading)}</h2>
   <p>${escapeHtml(KRILLION_GUIDE.description)}</p>
-  <p>${escapeHtml(KRILLION_GUIDE.tip)}</p>
-  <a href="/archive">Browse past ascents</a></section>`
+  <ol>${KRILLION_GUIDE.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
+  <div class="stage-actions">${KRILLION_GUIDE.links.map(({ path, label }) =>
+    `<a class="btn" href="${escapeHtml(path)}">${escapeHtml(label)}</a>`).join('')}</div>
+</section>`
     : '';
   return `<main class="page"><div class="page-inner">
   <h1 class="page-title">${escapeHtml(page.heading)}</h1>
@@ -49,18 +61,26 @@ function renderIntro(path, page) {
 </div></main>`;
 }
 
+const sitemapEntries = [];
 for (const [path, page] of [...Object.entries(PAGES), ['/404', NOT_FOUND]]) {
+  const head = getPageHead(path);
+  const canonical = head.find(({ tag, attrs }) => tag === 'link' && attrs?.rel === 'canonical')?.attrs.href;
+  if (page.index) {
+    if (canonical !== new URL(path, SITE_URL).href) {
+      throw new Error(`Missing or incorrect canonical URL for ${path}.`);
+    }
+    sitemapEntries.push(renderSitemapEntry(canonical, page.lastModified));
+  }
   const html = template
-    .replace(headPlaceholder, () => getPageHead(path).map(renderHeadTag).join('\n    '))
+    .replace(headPlaceholder, () => head.map(renderHeadTag).join('\n    '))
     .replace(rootPlaceholder, () => `<div id="root">${renderIntro(path, page)}</div>`);
   const filename = path === '/' ? 'index.html' : `${path.slice(1)}.html`;
   writeFileSync(new URL(filename, dist), html);
 }
 
-const urls = publicPages.map(([path]) => `  <url><loc>${SITE_URL}${path}</loc></url>`).join('\n');
 writeFileSync(new URL('sitemap.xml', dist), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
+${sitemapEntries.join('\n')}
 </urlset>
 `);
 writeFileSync(new URL('robots.txt', dist), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);

@@ -6,7 +6,7 @@ import { mergeStatObjects } from '../data/progress.js';
 
 export const USERNAME_RE = /^[a-zA-Z0-9_]{3,16}$/;
 export const ONLINE_WINDOW_MS = 2.5 * 60 * 1000;
-const POLL_MS = 25000;
+const PROFILE_POLL_MS = 5000;
 
 // Last known token, so a closing tab can still save synchronously.
 let cachedToken = null;
@@ -34,25 +34,33 @@ async function rpc(action, args = {}, { signedIn = true } = {}) {
   return json.data;
 }
 
-/** Call fn now and every POLL_MS (while the tab is visible). Returns an unsubscribe function. */
-function poll(fn, cb) {
+/** Refresh visible profile views and ignore reads superseded by a newer refresh. */
+function poll(fn, cb, onError = () => {}) {
   let alive = true;
-  const run = () => {
-    if (!alive || document.visibilityState === 'hidden') return;
+  let revision = 0;
+  let loading = false;
+  const run = (force = false) => {
+    if (!alive || (loading && !force)) return;
+    const current = ++revision;
+    loading = document.visibilityState !== 'hidden';
+    if (!loading) return;
     fn()
-      .then((v) => alive && cb(v))
-      .catch(() => {});
+      .then((v) => alive && current === revision && cb(v))
+      .catch((error) => alive && current === revision && onError(error))
+      .finally(() => {
+        if (current === revision) loading = false;
+      });
   };
   run();
-  const id = setInterval(run, POLL_MS);
-  const onVis = () => document.visibilityState === 'visible' && run();
+  const id = setInterval(run, PROFILE_POLL_MS);
+  const onVis = () => document.visibilityState === 'visible' && run(true);
   document.addEventListener('visibilitychange', onVis);
   const unsub = () => {
     alive = false;
     clearInterval(id);
     document.removeEventListener('visibilitychange', onVis);
   };
-  unsub.refresh = run;
+  unsub.refresh = () => run(true);
   return unsub;
 }
 
@@ -91,8 +99,12 @@ export function heartbeat() {
   return rpc('me.heartbeat').catch(() => {});
 }
 
-export function saveProfileFields(_uid, fields) {
-  return rpc('me.save', fields);
+export async function saveProfileFields(uid, fields) {
+  const result = await rpc('me.save', fields);
+  if (fields.pfp !== undefined && auth?.currentUser?.uid === uid) {
+    userWatchers.forEach((w) => w.refresh());
+  }
+  return result;
 }
 
 export function isOnline(profile) {
@@ -142,9 +154,13 @@ export function fetchUnlimitedBoard() {
 }
 
 /** A 7 Seas board ranked by `type` (daily: today, accuracy, week, alltime, friends · unlimited: best, ascents, friends). */
-export function fetchSeasBoard({ board, type, date }) {
+function fetchSeasBoard({ board, type, date }) {
   if (type === 'friends') return rpc('seas.friends', { board, date });
   return rpc('seas.board', { board, type, date }, { signedIn: false });
+}
+
+export function watchSeasBoard(params, cb, onError) {
+  return poll(() => fetchSeasBoard(params), cb, onError);
 }
 
 /* ---------- Friends ---------- */
@@ -185,7 +201,7 @@ export async function removeFriend(_myUid, friendUid) {
   refreshFriends();
 }
 
-/** Friend profiles (with online status), refreshed every ~25 s. */
+/** Friend profiles with online status. */
 export function watchFriends(_uid, cb) {
   const unsub = poll(() => rpc('friends.list'), cb);
   friendWatchers.add(unsub);

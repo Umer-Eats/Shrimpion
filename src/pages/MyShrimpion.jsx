@@ -16,13 +16,23 @@ export default function MyShrimpion() {
   const local = useProgress((s) => s.profile);
   const stats = useProgress((s) => s.stats);
   const history = useProgress((s) => s.history);
-  const pfp = auth.profile?.pfp || local.pfp;
+  const pfp = auth.pfp || local.pfp;
   const username = auth.profile?.username || local.username;
   const [name, setName] = useState(username || '');
   const [nameMsg, setNameMsg] = useState('');
+  const [pfpError, setPfpError] = useState('');
   const [busy, setBusy] = useState(false);
   const accuracy = stats.answered ? Math.round((stats.correct / stats.answered) * 100) : 0;
   const logbook = Object.values(history).sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, 12);
+
+  const equipPfp = async (id) => {
+    setPfpError('');
+    try {
+      await auth.changePfp(id);
+    } catch {
+      setPfpError('Could not save your profile picture. Try equipping it again.');
+    }
+  };
 
   const saveName = async (e) => {
     e.preventDefault();
@@ -132,6 +142,7 @@ export default function MyShrimpion() {
       <section className="panel">
         <h3>Change profile shrimp</h3>
         <p className="muted small">Click any shrimp to equip it. Learn more every day to unlock the rest for good.</p>
+        {pfpError && <p className="form-error" role="alert">{pfpError}</p>}
         <div className="pfp-grid">
           {PFPS.map((p) => {
             const prog = pfpProgress(p, stats);
@@ -141,7 +152,7 @@ export default function MyShrimpion() {
                 key={p.id}
                 type="button"
                 className={`pfp-option ${on ? 'is-on' : ''}`}
-                onClick={() => !on && auth.changePfp(p.id)}
+                onClick={() => !on && equipPfp(p.id)}
                 aria-pressed={on}
                 title={on ? `${p.name} (equipped)` : `Equip ${p.name}`}
               >

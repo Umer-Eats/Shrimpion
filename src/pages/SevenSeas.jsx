@@ -5,7 +5,7 @@ import Pfp from '../components/Pfp.jsx';
 import Icon from '../components/Icon.jsx';
 import SeasGlobe, { SEA_BY_BOARD } from '../components/SeasGlobe.jsx';
 import { useAuth } from '../firebase/AuthContext.jsx';
-import { fetchSeasBoard } from '../firebase/api.js';
+import { watchSeasBoard } from '../firebase/api.js';
 import { CATEGORIES, categoryName } from '../game/content/index.js';
 import { todayKey, dayNumber, addDays } from '../game/daily.js';
 import { useProgress } from '../data/progress.js';
@@ -57,6 +57,7 @@ export default function SevenSeas() {
   const stats = useProgress((s) => s.stats);
   const today = todayKey();
   const needsSignIn = type.auth && !auth.user;
+  const friendBoardUid = type.auth ? auth.user?.uid : null;
 
   const pick = (nextBoard, nextRank) => {
     const p = { board: nextBoard };
@@ -67,20 +68,23 @@ export default function SevenSeas() {
 
   useEffect(() => {
     if (!auth.configured || needsSignIn) return undefined;
-    let alive = true;
+    let loaded = false;
     setRows(null);
     setError('');
-    fetchSeasBoard({ board, type: type.id, date: today })
-      .then((r) => alive && setRows(r))
-      .catch((e) => {
-        if (!alive) return;
+    return watchSeasBoard(
+      { board, type: type.id, date: today },
+      (r) => {
+        loaded = true;
+        setRows(r);
+        setError('');
+      },
+      (e) => {
+        if (loaded) return;
         setRows([]);
         setError(e.message || 'Couldn’t reach the 7 Seas right now.');
-      });
-    return () => {
-      alive = false;
-    };
-  }, [board, type.id, today, auth.configured, needsSignIn]);
+      },
+    );
+  }, [board, type.id, today, auth.configured, needsSignIn, friendBoardUid]);
 
   const mine = localScore(history, stats, board, type.id, today);
   const sea = SEA_BY_BOARD[board];
@@ -147,7 +151,7 @@ export default function SevenSeas() {
             {rows.map((r, i) => (
               <li key={r.uid} className={`rank-row ${r.uid === auth.user?.uid ? 'is-me' : ''} ${i < 3 ? `top-${i + 1}` : ''}`}>
                 <span className="rank-num">{i + 1}</span>
-                <Pfp id={r.pfp} size="sm" />
+                <Pfp id={r.uid === auth.user?.uid ? auth.pfp || r.pfp : r.pfp} size="sm" />
                 <span className="rank-name">{r.username}</span>
                 <span className="rank-pct">{type.meta(r)}</span>
                 <span className="rank-pts">{type.main(r)}</span>

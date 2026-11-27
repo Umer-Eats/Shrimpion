@@ -96,8 +96,14 @@ export default function FAQ() {
       <section className="panel creator">
         <h2>{KRILLION_GUIDE.heading}</h2>
         <p>{KRILLION_GUIDE.description}</p>
-        <p>{KRILLION_GUIDE.tip}</p>
-        <Link to="/archive" className="btn btn-primary">Browse past ascents</Link>
+        <ol>
+          {KRILLION_GUIDE.steps.map((step) => <li key={step}>{step}</li>)}
+        </ol>
+        <div className="stage-actions">
+          {KRILLION_GUIDE.links.map(({ path, label }) => (
+            <Link key={path} to={path} className="btn">{label}</Link>
+          ))}
+        </div>
       </section>
 
       <section className="panel creator">

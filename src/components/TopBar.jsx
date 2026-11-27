@@ -34,7 +34,7 @@ export const NAV = [
 
 export default function TopBar({ compact = false }) {
   const [open, setOpen] = useState(false);
-  const { user, profile, openAuth } = useAuth();
+  const { user, profile, pfp, openAuth } = useAuth();
   const local = useProgress((s) => s.profile);
   const loc = useLocation();
 
@@ -65,7 +65,7 @@ export default function TopBar({ compact = false }) {
           <SoundToggle />
           {user ? (
             <Link to="/me" className="me-chip">
-              <Pfp id={profile?.pfp || local.pfp} size="xs" />
+              <Pfp id={pfp || local.pfp} size="xs" />
               <span>{profile?.username || local.username || 'my shrimpion'}</span>
             </Link>
           ) : (
