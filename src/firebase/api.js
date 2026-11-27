@@ -5,7 +5,8 @@ import { auth } from './client.js';
 import { mergeStatObjects } from '../data/progress.js';
 
 export const USERNAME_RE = /^[a-zA-Z0-9_]{3,16}$/;
-export const ONLINE_WINDOW_MS = 2.5 * 60 * 1000;
+// a tab heartbeats every 30s (background tabs may be throttled to ~1/min), so 90s is safe
+export const ONLINE_WINDOW_MS = 90 * 1000;
 const PROFILE_POLL_MS = 5000;
 
 // Last known token, so a closing tab can still save synchronously.
@@ -97,6 +98,21 @@ export function watchUser(_uid, cb) {
 
 export function heartbeat() {
   return rpc('me.heartbeat').catch(() => {});
+}
+
+/** Fire-and-forget "I closed the tab" so friends see you offline at once. */
+export function beaconOffline() {
+  if (!cachedToken || !auth?.currentUser) return;
+  try {
+    fetch('/api/rpc', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cachedToken}` },
+      body: JSON.stringify({ action: 'me.offline' }),
+    }).catch(() => {});
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function saveProfileFields(uid, fields) {

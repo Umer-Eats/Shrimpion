@@ -208,7 +208,7 @@ export default function Friends() {
                   return (
                     <li key={f.id} className="friend-card">
                       <div className="friend-head">
-                        <Pfp id={f.pfp} size="md" online={online} />
+                        <Pfp id={f.pfp} size="md" />
                         <div>
                           <strong>{f.username}</strong>
                           <span className={`status ${online ? 'is-on' : ''}`}>{online ? '● online now' : '○ offline'}</span>

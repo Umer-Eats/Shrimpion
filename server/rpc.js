@@ -321,6 +321,12 @@ const PRIVATE = {
     return true;
   },
 
+  // sent as the tab closes, so friends see you go offline right away
+  async 'me.offline'(me) {
+    await db().execute({ sql: 'UPDATE users SET last_seen = 0 WHERE uid = ?', args: [me.uid] });
+    return true;
+  },
+
   async 'me.save'(me, { stats, pfp, today }) {
     const sets = [];
     const args = [];

@@ -8,7 +8,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth, firebaseReady, googleProvider } from './client.js';
-import { ensureUserDoc, watchUser, heartbeat, claimUsername, saveProfileFields } from './api.js';
+import { ensureUserDoc, watchUser, heartbeat, beaconOffline, claimUsername, saveProfileFields } from './api.js';
 import { actions, getProgress, subscribeProgress } from '../data/progress.js';
 import { todayKey } from '../game/daily.js';
 import { startRunSync } from '../data/runSync.js';
@@ -72,14 +72,21 @@ export function AuthProvider({ children }) {
     const unsub = watchUser(user.uid, (p) => {
       if (profileSession.current?.user === user) setProfile(p);
     });
+    // online = this tab is open (even in the background); closing it marks you offline
     heartbeat(user.uid);
-    const id = setInterval(() => heartbeat(user.uid), 60000);
+    const id = setInterval(() => heartbeat(user.uid), 30000);
     const onVis = () => document.visibilityState === 'visible' && heartbeat(user.uid);
+    const onShow = () => heartbeat(user.uid); // back from bfcache
+    const onHide = (e) => !e.persisted && beaconOffline();
     document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', onShow);
+    window.addEventListener('pagehide', onHide);
     return () => {
       unsub();
       clearInterval(id);
       document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', onShow);
+      window.removeEventListener('pagehide', onHide);
     };
   }, [user]);
 
