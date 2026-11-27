@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TierReveal from './TierReveal.jsx';
-import { TIER_BY_ID, tierForDive, MAX_DIVE_POINTS } from '../game/tiers.js';
+import { FINAL_ASCENT_INDEX, MAX_DIVE_POINTS, TIER_BY_ID, ascentMax, tierForAscent, tierForDive } from '../game/tiers.js';
 import { categoryName } from '../game/content/index.js';
 import { dayNumber, todayKey } from '../game/daily.js';
 import Icon, { TierIcon } from '../components/Icon.jsx';
@@ -10,7 +10,12 @@ import Icon, { TierIcon } from '../components/Icon.jsx';
 export default function Summary({ record, submitted, signedIn, onSignIn }) {
   const [copied, setCopied] = useState(false);
   const pct = record.total ? Math.round((record.correct / record.total) * 100) : 0;
-  const overall = tierForDive(record.points);
+  const finalResult = record.results?.find((result) => result.ascent === FINAL_ASCENT_INDEX);
+  // Older daily records only store round points. With 14 questions, full points require a perfect score.
+  const surfaceTier = finalResult
+    ? tierForAscent(finalResult).id
+    : record.perAscent?.[FINAL_ASCENT_INDEX] === ascentMax(FINAL_ASCENT_INDEX) ? 'shrimpion' : undefined;
+  const overall = tierForDive(record.points, surfaceTier);
   const isToday = record.date === todayKey();
 
   const shareText = [

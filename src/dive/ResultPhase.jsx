@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import TierReveal from './TierReveal.jsx';
-import { TIER_BY_ID, TIERS, ascentMax, topTierFor } from '../game/tiers.js';
+import { TIER_BY_ID, TIERS, ascentMax } from '../game/tiers.js';
 import { scene } from '../scene/sceneStore.js';
 import Icon, { TierIcon } from '../components/Icon.jsx';
 
@@ -8,7 +8,6 @@ export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testN
   const tier = TIER_BY_ID[result.tier];
   const pct = Math.round((result.correct / Math.max(1, result.total)) * 100);
   const max = result.maxPoints ?? ascentMax(ascentIdx);
-  const top = topTierFor(ascentIdx);
 
   useEffect(() => {
     scene.celebrate(tier.id === 'shrimpion' ? 'shrimpion' : 'bubbles');
@@ -41,25 +40,28 @@ export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testN
         </div>
       </div>
 
-      <div className="tier-ladder" aria-label="Tiers by points">
+      <div className="tier-ladder" aria-label="Tier requirements">
         {TIERS.map((t) => {
-          const locked = t.min > max;
+          const isShrimpion = t.id === 'shrimpion';
+          const locked = isShrimpion ? !isLast : t.min > max;
+          const label = isShrimpion
+            ? 'One in a Shrimpion requires a perfect Surface Exam'
+            : locked ? `Requires ${t.min} points on a later ascent` : t.name;
           return (
             <span
               key={t.id}
               className={`ladder-step ${t.id === tier.id ? 'is-on' : ''} ${locked ? 'is-locked' : ''}`}
               style={{ '--tier': t.color }}
-              title={locked ? `Needs ${t.min} pts: unlocks on a higher ascent` : t.name}
+              title={label}
             >
-              {locked ? <Icon name="icon-lock" /> : <TierIcon tier={t} />} {t.min}+
+              {locked ? <Icon name="icon-lock" /> : <TierIcon tier={t} />} {isShrimpion ? '100%' : `${t.min}+`}
             </span>
           );
         })}
       </div>
-      {top.id !== 'shrimpion' && (
+      {tier.id !== 'shrimpion' && (
         <p className="muted small center">
-          This ascent is worth up to {max} pts. One in a Shrimpion needs {TIER_BY_ID.shrimpion.min}, so keep climbing: the
-          higher ascents are worth more.
+          Answer every question correctly on the Surface Exam to earn One in a Shrimpion.
         </p>
       )}
 

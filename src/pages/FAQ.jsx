@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import PageShell from './PageShell.jsx';
 import { TIERS, ASCENT_MAX, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { TEST_TYPES } from '../game/tests.js';
-import Icon, { TierIcon } from '../components/Icon.jsx';
+import { TierIcon } from '../components/Icon.jsx';
 import { KRILLION_GUIDE, PAGES } from '../seo.js';
 
 const QA = [
@@ -41,16 +41,15 @@ const QA = [
       <>
         The higher you climb, the more each ascent is worth: Ascent 1 is worth up to {ASCENT_MAX[0]} points and the Surface Exam up
         to {ASCENT_MAX[ASCENT_MAX.length - 1]}. You earn that ascent’s max times your accuracy, and a perfect day is{' '}
-        {MAX_DIVE_POINTS}. The points you earn on an ascent decide which sea creature you become:
+        {MAX_DIVE_POINTS}. Each tier has its own requirement.
         <ul>
           {TIERS.map((t) => (
             <li key={t.id}>
-              <TierIcon tier={t} /> <strong style={{ color: t.color }}>{t.name}</strong>: {t.min}+ points
+              <TierIcon tier={t} /> <strong style={{ color: t.color }}>{t.name}</strong>
+              {' · '}{t.id === 'shrimpion' ? '100% on the Surface Exam (Ascent 7)' : `${t.min}+ points`}
             </li>
           ))}
         </ul>
-        So a perfect first ascent makes you a Dolphin. One in a Shrimpion only opens up from Ascent 5, where you need a perfect
-        score, and on the Surface Exam you need 80% or better.
       </>
     ),
   },
@@ -72,7 +71,7 @@ const QA = [
   },
   {
     q: 'How do I unlock new profile shrimp?',
-    a: 'Keep learning! There are ten shrimp to collect, earned through streaks, facts learned, ascents finished and perfect “One in a Shrimpion” ascents. See them all on My Shrimpion.',
+    a: 'Keep learning! There are ten shrimp to collect, earned through streaks, facts learned, ascents finished and perfect Surface Exams. See them all on My Shrimpion.',
   },
   {
     q: 'What is Urchin Party?',

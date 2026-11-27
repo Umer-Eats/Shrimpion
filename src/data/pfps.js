@@ -9,7 +9,7 @@ export const PFPS = [
   { id: 'peppermint', name: 'Peppermint Shrimp', label: 'Reach a 7-day streak', goal: (s) => [s.bestStreak, 7] },
   { id: 'glow', name: 'Glow Shrimp', label: 'Learn 500 facts', goal: (s) => [s.factsLearned, 500] },
   { id: 'mantis', name: 'Mantis Shrimp', label: 'Reach a 14-day streak', goal: (s) => [s.bestStreak, 14] },
-  { id: 'golden', name: 'Golden Shrimp', label: 'Earn 10 “One in a Shrimpion” ascents', goal: (s) => [s.shrimpions, 10] },
+  { id: 'golden', name: 'Golden Shrimp', label: 'Earn “One in a Shrimpion” 10 times', goal: (s) => [s.shrimpions, 10] },
   { id: 'crowned', name: 'Crowned Shrimpion', label: 'Reach a 30-day streak', goal: (s) => [s.bestStreak, 30] },
 ];
 

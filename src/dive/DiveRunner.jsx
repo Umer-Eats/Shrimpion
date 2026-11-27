@@ -8,7 +8,7 @@ import TierReveal from './TierReveal.jsx';
 import { TEST_COMPONENTS } from './Tests.jsx';
 import { dailyPlan, unlimitedBlock, learnFacts, finalFacts, LEARN_ASCENTS, TOPICS_PER_DIVE } from '../game/plan.js';
 import { buildTest, testTypeForAscent } from '../game/tests.js';
-import { tierForPoints, tierForDive, pointsFor, ascentMax } from '../game/tiers.js';
+import { FINAL_ASCENT_INDEX, tierForAscent, tierForDive, pointsFor, ascentMax } from '../game/tiers.js';
 import { FACT_BY_ID, categoryName, LEVELS } from '../game/content/index.js';
 import { dayNumber, todayKey } from '../game/daily.js';
 import { randomId } from '../game/rng.js';
@@ -53,6 +53,11 @@ export default function DiveRunner({ mode, date, cat }) {
   const [travel, setTravel] = useState(null); // { dir, toV }
   const [submitted, setSubmitted] = useState(false);
   const finalizing = useRef(false);
+  const savedResults = run?.results;
+  const results = useMemo(
+    () => savedResults?.map((result) => ({ ...result, tier: tierForAscent(result).id })) ?? [],
+    [savedResults],
+  );
 
   // reset when the route changes to a different ascent
   useEffect(() => {
@@ -88,25 +93,25 @@ export default function DiveRunner({ mode, date, cat }) {
   useEffect(() => {
     if (!run || run.mode !== 'daily' || run.phase !== 'surface' || finalizing.current) return;
     finalizing.current = true;
-    const correct = run.results.reduce((s, r) => s + r.correct, 0);
-    const total = run.results.reduce((s, r) => s + r.total, 0);
+    const correct = results.reduce((s, r) => s + r.correct, 0);
+    const total = results.reduce((s, r) => s + r.total, 0);
     actions.recordDive({
       id,
       mode: 'daily',
       date: run.date,
       cat: run.cat,
-      points: run.results.reduce((s, r) => s + r.points, 0),
+      points: results.reduce((s, r) => s + r.points, 0),
       correct,
       total,
-      tiers: run.results.map((r) => r.tier),
-      perAscent: run.results.map((r) => r.points),
+      tiers: results.map((r) => r.tier),
+      perAscent: results.map((r) => r.points),
       learned: LEARN_ASCENTS * TOPICS_PER_DIVE,
       started: run.started || null,
       at: Date.now(),
       // enough to rebuild every question for the Archive (tests are seeded, so they rebuild identically)
       seed: run.seed,
       topics: run.blocks[0]?.topics || [],
-      results: run.results.map(({ ascent, type, correct, total, points, tier, answers }) => ({
+      results: results.map(({ ascent, type, correct, total, points, tier, answers }) => ({
         ascent,
         type,
         correct,
@@ -117,7 +122,7 @@ export default function DiveRunner({ mode, date, cat }) {
       })),
     });
     actions.clearRun(id);
-  }, [run, id]);
+  }, [run, id, results]);
 
   // put today's score on the 7 Seas (first attempt only), even if you sign in afterwards
   const record = history[id];
@@ -139,9 +144,9 @@ export default function DiveRunner({ mode, date, cat }) {
 
   const blockResults = useMemo(() => {
     const arr = [];
-    if (run) run.results.filter((r) => r.block === run.block).forEach((r) => (arr[r.ascent] = r));
+    if (run) results.filter((r) => r.block === run.block).forEach((r) => (arr[r.ascent] = r));
     return arr;
-  }, [run]);
+  }, [run, results]);
   const totalPoints = run ? run.results.reduce((s, r) => s + r.points, 0) : 0;
 
   // in-phase progress (which card, which answers) lives on run.draft, keyed to the current stop
@@ -286,12 +291,12 @@ export default function DiveRunner({ mode, date, cat }) {
               total,
               points,
               maxPoints: ascentMax(run.ascent),
-              tier: tierForPoints(points).id,
               missIds: misses.map((f) => f.id),
               answers,
             };
-            actions.recordAscent({ correct, total, learned: learning ? TOPICS_PER_DIVE : 0 });
-            update({ results: [...run.results, result], phase: 'result' });
+            result.tier = tierForAscent(result).id;
+            actions.recordAscent(result, learning ? TOPICS_PER_DIVE : 0);
+            update({ results: [...results, result], phase: 'result' });
           }}
         />
       </section>
@@ -304,7 +309,7 @@ export default function DiveRunner({ mode, date, cat }) {
           key={`${run.block}-${run.ascent}`}
           result={{ ...r, misses: r.missIds.map((m) => FACT_BY_ID[m]).filter(Boolean) }}
           ascentIdx={run.ascent}
-          isLast={run.ascent === 6}
+          isLast={run.ascent === FINAL_ASCENT_INDEX}
           testName={type.name}
           onAscend={ascend}
         />
@@ -312,11 +317,9 @@ export default function DiveRunner({ mode, date, cat }) {
     }
   } else if (run.phase === 'surface' && run.mode === 'unlimited') {
     const blockPts = blockResults.reduce((s, r) => s + (r?.points || 0), 0);
-    const correct = blockResults.reduce((s, r) => s + (r?.correct || 0), 0);
-    const total = blockResults.reduce((s, r) => s + (r?.total || 0), 0);
     body = (
       <>
-      <TierReveal tier={tierForDive(blockPts)} />
+      <TierReveal tier={tierForDive(blockPts, blockResults[FINAL_ASCENT_INDEX]?.tier)} />
       <section className="panel stage-panel summary">
         <p className="kicker">Unlimited · Block {run.block + 1} complete</p>
         <h2 className="surfaced">SURFACED!</h2>

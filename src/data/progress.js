@@ -2,6 +2,7 @@
 // in-progress and finished ascents are mirrored to your account in Turso (see data/runSync.js).
 import { useSyncExternalStore } from 'react';
 import { todayKey, addDays } from '../game/daily.js';
+import { tierForAscent } from '../game/tiers.js';
 
 const KEY = 'shrimpion:v1';
 
@@ -15,7 +16,7 @@ export const DEFAULT_STATS = {
   correct: 0,
   answered: 0,
   bestDaily: 0,
-  shrimpions: 0, // ascents finished at 100%
+  shrimpions: 0, // perfect Surface Exams earned under the current rule, plus prior awards
   unlimitedBest: 0,
   unlimitedRuns: 0,
 };
@@ -147,7 +148,8 @@ export const actions = {
     commit({ ...state, runs });
   },
   /** Called after every finished test. */
-  recordAscent({ correct, total, learned }) {
+  recordAscent(result, learned) {
+    const { correct, total } = result;
     const s = state.stats;
     commit({
       ...state,
@@ -157,7 +159,7 @@ export const actions = {
         correct: s.correct + correct,
         answered: s.answered + total,
         factsLearned: s.factsLearned + (learned || 0),
-        shrimpions: s.shrimpions + (total > 0 && correct === total ? 1 : 0),
+        shrimpions: s.shrimpions + (tierForAscent(result).id === 'shrimpion' ? 1 : 0),
       },
     });
   },

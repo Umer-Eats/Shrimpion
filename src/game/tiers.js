@@ -1,10 +1,10 @@
 // Points & tiers.
-// Each ascent is worth more than the one below it, and tiers are earned by POINTS, not raw accuracy.
-// So a perfect first ascent can't reach the top tier, but a high-accuracy late ascent can.
+// Each ascent is worth more than the one below it. The highest tier requires a perfect Surface Exam.
 
 /** Max points for ascent 1..7 (index 0..6). Ascent 7 is the surface exam. */
 export const ASCENT_MAX = [100, 125, 150, 175, 200, 225, 250];
 export const ASCENTS_PER_DIVE = ASCENT_MAX.length;
+export const FINAL_ASCENT_INDEX = ASCENTS_PER_DIVE - 1;
 export const MAX_DIVE_POINTS = ASCENT_MAX.reduce((s, n) => s + n, 0); // 1225
 
 // `min` is the points needed on a single ascent.
@@ -52,7 +52,7 @@ export const TIERS = [
   {
     id: 'shrimpion',
     name: 'One in a Shrimpion',
-    min: 200,
+    min: ASCENT_MAX[FINAL_ASCENT_INDEX],
     color: '#ffd166',
     sprite: 'shrimpGold',
     blurb: 'Deep knowledge, high up. You broke the surface.',
@@ -72,20 +72,20 @@ export function pointsFor(correct, total, ascentIdx) {
   return Math.round((correct / total) * ascentMax(ascentIdx));
 }
 
-/** Tier for the points earned on a single ascent. */
-export function tierForPoints(points) {
+/** Points determine the lower tiers. The top tier is awarded separately. */
+function tierForPoints(points) {
   let best = TIERS[0];
-  for (const t of TIERS) if (points >= t.min) best = t;
+  for (const t of TIERS) if (t.id !== 'shrimpion' && points >= t.min) best = t;
   return best;
 }
 
-/** The best tier an ascent can possibly award (used to show what's locked). */
-export function topTierFor(ascentIdx) {
-  return tierForPoints(ascentMax(ascentIdx));
+export function tierForAscent({ ascent, points, correct, total }) {
+  if (ascent === FINAL_ASCENT_INDEX && total > 0 && correct === total) return TIER_BY_ID.shrimpion;
+  return tierForPoints(points);
 }
 
-/** Overall tier for a whole dive: scale the dive's points onto the final-exam ladder. */
-export function tierForDive(points, maxPoints = MAX_DIVE_POINTS) {
-  if (!maxPoints) return TIERS[0];
-  return tierForPoints((points / maxPoints) * ASCENT_MAX[ASCENT_MAX.length - 1]);
+/** Carry the Surface Exam award onto the summary. Overall points determine the lower tiers. */
+export function tierForDive(points, surfaceTier) {
+  if (surfaceTier === 'shrimpion') return TIER_BY_ID.shrimpion;
+  return tierForPoints((points / MAX_DIVE_POINTS) * ASCENT_MAX[FINAL_ASCENT_INDEX]);
 }
