@@ -37,6 +37,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!auth) return undefined;
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      actions.setAscentAccount(u?.uid ?? null);
       const session = u ? { user: u, setup: ensureUserDoc(u, getProgress()), pfpWrites: Promise.resolve() } : null;
       profileSession.current = session;
       setUser(u);
@@ -63,7 +64,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // keep in-progress ascents on the account so a closed tab resumes mid-ascent
-  useEffect(() => (user ? startRunSync() : undefined), [user]);
+  useEffect(() => (user ? startRunSync(user.uid) : undefined), [user]);
 
   // live profile + presence heartbeat
   useEffect(() => {

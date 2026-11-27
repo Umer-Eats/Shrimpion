@@ -94,6 +94,9 @@ export default function Summary({ record, submitted, signedIn, onSignIn }) {
         <Link className="btn btn-ghost" to="/archive">
           Archive ⟲
         </Link>
+        <Link className="btn btn-ghost" to={`/archive?review=${encodeURIComponent(record.id)}`}>
+          Review answers
+        </Link>
       </div>
       <p className="muted small center">A new ascent surfaces at midnight ET.</p>
     </section>

@@ -1,5 +1,5 @@
 // Local progress (works signed-out, saved in localStorage). When signed in, stats and
-// in-progress ascents are mirrored to your account in Turso (see data/runSync.js).
+// in-progress and finished ascents are mirrored to your account in Turso (see data/runSync.js).
 import { useSyncExternalStore } from 'react';
 import { todayKey, addDays } from '../game/daily.js';
 
@@ -28,13 +28,19 @@ const DEFAULT = {
   runs: {},
 };
 
+let activeUid = null;
+let guestAscents;
+let accountAscents = {};
+
 function load() {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (!raw) return structuredClone(DEFAULT);
+    const { accountAscents: savedAccounts = {}, ...progress } = raw;
+    accountAscents = savedAccounts;
     return {
       ...structuredClone(DEFAULT),
-      ...raw,
+      ...progress,
       profile: { ...DEFAULT.profile, ...(raw.profile || {}) },
       stats: { ...DEFAULT_STATS, ...(raw.stats || {}) },
     };
@@ -44,12 +50,16 @@ function load() {
 }
 
 let state = load();
+guestAscents = { history: state.history, runs: state.runs };
 const listeners = new Set();
 
 function commit(next) {
   state = next;
+  const ascents = { history: next.history, runs: next.runs };
+  if (activeUid) accountAscents[activeUid] = ascents;
+  else guestAscents = ascents;
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(KEY, JSON.stringify({ ...state, ...guestAscents, accountAscents }));
   } catch {
     /* storage full or blocked: keep going in memory */
   }
@@ -77,6 +87,23 @@ export function liveStreak(stats, today = todayKey()) {
 }
 
 export const actions = {
+  setAscentAccount(uid) {
+    if (activeUid === uid) return;
+    activeUid = uid;
+    if (!uid) {
+      commit({ ...state, ...guestAscents });
+      return;
+    }
+    const saved = Object.hasOwn(accountAscents, uid) ? accountAscents[uid] : null;
+    const history = { ...guestAscents.history, ...saved?.history };
+    const runs = { ...saved?.runs };
+    for (const [id, run] of Object.entries(guestAscents.runs)) {
+      if ((runs[id]?.updatedAt || 0) < run.updatedAt) runs[id] = run;
+    }
+    for (const id of Object.keys(history)) delete runs[id];
+    guestAscents = { history: {}, runs: {} };
+    commit({ ...state, history, runs });
+  },
   setCategory(category) {
     commit({ ...state, category });
   },
@@ -104,13 +131,15 @@ export const actions = {
   /** Add finished ascents saved to your account that this browser doesn't have yet. */
   mergeHistory(remote) {
     const history = { ...state.history };
+    const runs = { ...state.runs };
     let changed = false;
     for (const rec of remote || []) {
       if (!rec?.id || history[rec.id]) continue;
       history[rec.id] = rec;
+      delete runs[rec.id];
       changed = true;
     }
-    if (changed) commit({ ...state, history });
+    if (changed) commit({ ...state, history, runs });
   },
   clearRun(id) {
     const runs = { ...state.runs };

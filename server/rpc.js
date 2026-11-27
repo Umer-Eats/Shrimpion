@@ -73,6 +73,7 @@ export const SCHEMA = [
     PRIMARY KEY (board, uid)
   )`,
   `CREATE INDEX IF NOT EXISTS daily_scores_rank ON daily_scores (board, points DESC)`,
+  `CREATE INDEX IF NOT EXISTS daily_scores_category ON daily_scores (substr(board, 12))`,
   `CREATE TABLE IF NOT EXISTS unlimited_scores (
     uid TEXT PRIMARY KEY,
     points INTEGER NOT NULL,
@@ -199,6 +200,8 @@ const unlimitedRow = (x) => ({ uid: x.uid, username: x.username, pfp: x.pfp, poi
 /** One daily-category board ranked a given way. `me` is only needed for the friends ranking. */
 async function dailyRanking({ date, cat, type }, me = null) {
   str(date, DATE_RE);
+  const timestamp = Date.parse(`${date}T00:00:00Z`);
+  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 10) !== date) throw bad('Invalid date.');
   str(cat, CAT_RE);
   if (!DAILY_RANKINGS.includes(type)) throw bad('Unknown ranking.');
   const base = 'SELECT s.uid, u.username, u.pfp';
@@ -206,16 +209,16 @@ async function dailyRanking({ date, cat, type }, me = null) {
   let q;
   if (type === 'today' || type === 'accuracy') {
     const order = type === 'accuracy' ? 's.pct DESC, s.points DESC, s.created_at ASC' : 's.points DESC, s.created_at ASC';
-    q = { sql: `${base}, s.points, s.pct ${join} WHERE s.board = ? ORDER BY ${order} LIMIT 50`, args: [`${date}_${cat}`] };
+    q = { sql: `${base}, s.points, s.pct ${join} WHERE s.board = ? ORDER BY ${order}, s.uid ASC LIMIT 50`, args: [`${date}_${cat}`] };
   } else if (type === 'friends') {
     q = {
       sql: `${base}, s.points, s.pct ${join} WHERE s.board = ? AND (s.uid = ? OR s.uid IN (SELECT fid FROM friends WHERE uid = ?))
-            ORDER BY s.points DESC, s.created_at ASC LIMIT 50`,
+            ORDER BY s.points DESC, s.created_at ASC, s.uid ASC LIMIT 50`,
       args: [`${date}_${cat}`, me.uid, me.uid],
     };
   } else {
     const agg = `${base}, SUM(s.points) AS points, ROUND(AVG(s.pct)) AS pct, COUNT(*) AS days ${join}`;
-    const tail = 'GROUP BY s.uid ORDER BY points DESC, MIN(s.created_at) ASC LIMIT 50';
+    const tail = 'GROUP BY s.uid ORDER BY points DESC, MIN(s.created_at) ASC, s.uid ASC LIMIT 50';
     if (type === 'week') {
       const boards = Array.from({ length: 7 }, (_, i) => `${shiftDay(date, -i)}_${cat}`);
       q = { sql: `${agg} WHERE s.board IN (${boards.map(() => '?').join(', ')}) ${tail}`, args: boards };
@@ -234,7 +237,7 @@ async function unlimitedRanking({ type }, me = null) {
   const friendsOnly = type === 'friends' ? 'WHERE s.uid = ? OR s.uid IN (SELECT fid FROM friends WHERE uid = ?)' : '';
   const r = await db().execute({
     sql: `SELECT s.uid, u.username, u.pfp, s.points, s.ascents FROM unlimited_scores s JOIN users u ON u.uid = s.uid
-          ${friendsOnly} ORDER BY ${order} LIMIT 50`,
+          ${friendsOnly} ORDER BY ${order}, s.uid ASC LIMIT 50`,
     args: type === 'friends' ? [me.uid, me.uid] : [],
   });
   return r.rows.map(unlimitedRow);

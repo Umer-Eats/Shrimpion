@@ -66,8 +66,8 @@ export default function DiveRunner({ mode, date, cat }) {
 
   // persist the run (including mid-phase progress) so a refresh or closed tab resumes where you were
   useEffect(() => {
-    if (run && !['surface', 'over'].includes(run.phase)) actions.saveRun(id, run);
-  }, [run, id]);
+    if (run && !finished && !['surface', 'over'].includes(run.phase)) actions.saveRun(id, run);
+  }, [run, id, finished]);
 
   // a newer copy of this run arrived from your account (e.g. started on another device)
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function DiveRunner({ mode, date, cat }) {
   const onDraft = useCallback((data) => setRun((r) => (r ? { ...r, draft: { key: draftKey, data } } : r)), [draftKey]);
 
   /* ---------- finished daily ---------- */
-  if (!run || (run.mode === 'daily' && run.phase === 'surface')) {
+  if (!run || finished || (run.mode === 'daily' && run.phase === 'surface')) {
     if (!record) return null;
     return (
       <div className="stage">

@@ -56,6 +56,7 @@ function landMask() {
   c.width = 360;
   c.height = 180;
   const g = c.getContext('2d');
+  if (!g) return null;
   const fill = (polys, color) => {
     g.fillStyle = color;
     for (const poly of polys) {
@@ -139,32 +140,46 @@ function draw(ctx, img, lon0, lat0, tourIdx, glow, selIdx, mask) {
 }
 
 const HOLD_MS = 1700;
-const reducedMotion = () => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 /** Spinning globe of the 7 Seas. `selected` is the board id marked gold; clicking opens the sea on show. */
 export default function SeasGlobe({ selected, onPick }) {
   const canvasRef = useRef(null);
   const selRef = useRef(selected);
   const jumpRef = useRef(null);
+  const [reduceMotion, setReduceMotion] = useState(() => window.matchMedia(MOTION_QUERY).matches);
+  const [paused, setPaused] = useState(false);
   const [showing, setShowing] = useState(() => Math.max(0, SEAS.findIndex((s) => s.id === selected)));
   const showingRef = useRef(showing);
+
+  useEffect(() => {
+    const media = window.matchMedia(MOTION_QUERY);
+    const update = () => setReduceMotion(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     const i = SEAS.findIndex((s) => s.id === selected);
     if (selRef.current !== selected && i >= 0) jumpRef.current = i; // spin to the newly picked sea next
     selRef.current = selected;
-    if (reducedMotion() && i >= 0 && canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-      draw(ctx, ctx.createImageData(S, S), SEAS[i].view[0], SEAS[i].view[1], i, 1, i, landMask());
-      setShowing(i);
-    }
-  }, [selected]);
+    if (!reduceMotion && !paused) return;
+    const ctx = canvasRef.current.getContext('2d');
+    const mask = landMask();
+    if (!ctx || !mask) return;
+    const target = jumpRef.current ?? showingRef.current;
+    jumpRef.current = null;
+    showingRef.current = target;
+    setShowing(target);
+    draw(ctx, ctx.createImageData(S, S), ...SEAS[target].view, target, 1, i, mask);
+  }, [selected, reduceMotion, paused]);
 
   useEffect(() => {
-    if (reducedMotion()) return undefined;
+    if (reduceMotion || paused) return undefined;
     const ctx = canvasRef.current.getContext('2d');
-    const img = ctx.createImageData(S, S);
     const mask = landMask();
+    if (!ctx || !mask) return undefined;
+    const img = ctx.createImageData(S, S);
     const selIdx = () => SEAS.findIndex((s) => s.id === selRef.current);
 
     let from = showingRef.current;
@@ -193,9 +208,11 @@ export default function SeasGlobe({ selected, onPick }) {
         glow = Math.max(0, (k - 0.7) / 0.3);
         if (k >= 1) {
           from = to;
+          showingRef.current = to;
+          setShowing(to);
           holdUntil = t + HOLD_MS;
         }
-      } else if (t >= holdUntil) {
+      } else if (jumpRef.current !== null || t >= holdUntil) {
         const next = jumpRef.current ?? (from + 1) % SEAS.length;
         jumpRef.current = null;
         if (next !== from) {
@@ -205,29 +222,32 @@ export default function SeasGlobe({ selected, onPick }) {
           dLon = (((SEAS[to].view[0] - lon) % 360) + 360) % 360; // always spin east
           legDur = 500 + dLon * 13;
           legStart = t;
-          showingRef.current = to;
-          setShowing(to);
           glow = 0;
         } else holdUntil = t + HOLD_MS;
       } else {
-        lon += 0.08; // slow drift while resting on a sea
         const left = holdUntil - t;
         glow = left < 300 ? left / 300 : 1;
       }
       draw(ctx, img, lon, lat, to, glow, selIdx(), mask);
     };
+    draw(ctx, img, lon, lat, from, 1, selIdx(), mask);
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [reduceMotion, paused]);
 
   const sea = SEAS[showing];
   return (
     <figure className="seas-globe">
-      <button type="button" className="seas-globe-btn" onClick={() => onPick?.(sea.id)} title={`Open the ${sea.sea} board`} aria-label={`Spinning globe of the 7 Seas, showing the ${sea.sea}. Open its board.`}>
-        <canvas ref={canvasRef} width={S} height={S} className="seas-globe-canvas" />
+      <button type="button" className="seas-globe-btn" onClick={() => onPick(sea.id)} aria-label={`Open the ${sea.sea} board`}>
+        <canvas ref={canvasRef} width={S} height={S} className="seas-globe-canvas" aria-hidden="true" />
       </button>
-      <figcaption className="seas-globe-cap" aria-live="polite">
+      <figcaption className="seas-globe-cap">
         {sea.sea}
+        {!reduceMotion && (
+          <button type="button" className="seas-tour-toggle" aria-label={paused ? 'Resume globe tour' : 'Pause globe tour'} onClick={() => setPaused(!paused)}>
+            <span aria-hidden="true">{paused ? '▶' : 'Ⅱ'}</span>
+          </button>
+        )}
       </figcaption>
     </figure>
   );

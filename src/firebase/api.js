@@ -12,14 +12,14 @@ const PROFILE_POLL_MS = 5000;
 let cachedToken = null;
 if (auth) onIdTokenChanged(auth, async (u) => (cachedToken = u ? await u.getIdToken() : null));
 
-async function rpc(action, args = {}, { signedIn = true } = {}) {
+async function rpc(action, args = {}, { signedIn = true, keepalive = false } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (signedIn) {
     const u = auth?.currentUser;
     if (!u) throw new Error('Sign in first.');
     headers.Authorization = `Bearer ${await u.getIdToken()}`;
   }
-  const res = await fetch('/api/rpc', { method: 'POST', headers, body: JSON.stringify({ action, ...args }) });
+  const res = await fetch('/api/rpc', { method: 'POST', headers, keepalive, body: JSON.stringify({ action, ...args }) });
   let json = null;
   try {
     json = await res.json();
@@ -118,7 +118,7 @@ export const fetchRuns = () => rpc('runs.list');
 export const putRun = (id, data, updatedAt) => rpc('runs.put', { id, data, updatedAt });
 export const deleteRun = (id) => rpc('runs.delete', { id }).catch(() => {});
 export const fetchHistory = () => rpc('history.list');
-export const putHistory = (records) => rpc('history.put', { records });
+export const putHistory = (records, keepalive) => rpc('history.put', { records }, { keepalive });
 
 /** Fire-and-forget save that survives the tab closing (keepalive fetch). */
 export function beaconRun(id, data, updatedAt) {

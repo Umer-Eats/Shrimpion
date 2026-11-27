@@ -77,8 +77,8 @@ export default function App() {
       <ErrorBoundary key={pathname}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dive" element={<Dive />} />
-        <Route path="/unlimited" element={<Unlimited />} />
+        <Route path="/dive" element={<Dive key={auth.user?.uid ?? 'guest'} />} />
+        <Route path="/unlimited" element={<Unlimited key={auth.user?.uid ?? 'guest'} />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/me" element={<MyShrimpion />} />
         <Route path="/friends" element={<Friends />} />
