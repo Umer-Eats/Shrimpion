@@ -1,28 +1,37 @@
 import { rngFor, shuffle } from './rng.js';
 import { DAILY_TOPICS_BY_DATE, topicsFor, TOPIC_BY_KEY } from './content/index.js';
 import { EPOCH, todayKey } from './daily.js';
+import { ORIGINAL_DRAW_DATE } from './content/daily-content/archive/index.js';
 
 export const TOPICS_PER_DIVE = 7;
 export const LEARN_ASCENTS = 6; // ascents 1–6 teach; ascent 7 is the surface exam
 export const FINAL_BASE_QUESTIONS = 14;
 
 // Released ascents keep their original topics and test order in the Archive.
-export const LAST_LEGACY_DATE = '2026-11-27';
+export const LAST_LEGACY_DATE = ORIGINAL_DRAW_DATE;
 
 export function hasDailyPlan(date) {
-  return (date >= EPOCH && date <= LAST_LEGACY_DATE)
-    || Object.hasOwn(DAILY_TOPICS_BY_DATE, date);
+  return date === ORIGINAL_DRAW_DATE || Object.hasOwn(DAILY_TOPICS_BY_DATE, date);
+}
+
+export function originalDailyPlan(date, cat = 'random') {
+  if (date < EPOCH || date > ORIGINAL_DRAW_DATE) return null;
+  return planFromPool(date, cat, topicsFor(cat));
 }
 
 /** The daily ascent: same seven topics for every player on a given day + category. */
 export function dailyPlan(date, cat = 'random') {
   if (!hasDailyPlan(date)) return null;
-  const seed = `shrimpion|${date}|${cat}`;
-  const rng = rngFor(seed);
   const scheduled = DAILY_TOPICS_BY_DATE[date];
   // Daily Random draws from the same date's packs, so changing categories can't
   // expose material reserved for a different day.
   const pool = scheduled ? scheduled.filter((t) => cat === 'random' || t.cat === cat) : topicsFor(cat);
+  return planFromPool(date, cat, pool);
+}
+
+function planFromPool(date, cat, pool) {
+  const seed = `shrimpion|${date}|${cat}`;
+  const rng = rngFor(seed);
   const topics = shuffle(pool, rng)
     .slice(0, TOPICS_PER_DIVE)
     .map((t) => t.key);

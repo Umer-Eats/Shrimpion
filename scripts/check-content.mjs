@@ -2,6 +2,7 @@
 import { ALL_TOPICS, CATEGORIES, CATEGORY_PACKS, DAILY_TOPICS_BY_DATE } from '../src/game/content/index.js';
 import { DAILY_CONTENT } from '../src/game/content/daily-content/index.js';
 import { dailyPlan, LAST_LEGACY_DATE, TOPICS_PER_DIVE } from '../src/game/plan.js';
+import { addDays, EPOCH } from '../src/game/daily.js';
 
 let problems = 0;
 const warn = (msg) => {
@@ -40,7 +41,7 @@ for (const t of topics) {
 for (const [date, packs] of Object.entries(DAILY_CONTENT)) {
   const parsed = new Date(`${date}T00:00:00Z`);
   const valid = Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date;
-  if (!valid || date <= LAST_LEGACY_DATE) warn(`${date}: scheduled dates must come after ${LAST_LEGACY_DATE}`);
+  if (!valid || date < EPOCH || date === LAST_LEGACY_DATE) warn(`${date}: invalid scheduled date`);
 
   const categoryIds = CATEGORY_PACKS.map((category) => category.id);
   for (const id of Object.keys(packs)) {
@@ -59,5 +60,23 @@ for (const [date, packs] of Object.entries(DAILY_CONTENT)) {
   }
 }
 
-console.log(`${topics.length} topics, ${facts.size} distinct facts, ${questions.size} distinct questions, ${Object.keys(DAILY_CONTENT).length} scheduled non-repeating day(s), ${problems} problem(s).`);
+const topicDates = new Map();
+const dates = [...Object.keys(DAILY_CONTENT), LAST_LEGACY_DATE].sort();
+const end = dates.at(-1);
+for (let date = EPOCH; date <= end; date = addDays(date, 1)) {
+  for (const { id } of CATEGORIES) {
+    const plan = dailyPlan(date, id);
+    if (!plan) {
+      warn(`${date}: missing ${id} daily plan`);
+      continue;
+    }
+    for (const key of plan.blocks[0].topics) {
+      const previousDate = topicDates.get(key);
+      if (previousDate && previousDate !== date) warn(`${date}: ${key} already appeared on ${previousDate}`);
+      topicDates.set(key, date);
+    }
+  }
+}
+
+console.log(`${topics.length} topics, ${facts.size} distinct facts, ${questions.size} distinct questions, ${dates.length} non-repeating daily ascents, ${problems} problem(s).`);
 process.exit(problems ? 1 : 0);

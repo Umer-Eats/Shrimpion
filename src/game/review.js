@@ -1,4 +1,4 @@
-import { dailyPlan, finalFacts, learnFacts, LEARN_ASCENTS } from './plan.js';
+import { dailyPlan, originalDailyPlan, finalFacts, learnFacts, LEARN_ASCENTS } from './plan.js';
 import { buildTest, testTypeForAscent } from './tests.js';
 import { ASCENTS_PER_DIVE } from './tiers.js';
 
@@ -37,7 +37,7 @@ function reviewQuestion(type, item, given) {
 
 /** Rebuild the tests with the same facts, order, and seeds as the original dive. */
 export function buildDiveReview(record) {
-  const plan = dailyPlan(record.date, record.cat);
+  const plan = originalDailyPlan(record.date, record.cat) ?? dailyPlan(record.date, record.cat);
   const seed = record.seed ?? plan?.seed;
   const blocks = record.topics?.length ? [{ topics: record.topics }] : plan?.blocks;
   if (!blocks) return [];
