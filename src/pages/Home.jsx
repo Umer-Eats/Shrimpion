@@ -5,6 +5,7 @@ import { useProgress, actions, liveStreak } from '../data/progress.js';
 import { todayKey, dayNumber, prettyDate } from '../game/daily.js';
 import { CATEGORY_BY_ID } from '../game/content/index.js';
 import CategoryPicker from '../components/CategoryPicker.jsx';
+import { MAX_DIVE_POINTS } from '../game/tiers.js';
 import PixelSprite from '../components/PixelSprite.jsx';
 
 export default function Home() {
@@ -51,7 +52,7 @@ export default function Home() {
           <span>ASCENT #{dayNumber(today)}</span>
           <span>{prettyDate(today)}</span>
           {streak > 0 && <span className="streak">🔥 {streak}-day streak</span>}
-          {done && <span className="done-badge">✓ {done.points}/700</span>}
+          {done && <span className="done-badge">✓ {done.points}/{MAX_DIVE_POINTS}</span>}
         </div>
         <div className="home-links">
           <Link className="btn btn-small" to="/unlimited">

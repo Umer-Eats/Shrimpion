@@ -73,7 +73,7 @@ function NextButton({ seq }) {
 /* 1 · Tide Match                                                       */
 /* ------------------------------------------------------------------ */
 
-const PAIR_COLORS = ['#4de3ff', '#ff6f8e', '#ffd166', '#4ade80', '#c77dff', '#ff9f43', '#7cf6ff'];
+const PAIR_COLORS = ['#4ff0c8', '#ff4fa0', '#ffe08a', '#4ade80', '#c77dff', '#ff9f43', '#8affdf'];
 
 export function MatchTest({ test, onComplete }) {
   const [sel, setSel] = useState(null);

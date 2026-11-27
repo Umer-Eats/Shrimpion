@@ -44,7 +44,7 @@ service cloud.firestore {
       allow create: if isMe(uid)
         && request.resource.data.points is int
         && request.resource.data.points >= 0
-        && request.resource.data.points <= 700;
+        && request.resource.data.points <= 1225; // MAX_DIVE_POINTS in src/game/tiers.js
     }
 
     // Unlimited: best run per player, only ever goes up.

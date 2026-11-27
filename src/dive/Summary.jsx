@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TierReveal from './TierReveal.jsx';
-import { TIER_BY_ID, tierFor, MAX_DIVE_POINTS } from '../game/tiers.js';
+import { TIER_BY_ID, tierForDive, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { categoryName } from '../game/content/index.js';
 import { dayNumber, todayKey } from '../game/daily.js';
 
@@ -9,7 +9,7 @@ import { dayNumber, todayKey } from '../game/daily.js';
 export default function Summary({ record, submitted, signedIn, onSignIn }) {
   const [copied, setCopied] = useState(false);
   const pct = record.total ? Math.round((record.correct / record.total) * 100) : 0;
-  const overall = tierFor(pct);
+  const overall = tierForDive(record.points);
   const isToday = record.date === todayKey();
 
   const shareText = [
@@ -20,12 +20,13 @@ export default function Summary({ record, submitted, signedIn, onSignIn }) {
   ].join('\n');
 
   return (
+    <>
+    <TierReveal tier={overall} />
     <section className="panel stage-panel summary">
       <p className="kicker">
         Shrimpion #{dayNumber(record.date)} · {categoryName(record.cat)} {isToday ? '' : '· archive'}
       </p>
       <h2 className="surfaced">SURFACED!</h2>
-      <TierReveal tier={overall} />
       <div className="result-stats">
         <div>
           <span className="stat-num">
@@ -94,5 +95,6 @@ export default function Summary({ record, submitted, signedIn, onSignIn }) {
       </div>
       <p className="muted small center">A new ascent surfaces at midnight ET.</p>
     </section>
+    </>
   );
 }

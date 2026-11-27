@@ -5,18 +5,18 @@ import { drawSprite, spriteSize } from '../art/render.js';
 import { SPRITES } from '../art/spriteData.js';
 import { rngFor } from '../game/rng.js';
 
-// Water color by height in the world: black trench → deep navy → sunlit blue.
+// Water color by height in the world: plum-black trench → violet twilight → turquoise lagoon.
 const WATER = [
-  [-1.2, [0, 1, 4]],
-  [0, [1, 4, 11]],
-  [1, [2, 8, 20]],
-  [2, [4, 16, 33]],
-  [3, [7, 26, 49]],
-  [4, [10, 38, 70]],
-  [5, [16, 56, 96]],
-  [6, [25, 86, 134]],
-  [7, [38, 120, 174]],
-  [WATERLINE_V, [70, 160, 208]],
+  [-1.2, [1, 0, 3]],
+  [0, [4, 1, 9]],
+  [1, [9, 3, 18]],
+  [2, [16, 6, 32]],
+  [3, [26, 10, 50]],
+  [4, [34, 22, 72]],
+  [5, [30, 48, 96]],
+  [6, [28, 96, 128]],
+  [7, [40, 150, 160]],
+  [WATERLINE_V, [90, 200, 196]],
 ];
 
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -156,8 +156,8 @@ export default function OceanScene() {
         const w = 10 + (i % 3) * 7;
         const top = Math.max(0, waterY);
         const g = lc.createLinearGradient(0, top, 0, top + lh * 0.9);
-        g.addColorStop(0, `rgba(180,230,255,${0.12 * light})`);
-        g.addColorStop(1, 'rgba(180,230,255,0)');
+        g.addColorStop(0, `rgba(200,255,240,${0.12 * light})`);
+        g.addColorStop(1, 'rgba(200,255,240,0)');
         lc.fillStyle = g;
         lc.beginPath();
         lc.moveTo(x, top);
@@ -175,12 +175,12 @@ export default function OceanScene() {
       for (let x = 0; x < lw; x++) {
         const top = Math.round(floorY - floor[x]);
         if (top > lh) continue;
-        lc.fillStyle = '#03050a';
+        lc.fillStyle = '#08030b';
         lc.fillRect(x, top, 1, lh - top + 2);
-        lc.fillStyle = '#0f1726';
+        lc.fillStyle = '#1f0f26';
         lc.fillRect(x, top, 1, 1);
         if (x % 7 === 0) {
-          lc.fillStyle = '#0a101c';
+          lc.fillStyle = '#150a1a';
           lc.fillRect(x, top + 3, 2, 1);
         }
       }
@@ -189,10 +189,10 @@ export default function OceanScene() {
       // hydrothermal vent with tube worms
       const vx = Math.round(lw * 0.7);
       const vy = ground(0.7);
-      lc.fillStyle = '#0b0f18';
+      lc.fillStyle = '#120914';
       lc.fillRect(vx - 3, vy - 14, 7, 15);
       lc.fillRect(vx - 5, vy - 6, 11, 7);
-      lc.fillStyle = '#1a2233';
+      lc.fillStyle = '#2a1636';
       lc.fillRect(vx - 3, vy - 14, 7, 1);
       for (let i = 0; i < 16; i++) {
         const life = ((t * 9 + i * 7) % 70) / 70;
@@ -229,8 +229,8 @@ export default function OceanScene() {
 
     function drawSky(waterY, t) {
       const g = lc.createLinearGradient(0, waterY - lh * 0.7, 0, waterY);
-      g.addColorStop(0, '#5ab4e8');
-      g.addColorStop(1, '#d4f1ff');
+      g.addColorStop(0, '#ff9fcf');
+      g.addColorStop(1, '#ffe3f1');
       for (let x = 0; x < lw; x++) {
         const wy = Math.round(waterY + Math.sin(x * 0.12 + t * 1.8) * 1.2 + Math.sin(x * 0.045 - t) * 1);
         if (wy <= 0) continue;
@@ -264,7 +264,7 @@ export default function OceanScene() {
         lc.fillRect(cx, cy, c.w, 4);
         lc.fillRect(cx + 4, cy - 3, c.w - 10, 3);
         lc.fillRect(cx + 9, cy - 6, Math.max(4, c.w - 20), 3);
-        lc.fillStyle = '#dbeef9';
+        lc.fillStyle = '#ffe6f2';
         lc.fillRect(cx, cy + 3, c.w, 1);
       });
     }
@@ -336,8 +336,8 @@ export default function OceanScene() {
           const cx = shX + ss.w;
           const cy = shY + ss.h;
           const rg = lc.createRadialGradient(cx, cy, 0, cx, cy, 46);
-          rg.addColorStop(0, `rgba(255,111,142,${0.22 * deep})`);
-          rg.addColorStop(1, 'rgba(255,111,142,0)');
+          rg.addColorStop(0, `rgba(255,79,160,${0.22 * deep})`);
+          rg.addColorStop(1, 'rgba(255,79,160,0)');
           lc.fillStyle = rg;
           lc.fillRect(cx - 46, cy - 46, 92, 92);
           lc.restore();
@@ -397,7 +397,7 @@ export default function OceanScene() {
           sparkles.splice(i, 1);
           continue;
         }
-        lc.fillStyle = `rgba(255,209,102,${Math.min(1, s.life)})`;
+        lc.fillStyle = `rgba(255,224,138,${Math.min(1, s.life)})`;
         const x = Math.round(s.x);
         const y = Math.round(s.y);
         lc.fillRect(x - 1, y, 3, 1);
@@ -412,14 +412,14 @@ export default function OceanScene() {
         if (p.y > lh + 16) p.y = -16;
         if (p.y < -16) p.y = lh + 16;
         if (p.y < waterY) continue;
-        lc.fillStyle = `rgba(200,220,255,${p.a * (0.5 + deep * 0.6)})`;
+        lc.fillStyle = `rgba(245,225,250,${p.a * (0.5 + deep * 0.6)})`;
         lc.fillRect(Math.round(p.x), Math.round(p.y - streak), 1, 1 + Math.round(streak));
       }
 
       // vignette
       const vg = lc.createRadialGradient(lw / 2, lh / 2, Math.min(lw, lh) * 0.3, lw / 2, lh / 2, Math.max(lw, lh) * 0.75);
       vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, `rgba(0,0,6,${0.25 + deep * 0.45})`);
+      vg.addColorStop(1, `rgba(10,0,12,${0.25 + deep * 0.45})`);
       lc.fillStyle = vg;
       lc.fillRect(0, 0, lw, lh);
 
@@ -430,7 +430,7 @@ export default function OceanScene() {
       // depth ruler (full resolution)
       const toScreen = (v) => yOf(v) * PIX;
       ctx.save();
-      ctx.strokeStyle = 'rgba(160,200,255,0.18)';
+      ctx.strokeStyle = 'rgba(235,190,230,0.18)';
       ctx.beginPath();
       ctx.moveTo(W - 12.5, 0);
       ctx.lineTo(W - 12.5, H);
@@ -443,19 +443,19 @@ export default function OceanScene() {
         const y = toScreen(v);
         if (y < -20 || y > H + 20) continue;
         const onLight = y < waterY * PIX;
-        ctx.fillStyle = onLight ? 'rgba(20,50,80,0.75)' : m.zone ? 'rgba(160,215,255,0.62)' : 'rgba(160,200,255,0.4)';
+        ctx.fillStyle = onLight ? 'rgba(70,20,60,0.75)' : m.zone ? 'rgba(240,200,235,0.62)' : 'rgba(235,190,230,0.4)';
         ctx.fillRect(W - 18, Math.round(y), 11, 1);
         if (W > 520) ctx.fillText(m.t, W - 24, y);
       }
       for (let v = Math.floor(cam - 2) * 4; v <= (cam + 2) * 4; v++) {
         const y = toScreen(v / 4);
-        ctx.fillStyle = 'rgba(160,200,255,0.25)';
+        ctx.fillStyle = 'rgba(235,190,230,0.25)';
         ctx.fillRect(W - 15, Math.round(y), 5, 1);
       }
       ctx.restore();
 
       if (scene.dim > 0.01) {
-        ctx.fillStyle = `rgba(2,6,16,${scene.dim * 0.55})`;
+        ctx.fillStyle = `rgba(18,5,26,${scene.dim * 0.55})`;
         ctx.fillRect(0, 0, W, H);
       }
     }

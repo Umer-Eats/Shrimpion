@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import PageShell from './PageShell.jsx';
-import { TIERS } from '../game/tiers.js';
+import { TIERS, ASCENT_MAX, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { TEST_TYPES } from '../game/tests.js';
 
 const QA = [
@@ -37,15 +37,18 @@ const QA = [
     q: 'How is scoring done?',
     a: (
       <>
-        Every ascent is worth up to 100 points: your accuracy on that test. A perfect day is 700. Your accuracy decides which sea
-        creature you become for that ascent:
+        The higher you climb, the more each ascent is worth: Ascent 1 is worth up to {ASCENT_MAX[0]} points and the Surface Exam up
+        to {ASCENT_MAX[ASCENT_MAX.length - 1]}. You earn that ascent’s max times your accuracy, and a perfect day is{' '}
+        {MAX_DIVE_POINTS}. The points you earn on an ascent decide which sea creature you become:
         <ul>
           {TIERS.map((t) => (
             <li key={t.id}>
-              {t.emoji} <strong style={{ color: t.color }}>{t.name}</strong> — {t.id === 'shrimpion' ? '100%' : `${t.min}% and up`}
+              {t.emoji} <strong style={{ color: t.color }}>{t.name}</strong>: {t.min}+ points
             </li>
           ))}
         </ul>
+        So a perfect first ascent makes you a Dolphin. One in a Shrimpion only opens up from Ascent 5, where you need a perfect
+        score, and on the Surface Exam you need 80% or better.
       </>
     ),
   },

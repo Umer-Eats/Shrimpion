@@ -14,6 +14,7 @@ import {
   isOnline,
 } from '../firebase/api.js';
 import { todayKey, addDays } from '../game/daily.js';
+import { MAX_DIVE_POINTS } from '../game/tiers.js';
 
 function friendStreak(stats = {}) {
   const today = todayKey();
@@ -134,7 +135,7 @@ export default function Friends() {
                   <dl className="mini-stats">
                     <div>
                       <dt>Today</dt>
-                      <dd>{todayPts != null ? `${todayPts}/700` : '—'}</dd>
+                      <dd>{todayPts != null ? `${todayPts}/${MAX_DIVE_POINTS}` : '—'}</dd>
                     </div>
                     <div>
                       <dt>Streak</dt>

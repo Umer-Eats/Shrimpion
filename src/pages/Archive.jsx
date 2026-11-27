@@ -3,7 +3,7 @@ import PageShell from './PageShell.jsx';
 import { pastDays, dayNumber, prettyDate, todayKey } from '../game/daily.js';
 import { CATEGORIES, categoryName } from '../game/content/index.js';
 import { useProgress, actions } from '../data/progress.js';
-import { TIER_BY_ID } from '../game/tiers.js';
+import { TIER_BY_ID, MAX_DIVE_POINTS } from '../game/tiers.js';
 
 export default function Archive() {
   const cat = useProgress((s) => s.category);
@@ -41,7 +41,7 @@ export default function Archive() {
                       <span className="mini-tiers" aria-hidden="true">
                         {rec.tiers.map((t) => TIER_BY_ID[t]?.emoji).join('')}
                       </span>
-                      {rec.points}/700
+                      {rec.points}/{MAX_DIVE_POINTS}
                     </>
                   ) : going ? (
                     'in progress ▲'

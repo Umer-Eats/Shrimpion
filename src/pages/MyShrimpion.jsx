@@ -6,7 +6,7 @@ import { useAuth } from '../firebase/AuthContext.jsx';
 import { USERNAME_RE } from '../firebase/api.js';
 import { useProgress, liveStreak } from '../data/progress.js';
 import { PFPS, pfpProgress } from '../data/pfps.js';
-import { TIER_BY_ID } from '../game/tiers.js';
+import { TIER_BY_ID, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { categoryName } from '../game/content/index.js';
 import { dayNumber } from '../game/daily.js';
 
@@ -110,7 +110,7 @@ export default function MyShrimpion() {
             </div>
             <div>
               <dt>Best daily</dt>
-              <dd>{stats.bestDaily}/700</dd>
+              <dd>{stats.bestDaily}/{MAX_DIVE_POINTS}</dd>
             </div>
             <div>
               <dt>Shrimpions</dt>
@@ -165,7 +165,7 @@ export default function MyShrimpion() {
                 <span>#{dayNumber(r.date)}</span>
                 <span>{categoryName(r.cat)}</span>
                 <span aria-hidden="true">{r.tiers.map((t) => TIER_BY_ID[t]?.emoji).join('')}</span>
-                <strong>{r.points}/700</strong>
+                <strong>{r.points}/{MAX_DIVE_POINTS}</strong>
               </li>
             ))}
           </ul>

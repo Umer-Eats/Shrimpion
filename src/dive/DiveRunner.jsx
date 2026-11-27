@@ -8,7 +8,7 @@ import TierReveal from './TierReveal.jsx';
 import { TEST_COMPONENTS } from './Tests.jsx';
 import { dailyPlan, unlimitedBlock, learnFacts, finalFacts, LEARN_ASCENTS, TOPICS_PER_DIVE } from '../game/plan.js';
 import { buildTest, testTypeForAscent } from '../game/tests.js';
-import { tierFor, pointsFor } from '../game/tiers.js';
+import { tierForPoints, tierForDive, pointsFor, ascentMax } from '../game/tiers.js';
 import { FACT_BY_ID, categoryName, LEVELS } from '../game/content/index.js';
 import { dayNumber, todayKey } from '../game/daily.js';
 import { randomId } from '../game/rng.js';
@@ -221,7 +221,7 @@ export default function DiveRunner({ mode, date, cat }) {
       <section className="panel stage-panel test">
         <header className="stage-head">
           <p className="kicker">
-            Ascent {run.ascent + 1} of 7 · Test {learning ? `· ${LEVELS[run.ascent]}` : ''}
+            Ascent {run.ascent + 1} of 7 · Test {learning ? `· ${LEVELS[run.ascent]}` : ''} · worth {ascentMax(run.ascent)} pts
           </p>
           <h2>
             <span className="test-icon" aria-hidden="true">
@@ -235,15 +235,16 @@ export default function DiveRunner({ mode, date, cat }) {
           key={`${run.block}-${run.ascent}`}
           test={test}
           onComplete={({ correct, total, misses }) => {
-            const pct = (correct / Math.max(1, total)) * 100;
+            const points = pointsFor(correct, total, run.ascent);
             const result = {
               block: run.block,
               ascent: run.ascent,
               type: type.id,
               correct,
               total,
-              points: pointsFor(correct, total),
-              tier: tierFor(pct).id,
+              points,
+              maxPoints: ascentMax(run.ascent),
+              tier: tierForPoints(points).id,
               missIds: misses.map((f) => f.id),
             };
             actions.recordAscent({ correct, total, learned: learning ? TOPICS_PER_DIVE : 0 });
@@ -271,10 +272,11 @@ export default function DiveRunner({ mode, date, cat }) {
     const correct = blockResults.reduce((s, r) => s + (r?.correct || 0), 0);
     const total = blockResults.reduce((s, r) => s + (r?.total || 0), 0);
     body = (
+      <>
+      <TierReveal tier={tierForDive(blockPts)} />
       <section className="panel stage-panel summary">
         <p className="kicker">Unlimited · Block {run.block + 1} complete</p>
         <h2 className="surfaced">SURFACED!</h2>
-        <TierReveal tier={tierFor(total ? (correct / total) * 100 : 0)} />
         <div className="result-stats">
           <div>
             <span className="stat-num">+{blockPts}</span>
@@ -302,6 +304,7 @@ export default function DiveRunner({ mode, date, cat }) {
           </button>
         </div>
       </section>
+      </>
     );
   } else if (run.phase === 'over') {
     body = (

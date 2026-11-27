@@ -9,7 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { rows, pal } = SPRITES.shrimp;
 const w = Math.max(...rows.map((r) => r.length));
 const h = rows.length;
-const size = Math.max(w, h) + 4;
+const size = Math.max(w, h); // tight square: the shrimp fills the browser tab
 const ox = Math.floor((size - w) / 2);
 const oy = Math.floor((size - h) / 2);
 
@@ -28,6 +28,7 @@ const svg = (bg) =>
   `</svg>\n`;
 
 mkdirSync(join(root, 'public'), { recursive: true });
-writeFileSync(join(root, 'public', 'favicon.svg'), svg(true));
+// Transparent: just the shrimp, no background tile.
+writeFileSync(join(root, 'public', 'favicon.svg'), svg(false));
 writeFileSync(join(root, 'public', 'icon.svg'), svg(false));
 console.log(`Wrote public/favicon.svg and public/icon.svg (${size}x${size}).`);
