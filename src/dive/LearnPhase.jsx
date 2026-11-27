@@ -50,7 +50,7 @@ export default function LearnPhase({ facts, ascentIdx, testName, onReady }) {
           {facts.map((fact) => (
             <li key={fact.id}>
               <span className="topic-chip">
-                {fact.topicEmoji} {fact.topic}
+                {fact.topic}
               </span>
               <p>
                 <Highlight fact={fact} />
@@ -62,7 +62,7 @@ export default function LearnPhase({ facts, ascentIdx, testName, onReady }) {
         <div className="fact-card" key={f.id}>
           <div className="fact-top">
             <span className="topic-chip">
-              {f.topicEmoji} {f.topic}
+              {f.topic}
             </span>
             <span className="fact-count">
               {i + 1}/{facts.length}
@@ -96,11 +96,11 @@ export default function LearnPhase({ facts, ascentIdx, testName, onReady }) {
         {!list && (
           <>
             <button className="btn" disabled={i === 0} onClick={() => setI(i - 1)}>
-              ◀ Prev
+              ◄ Prev
             </button>
             {i < facts.length - 1 ? (
               <button className="btn btn-primary" onClick={() => setI(i + 1)}>
-                Next ▶
+                Next ►
               </button>
             ) : null}
           </>

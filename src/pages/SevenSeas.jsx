@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageShell from './PageShell.jsx';
 import Pfp from '../components/Pfp.jsx';
+import Icon from '../components/Icon.jsx';
 import { useAuth } from '../firebase/AuthContext.jsx';
 import { fetchDailyBoard, fetchUnlimitedBoard } from '../firebase/api.js';
 import { CATEGORIES, categoryName } from '../game/content/index.js';
 import { todayKey, dayNumber } from '../game/daily.js';
 import { useProgress } from '../data/progress.js';
 
-const BOARDS = [...CATEGORIES.map((c) => ({ id: c.id, label: `${c.emoji} ${c.id === 'random' ? 'Daily Dive' : c.name}` })), { id: 'unlimited', label: '∞ Unlimited' }];
+const BOARDS = [...CATEGORIES.map((c) => ({ id: c.id, icon: c.icon, label: c.id === 'random' ? 'Daily Dive' : c.name })), { id: 'unlimited', label: '∞ Unlimited' }];
 
 export default function SevenSeas() {
   const auth = useAuth();
@@ -48,7 +49,7 @@ export default function SevenSeas() {
       <div className="tabs" role="tablist">
         {BOARDS.map((b) => (
           <button key={b.id} role="tab" aria-selected={board === b.id} className={`tab ${board === b.id ? 'is-on' : ''}`} onClick={() => setParams({ board: b.id })}>
-            {b.label}
+            {b.icon && <Icon name={b.icon} />} {b.label}
           </button>
         ))}
       </div>

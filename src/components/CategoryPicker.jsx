@@ -1,5 +1,6 @@
 import Modal from './Modal.jsx';
 import { CATEGORIES } from '../game/content/index.js';
+import Icon from './Icon.jsx';
 
 export default function CategoryPicker({ value, onChange, onClose }) {
   return (
@@ -16,7 +17,7 @@ export default function CategoryPicker({ value, onChange, onClose }) {
             }}
           >
             <span className="cat-emoji" aria-hidden="true">
-              {c.emoji}
+              <Icon name={c.icon} scale={3} />
             </span>
             <span className="cat-name">{c.name}</span>
             <span className="cat-blurb">{c.blurb}</span>

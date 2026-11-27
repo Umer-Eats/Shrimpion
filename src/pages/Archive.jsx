@@ -4,6 +4,7 @@ import { pastDays, dayNumber, prettyDate, todayKey } from '../game/daily.js';
 import { CATEGORIES, categoryName } from '../game/content/index.js';
 import { useProgress, actions } from '../data/progress.js';
 import { TIER_BY_ID, MAX_DIVE_POINTS } from '../game/tiers.js';
+import Icon, { TierIcon } from '../components/Icon.jsx';
 
 export default function Archive() {
   const cat = useProgress((s) => s.category);
@@ -17,7 +18,7 @@ export default function Archive() {
       <div className="chip-row" role="radiogroup" aria-label="Category">
         {CATEGORIES.map((c) => (
           <button key={c.id} role="radio" aria-checked={cat === c.id} className={`chip ${cat === c.id ? 'is-on' : ''}`} onClick={() => actions.setCategory(c.id)}>
-            {c.emoji} {c.name}
+            <Icon name={c.icon} /> {c.name}
           </button>
         ))}
       </div>
@@ -39,7 +40,7 @@ export default function Archive() {
                   {rec ? (
                     <>
                       <span className="mini-tiers" aria-hidden="true">
-                        {rec.tiers.map((t) => TIER_BY_ID[t]?.emoji).join('')}
+                        {rec.tiers.map((t, i) => <TierIcon key={i} tier={TIER_BY_ID[t]} />)}
                       </span>
                       {rec.points}/{MAX_DIVE_POINTS}
                     </>

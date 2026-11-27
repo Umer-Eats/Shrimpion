@@ -125,6 +125,7 @@ export default function OceanScene() {
     const lc = low.getContext('2d');
     const world = buildWorld();
     let W, H, PIX, lw, lh, floor, snow;
+    let dpr = 1;
     const bubbles = [];
     const sparkles = [];
     let bubbleTimer = 0;
@@ -136,12 +137,17 @@ export default function OceanScene() {
       W = Math.max(64, window.innerWidth);
       H = Math.max(64, window.innerHeight);
       PIX = W < 700 ? 2 : 3;
-      canvas.width = W;
-      canvas.height = H;
+      // Back the canvas with real device pixels so the browser never stretches (and blurs) it.
+      dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
       lw = Math.ceil(W / PIX);
       lh = Math.ceil(H / PIX);
       low.width = lw;
       low.height = lh;
+      // Resizing a canvas resets its context state, so re-disable smoothing every time.
+      lc.imageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = false;
       floor = buildFloor(lw, lh);
       snow = buildSnow(lw, lh, Math.round((lw * lh) / 900));
     }
@@ -336,13 +342,14 @@ export default function OceanScene() {
           const cx = shX + ss.w;
           const cy = shY + ss.h;
           const rg = lc.createRadialGradient(cx, cy, 0, cx, cy, 46);
-          rg.addColorStop(0, `rgba(255,79,160,${0.22 * deep})`);
+          rg.addColorStop(0, `rgba(255,79,160,${0.13 * deep})`);
           rg.addColorStop(1, 'rgba(255,79,160,0)');
           lc.fillStyle = rg;
           lc.fillRect(cx - 46, cy - 46, 92, 92);
           lc.restore();
         }
-        const tilt = swimming ? (vel > 0 ? -0.38 : vel < 0 ? 0.38 : 0) : Math.sin(t * 1.1) * 0.04;
+        // No idle wobble: a sub-pixel rotation smears every pixel. Tilt only while actually swimming.
+        const tilt = swimming ? (vel > 0 ? -0.38 : vel < 0 ? 0.38 : 0) : 0;
         drawSprite(lc, 'shrimp', shX, shY, { scale: shrimpScale, variant: scene.shrimpVariant, rotate: tilt });
         if (scene.shrimpVariant === 'crowned') {
           drawSprite(lc, 'crown', shX + 20, shY - 4, { scale: 1, rotate: tilt });
@@ -424,6 +431,7 @@ export default function OceanScene() {
       lc.fillRect(0, 0, lw, lh);
 
       // upscale
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(low, 0, 0, lw * PIX, lh * PIX);
 

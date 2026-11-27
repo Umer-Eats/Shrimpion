@@ -15,7 +15,9 @@
     "make:icon": "node scripts/make-icon.mjs"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "firebase": "^11.0.2",
+    "jose": "^6.2.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"

@@ -3,10 +3,10 @@ import { F, T } from './helpers.js';
 export default {
   id: 'words',
   name: 'Words & Language',
-  emoji: '📖',
+  icon: 'icon-book',
   blurb: 'Where words come from, and the strange rules they follow.',
   topics: [
-    T('wordplay', 'Wordplay', '🔤', [
+    T('wordplay', 'Wordplay', [
       F('What is a word that reads the same forward and backward?', 'palindrome', ['anagram', 'homophone', 'acronym'],
         'A palindrome, like “racecar” or “level”, reads the same forward and backward.'),
       F('What is a word made by rearranging another word’s letters?', 'anagram', ['palindrome', 'portmanteau', 'acronym'],
@@ -20,7 +20,7 @@ export default {
       F('What is a word that can mean its own opposite, like “sanction”?', 'contronym', ['antonym', 'heteronym', 'retronym'],
         '“Sanction” is a contronym: it can mean both to approve and to penalize.'),
     ]),
-    T('origins', 'Word Origins', '📜', [
+    T('origins', 'Word Origins', [
       F('“Alphabet” comes from the first two letters of which alphabet?', 'Greek', ['Latin', 'Hebrew', 'Cyrillic'],
         '“Alphabet” comes from alpha and beta, the first two letters of the Greek alphabet.'),
       F('The word “salary” is related to the Latin word for what?', 'salt', ['silver', 'bread', 'wine'],
@@ -34,7 +34,7 @@ export default {
       F('“Clue” comes from “clew”, a ball of what?', 'thread', ['clay', 'wax', 'bread'],
         '“Clue” comes from clew, a ball of thread like the one Theseus used to escape the labyrinth.'),
     ]),
-    T('alphabet', 'The English Alphabet', '🅰️', [
+    T('alphabet', 'The English Alphabet', [
       F('How many letters are in the English alphabet?', '26', ['24', '28', '25'],
         'The modern English alphabet has 26 letters.'),
       F('Which letter is usually called the last one added to the English alphabet?', 'J', ['Z', 'W', 'Q'],
@@ -48,7 +48,7 @@ export default {
       F('What is the dot over a lowercase i or j called?', 'tittle', ['dimple', 'serif', 'umlaut'],
         'The dot over a lowercase i or j is called a tittle.'),
     ]),
-    T('shakespeare', 'Shakespeare', '🎭', [
+    T('shakespeare', 'Shakespeare', [
       F('Which Shakespeare character says “To be, or not to be”?', 'Hamlet', ['Macbeth', 'Othello', 'King Lear'],
         '“To be, or not to be” is spoken by Hamlet, prince of Denmark.'),
       F('In which London theater were many of Shakespeare’s plays performed?', 'the Globe', ['the Rose', 'the Old Vic', 'the Swan'],
@@ -62,7 +62,7 @@ export default {
       F('What did Shakespeare leave his wife in his will?', 'second-best bed', ['his quill', 'his house', 'a gold ring'],
         'Shakespeare’s will famously left his wife, Anne Hathaway, his “second-best bed”.'),
     ]),
-    T('languages', 'World Languages', '🌐', [
+    T('languages', 'World Languages', [
       F('Which language has the most native speakers?', 'Mandarin Chinese', ['English', 'Spanish', 'Hindi'],
         'Mandarin Chinese has the most native speakers of any language.'),
       F('What is the official language of Brazil?', 'Portuguese', ['Spanish', 'French', 'Italian'],
@@ -76,7 +76,7 @@ export default {
       F('On which island is the whistled language Silbo Gomero used?', 'La Gomera', ['Tenerife', 'Corsica', 'Crete'],
         'Silbo Gomero is a whistled form of Spanish used on the Canary island of La Gomera.'),
     ]),
-    T('punctuation', 'Punctuation', '‽', [
+    T('punctuation', 'Punctuation', [
       F('Which mark ends a direct question?', 'question mark', ['period', 'exclamation point', 'semicolon'],
         'Every direct question ends with a question mark.'),
       F('What is the comma before “and” in a list called?', 'Oxford comma', ['serial dash', 'Harvard colon', 'Cambridge comma'],
@@ -90,7 +90,7 @@ export default {
       F('What is the division sign ÷ called?', 'obelus', ['pilcrow', 'caret', 'solidus'],
         'The division sign ÷ is called an obelus.'),
     ]),
-    T('idioms', 'Idioms', '💬', [
+    T('idioms', 'Idioms', [
       F('Something very easy is “a piece of” what?', 'cake', ['pie', 'bread', 'toast'],
         'Something very easy is “a piece of cake”.'),
       F('What does it mean to “spill the beans”?', 'reveal a secret', ['make a mess', 'waste money', 'cook dinner'],
@@ -104,7 +104,7 @@ export default {
       F('What is the true origin of “the whole nine yards”?', 'unknown', ['machine-gun belts', 'football fields', 'Scottish kilts'],
         'The origin of “the whole nine yards” remains unknown, despite many theories.'),
     ]),
-    T('scripts', 'Writing Systems', '✍️', [
+    T('scripts', 'Writing Systems', [
       F('Which alphabet is used to write Russian?', 'Cyrillic', ['Latin', 'Greek', 'Arabic'],
         'Russian is written in the Cyrillic alphabet.'),
       F('In which direction is Arabic script written?', 'right to left', ['left to right', 'top to bottom', 'bottom to top'],

@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../firebase/AuthContext.jsx';
 import { useProgress } from '../data/progress.js';
 import Pfp from './Pfp.jsx';
+import Icon from './Icon.jsx';
 
 export const NAV = [
   { to: '/', label: 'Daily Dive', icon: '▲' },
@@ -11,7 +12,7 @@ export const NAV = [
   { to: '/archive', label: 'Archive', icon: '⟲' },
   { to: '/seas', label: '7 Seas', icon: '≋' },
   { to: '/me', label: 'My Shrimpion', icon: '◉' },
-  { to: '/friends', label: 'Friends', icon: '♥' },
+  { to: '/friends', label: 'Friends', icon: 'icon-heart' },
   { to: '/faq', label: 'FAQ', icon: '?' },
 ];
 
@@ -72,7 +73,7 @@ export default function TopBar({ compact = false }) {
               {NAV.map((n) => (
                 <NavLink key={n.to} to={n.to} end={n.to === '/'} className="drawer-link">
                   <span className="drawer-icon" aria-hidden="true">
-                    {n.icon}
+                    {n.icon.startsWith('icon-') ? <Icon name={n.icon} /> : n.icon}
                   </span>
                   {n.label}
                 </NavLink>

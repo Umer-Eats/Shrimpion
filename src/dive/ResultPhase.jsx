@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import TierReveal from './TierReveal.jsx';
 import { TIER_BY_ID, TIERS, ascentMax, topTierFor } from '../game/tiers.js';
 import { scene } from '../scene/sceneStore.js';
+import Icon, { TierIcon } from '../components/Icon.jsx';
 
 export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testName }) {
   const tier = TIER_BY_ID[result.tier];
@@ -50,7 +51,7 @@ export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testN
               style={{ '--tier': t.color }}
               title={locked ? `Needs ${t.min} pts: unlocks on a higher ascent` : t.name}
             >
-              <span aria-hidden="true">{locked ? '🔒' : t.emoji}</span> {t.min}+
+              {locked ? <Icon name="icon-lock" /> : <TierIcon tier={t} />} {t.min}+
             </span>
           );
         })}
@@ -69,7 +70,7 @@ export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testN
             {result.misses.map((f) => (
               <li key={f.id}>
                 <span className="topic-chip small">
-                  {f.topicEmoji} {f.topic}
+                  {f.topic}
                 </span>{' '}
                 {f.f}
               </li>

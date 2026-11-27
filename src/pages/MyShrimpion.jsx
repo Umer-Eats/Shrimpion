@@ -9,6 +9,7 @@ import { PFPS, pfpProgress } from '../data/pfps.js';
 import { TIER_BY_ID, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { categoryName } from '../game/content/index.js';
 import { dayNumber } from '../game/daily.js';
+import Icon, { TierIcon } from '../components/Icon.jsx';
 
 export default function MyShrimpion() {
   const auth = useAuth();
@@ -66,7 +67,7 @@ export default function MyShrimpion() {
               </button>
             )}
             <Link className="btn" to="/friends">
-              Friends ♥
+              Friends <Icon name="icon-heart" />
             </Link>
           </div>
         </div>
@@ -90,7 +91,9 @@ export default function MyShrimpion() {
           <dl className="stat-grid">
             <div>
               <dt>Current streak</dt>
-              <dd>🔥 {liveStreak(stats)}</dd>
+              <dd>
+                <Icon name="icon-flame" /> {liveStreak(stats)}
+              </dd>
             </div>
             <div>
               <dt>Best streak</dt>
@@ -114,7 +117,9 @@ export default function MyShrimpion() {
             </div>
             <div>
               <dt>Shrimpions</dt>
-              <dd>🦐 {stats.shrimpions}</dd>
+              <dd>
+                <TierIcon tier={TIER_BY_ID.shrimpion} /> {stats.shrimpions}
+              </dd>
             </div>
             <div>
               <dt>Best unlimited</dt>
@@ -164,7 +169,7 @@ export default function MyShrimpion() {
               <li key={r.id}>
                 <span>#{dayNumber(r.date)}</span>
                 <span>{categoryName(r.cat)}</span>
-                <span aria-hidden="true">{r.tiers.map((t) => TIER_BY_ID[t]?.emoji).join('')}</span>
+                <span className="tier-row">{r.tiers.map((t, i) => <TierIcon key={i} tier={TIER_BY_ID[t]} />)}</span>
                 <strong>{r.points}/{MAX_DIVE_POINTS}</strong>
               </li>
             ))}

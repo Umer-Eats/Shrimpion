@@ -3,10 +3,10 @@ import { F, T } from './helpers.js';
 export default {
   id: 'movies',
   name: 'At the Movies',
-  emoji: '🎬',
+  icon: 'icon-film',
   blurb: 'From silent film to blockbusters, the stories behind the screen.',
   topics: [
-    T('starwars', 'Star Wars', '🌌', [
+    T('starwars', 'Star Wars', [
       F('Who is revealed to be Luke Skywalker’s father?', 'Darth Vader', ['Obi-Wan Kenobi', 'Emperor Palpatine', 'Han Solo'],
         'Darth Vader reveals he is Luke Skywalker’s father in “The Empire Strikes Back”.'),
       F('What is the name of Han Solo’s ship?', 'Millennium Falcon', ['Star Destroyer', 'X-Wing', 'Slave I'],
@@ -20,7 +20,7 @@ export default {
       F('Chewbacca’s voice was built mostly from recordings of which animal?', 'bears', ['dolphins', 'elephants', 'pigs'],
         'Chewbacca’s voice was built mostly from recordings of bears, mixed with walruses and lions.'),
     ]),
-    T('pixar', 'Pixar', '💡', [
+    T('pixar', 'Pixar', [
       F('What is the name of the pull-string cowboy in “Toy Story”?', 'Woody', ['Buzz', 'Jessie', 'Bullseye'],
         'Woody, the pull-string cowboy, is the hero of “Toy Story”.'),
       F('What was Pixar’s first feature film?', 'Toy Story', ['A Bug’s Life', 'Monsters, Inc.', 'Cars'],
@@ -34,7 +34,7 @@ export default {
       F('Which Pixar film was nearly lost when its files were accidentally deleted?', 'Toy Story 2', ['Finding Nemo', 'Cars', 'Ratatouille'],
         'Most of “Toy Story 2” was accidentally deleted, then rescued from a backup on an employee’s home computer.'),
     ]),
-    T('hitchcock', 'Alfred Hitchcock', '🎥', [
+    T('hitchcock', 'Alfred Hitchcock', [
       F('What is Alfred Hitchcock’s famous nickname?', 'Master of Suspense', ['King of Horror', 'Prince of Darkness', 'Father of Noir'],
         'Alfred Hitchcock is known as the Master of Suspense.'),
       F('“Psycho” features a famous murder in which room?', 'shower', ['kitchen', 'attic', 'garage'],
@@ -48,7 +48,7 @@ export default {
       F('How did Hitchcock make his cameo in “Lifeboat”, set entirely at sea?', 'newspaper ad', ['reflection', 'portrait', 'radio voice'],
         'Stuck with a single boat set, Hitchcock cameoed in a newspaper ad for a weight-loss product in “Lifeboat”.'),
     ]),
-    T('oz', 'The Wizard of Oz', '🌪️', [
+    T('oz', 'The Wizard of Oz', [
       F('What is the name of Dorothy’s dog?', 'Toto', ['Sparky', 'Rex', 'Spot'],
         'Dorothy’s little dog is named Toto.'),
       F('What are Dorothy’s magic slippers made of in the 1939 film?', 'ruby', ['silver', 'gold', 'emerald'],
@@ -62,7 +62,7 @@ export default {
       F('What was the Cowardly Lion’s costume made from?', 'real lion skins', ['bear fur', 'yak hair', 'dyed wool'],
         'The Cowardly Lion’s costume was made from real lion skins and weighed nearly 100 pounds.'),
     ]),
-    T('oscars', 'The Oscars', '🏆', [
+    T('oscars', 'The Oscars', [
       F('What is the Academy Award statuette’s nickname?', 'Oscar', ['Emmy', 'Tony', 'Grammy'],
         'The Academy Award statuette is nicknamed Oscar.'),
       F('Which 1997 film won 11 Oscars?', 'Titanic', ['Avatar', 'Gladiator', 'Braveheart'],
@@ -76,7 +76,7 @@ export default {
       F('During World War II, Oscar statuettes were made of what?', 'painted plaster', ['wood', 'bronze', 'glass'],
         'Because of metal shortages in World War II, Oscars were made of painted plaster.'),
     ]),
-    T('ghibli', 'Studio Ghibli', '🍃', [
+    T('ghibli', 'Studio Ghibli', [
       F('Which Ghibli film features the Catbus?', 'My Neighbor Totoro', ['Spirited Away', 'Ponyo', 'Kiki’s Delivery Service'],
         'The Catbus carries Satsuki and Mei in “My Neighbor Totoro”.'),
       F('Who co-founded Studio Ghibli and directed “Spirited Away”?', 'Hayao Miyazaki', ['Isao Takahata', 'Makoto Shinkai', 'Mamoru Hosoda'],
@@ -90,7 +90,7 @@ export default {
       F('Which film premiered in 1988 as a double feature with “My Neighbor Totoro”?', 'Grave of the Fireflies', ['Castle in the Sky', 'Porco Rosso', 'Only Yesterday'],
         '“Grave of the Fireflies” premiered in 1988 on a double bill with Totoro.'),
     ]),
-    T('jurassic', 'Jurassic Park', '🦖', [
+    T('jurassic', 'Jurassic Park', [
       F('Who directed “Jurassic Park” (1993)?', 'Steven Spielberg', ['James Cameron', 'George Lucas', 'Ridley Scott'],
         'Steven Spielberg directed “Jurassic Park” in 1993.'),
       F('Who wrote the novel “Jurassic Park”?', 'Michael Crichton', ['Stephen King', 'Dan Brown', 'Tom Clancy'],
@@ -104,7 +104,7 @@ export default {
       F('Some velociraptor sounds came from recordings of which mating animals?', 'tortoises', ['seals', 'penguins', 'geese'],
         'Some velociraptor sounds in “Jurassic Park” came from recordings of mating tortoises.'),
     ]),
-    T('silent', 'Silent Film', '🎞️', [
+    T('silent', 'Silent Film', [
       F('Charlie Chaplin’s most famous character is the Little what?', 'Tramp', ['Clown', 'Fellow', 'Rascal'],
         'Charlie Chaplin’s best-known character is the Little Tramp.'),
       F('What are movies without synchronized speech called?', 'silent films', ['mute films', 'quiet pictures', 'still films'],

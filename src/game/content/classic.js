@@ -3,10 +3,10 @@ import { F, T } from './helpers.js';
 export default {
   id: 'classic',
   name: 'Classic',
-  emoji: '🐚',
+  icon: 'icon-shell',
   blurb: 'A little bit of everything, the way the daily ascent began.',
   topics: [
-    T('octopuses', 'Octopuses', '🐙', [
+    T('octopuses', 'Octopuses', [
       F('How many hearts does an octopus have?', '3', ['2', '4', '1'],
         'An octopus has 3 hearts: two serve the gills and one serves the rest of the body.'),
       F('What color is octopus blood?', 'blue', ['green', 'red', 'clear'],
@@ -20,7 +20,7 @@ export default {
       F('What does the veined octopus carry around as a portable shelter?', 'coconut shells', ['sea urchin spines', 'clam shells', 'bottle caps'],
         'The veined octopus carries coconut shells around and hides inside them, a rare case of tool use.'),
     ]),
-    T('moon', 'The Moon', '🌕', [
+    T('moon', 'The Moon', [
       F('Who was the first person to walk on the Moon?', 'Neil Armstrong', ['Buzz Aldrin', 'Yuri Gagarin', 'John Glenn'],
         'Neil Armstrong became the first person to walk on the Moon on July 20, 1969.'),
       F('How many people have walked on the Moon?', '12', ['6', '24', '9'],
@@ -34,7 +34,7 @@ export default {
       F('Which planetary scientist’s ashes were sent to the Moon in 1999?', 'Eugene Shoemaker', ['Gene Roddenberry', 'Carl Sagan', 'Clyde Tombaugh'],
         'Planetary scientist Eugene Shoemaker’s ashes reached the Moon aboard Lunar Prospector in 1999.'),
     ]),
-    T('honeybees', 'Honeybees', '🐝', [
+    T('honeybees', 'Honeybees', [
       F('Which bee lays the eggs in a honeybee hive?', 'queen', ['drone', 'worker', 'scout'],
         'The queen is the only bee in a typical hive that lays eggs, up to about 2,000 a day.'),
       F('What shape are honeycomb cells?', 'hexagons', ['squares', 'triangles', 'circles'],
@@ -48,7 +48,7 @@ export default {
       F('What is the sticky resin bees use to seal gaps in the hive?', 'propolis', ['royal jelly', 'nectar', 'pollen paste'],
         'Bees seal cracks in their hive with propolis, a resin mixture nicknamed “bee glue”.'),
     ]),
-    T('egypt', 'Ancient Egypt', '𓂀', [
+    T('egypt', 'Ancient Egypt', [
       F('Which river was the lifeline of ancient Egypt?', 'Nile', ['Tigris', 'Euphrates', 'Jordan'],
         'Ancient Egypt grew up along the Nile, whose yearly floods fertilized the farmland.'),
       F('What was the Egyptian writing system of picture signs called?', 'hieroglyphs', ['cuneiform', 'runes', 'Linear B'],
@@ -62,7 +62,7 @@ export default {
       F('Which organ did embalmers usually leave inside a mummy?', 'heart', ['brain', 'liver', 'lungs'],
         'Embalmers usually left the heart inside the mummy, since Egyptians believed it held a person’s mind.'),
     ]),
-    T('volcanoes', 'Volcanoes', '🌋', [
+    T('volcanoes', 'Volcanoes', [
       F('What is molten rock called once it erupts onto the surface?', 'lava', ['magma', 'ash', 'pumice'],
         'Molten rock is called magma underground and lava once it reaches the surface.'),
       F('Which Roman city did Mount Vesuvius bury in AD 79?', 'Pompeii', ['Carthage', 'Ostia', 'Ravenna'],
@@ -76,7 +76,7 @@ export default {
       F('What is a volcanic mudflow called?', 'lahar', ['tephra', 'caldera', 'fumarole'],
         'A lahar is a volcanic mudflow of water, ash and rock that can travel far from the volcano.'),
     ]),
-    T('coffee', 'Coffee', '☕', [
+    T('coffee', 'Coffee', [
       F('Which stimulant in coffee keeps people awake?', 'caffeine', ['melatonin', 'taurine', 'nicotine'],
         'Coffee perks people up thanks to caffeine, a natural stimulant.'),
       F('Coffee beans are the seeds of a fruit known as the coffee what?', 'cherry', ['pod', 'nut', 'cone'],
@@ -90,7 +90,7 @@ export default {
       F('Kopi luwak is made from beans that pass through which animal?', 'civet', ['bat', 'monkey', 'elephant'],
         'Kopi luwak coffee is made from beans that have passed through an Asian palm civet.'),
     ]),
-    T('chess', 'Chess', '♞', [
+    T('chess', 'Chess', [
       F('Which chess piece moves just one square in any direction?', 'king', ['queen', 'pawn', 'bishop'],
         'The king moves just one square in any direction, so it must be protected.'),
       F('Which chess piece can jump over other pieces?', 'knight', ['bishop', 'rook', 'queen'],
@@ -104,7 +104,7 @@ export default {
       F('What is it called when every legal move would worsen your position?', 'zugzwang', ['fianchetto', 'en passant', 'gambit'],
         'Being in zugzwang means any move you make will worsen your position.'),
     ]),
-    T('body', 'The Human Body', '🦴', [
+    T('body', 'The Human Body', [
       F('What is the largest organ of the human body?', 'skin', ['liver', 'brain', 'lungs'],
         'The skin is the body’s largest organ, covering about 2 square meters on an adult.'),
       F('How many bones are in the adult human body?', '206', ['186', '212', '300'],

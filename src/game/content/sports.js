@@ -3,10 +3,10 @@ import { F, T } from './helpers.js';
 export default {
   id: 'sports',
   name: 'Sports',
-  emoji: '🏅',
+  icon: 'icon-ball',
   blurb: 'Rules, records and the odd stories behind the games.',
   topics: [
-    T('olympics', 'The Olympics', '🥇', [
+    T('olympics', 'The Olympics', [
       F('How many rings are on the Olympic flag?', '5', ['4', '6', '7'],
         'The Olympic flag shows 5 interlocking rings.'),
       F('In which country did the ancient Olympic Games begin?', 'Greece', ['Italy', 'Egypt', 'Turkey'],
@@ -20,7 +20,7 @@ export default {
       F('Which art form once earned Olympic medals, from 1912 to 1948?', 'painting', ['ballet', 'photography', 'cooking'],
         'From 1912 to 1948, the Olympics awarded medals for the arts, including painting.'),
     ]),
-    T('basketball', 'Basketball', '🏀', [
+    T('basketball', 'Basketball', [
       F('How many players per team are on a basketball court at once?', '5', ['6', '7', '4'],
         'Each basketball team has 5 players on the court at a time.'),
       F('Who invented basketball in 1891?', 'James Naismith', ['Abner Doubleday', 'Walter Camp', 'William Morgan'],
@@ -34,7 +34,7 @@ export default {
       F('What was the final score of the first basketball game?', '1–0', ['2–0', '3–2', '0–0'],
         'The first basketball game, in 1891, ended with a score of 1–0.'),
     ]),
-    T('soccer', 'Soccer', '⚽', [
+    T('soccer', 'Soccer', [
       F('Which player may handle the ball inside their own penalty area?', 'goalkeeper', ['defender', 'captain', 'striker'],
         'Only the goalkeeper may handle the ball, and only inside their own penalty area.'),
       F('How often is the FIFA World Cup held?', 'every 4 years', ['every 2 years', 'every 3 years', 'every 5 years'],
@@ -48,7 +48,7 @@ export default {
       F('How many goals did Just Fontaine score at the 1958 World Cup?', '13', ['9', '11', '15'],
         'France’s Just Fontaine scored 13 goals at the 1958 World Cup.'),
     ]),
-    T('tennis', 'Tennis', '🎾', [
+    T('tennis', 'Tennis', [
       F('In tennis, what is a score of zero called?', 'love', ['nil', 'duck', 'zip'],
         'In tennis, a score of zero is called love.'),
       F('Which Grand Slam tournament is played on grass?', 'Wimbledon', ['French Open', 'US Open', 'Australian Open'],
@@ -62,7 +62,7 @@ export default {
       F('About how long did the longest tennis match ever (Isner vs. Mahut) last?', '11 hours', ['6 hours', '8 hours', '14 hours'],
         'John Isner beat Nicolas Mahut at Wimbledon in 2010 in a match lasting about 11 hours over three days.'),
     ]),
-    T('baseball', 'Baseball', '⚾', [
+    T('baseball', 'Baseball', [
       F('How many strikes make an out in baseball?', '3', ['2', '4', '5'],
         'In baseball, 3 strikes make an out.'),
       F('What is baseball’s infield called?', 'diamond', ['square', 'pentagon', 'oval'],
@@ -76,7 +76,7 @@ export default {
       F('What was Babe Ruth’s real first name?', 'George', ['Henry', 'Walter', 'Joseph'],
         'Babe Ruth’s real first name was George.'),
     ]),
-    T('running', 'Running & the Marathon', '🏃', [
+    T('running', 'Running & the Marathon', [
       F('How many miles long is a marathon?', '26.2', ['24.8', '30', '13.1'],
         'A marathon is 26.2 miles, or about 42.2 km.'),
       F('Who set the 100 m world record of 9.58 seconds in 2009?', 'Usain Bolt', ['Carl Lewis', 'Tyson Gay', 'Yohan Blake'],
@@ -90,7 +90,7 @@ export default {
       F('Who was the first woman to run the Boston Marathon as a registered entrant?', 'Kathrine Switzer', ['Bobbi Gibb', 'Grete Waitz', 'Joan Benoit'],
         'Kathrine Switzer became the first woman to run the Boston Marathon as a registered entrant in 1967.'),
     ]),
-    T('golf', 'Golf', '⛳', [
+    T('golf', 'Golf', [
       F('What is it called when you finish a hole with your very first stroke?', 'hole-in-one', ['eagle', 'birdie', 'condor'],
         'Sinking the ball with your first stroke on a hole is a hole-in-one.'),
       F('What is one under par on a hole called?', 'birdie', ['eagle', 'bogey', 'albatross'],
@@ -104,7 +104,7 @@ export default {
       F('What is three under par on a single hole called?', 'albatross', ['condor', 'eagle', 'phoenix'],
         'Three under par on a single hole is an albatross, also called a double eagle.'),
     ]),
-    T('football', 'American Football', '🏈', [
+    T('football', 'American Football', [
       F('What is the NFL’s championship game called?', 'Super Bowl', ['World Series', 'Grand Final', 'Pro Bowl'],
         'The NFL’s championship game is the Super Bowl.'),
       F('How many points is a touchdown worth?', '6', ['3', '7', '5'],

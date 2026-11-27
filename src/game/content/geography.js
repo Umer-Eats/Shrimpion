@@ -3,10 +3,10 @@ import { F, T } from './helpers.js';
 export default {
   id: 'geography',
   name: 'Geography',
-  emoji: '🧭',
+  icon: 'icon-globe',
   blurb: 'Around the world in seven ascents.',
   topics: [
-    T('everest', 'Mount Everest', '🏔️', [
+    T('everest', 'Mount Everest', [
       F('What is the tallest mountain above sea level?', 'Mount Everest', ['K2', 'Kilimanjaro', 'Denali'],
         'Mount Everest is the tallest mountain above sea level, at about 8,849 m.'),
       F('Everest sits on the border of Nepal and which other country?', 'China', ['India', 'Bhutan', 'Pakistan'],
@@ -20,7 +20,7 @@ export default {
       F('George Everest, the mountain’s namesake, held which job?', 'surveyor', ['mountaineer', 'explorer', 'botanist'],
         'Everest is named after Sir George Everest, a British surveyor of India who never saw the peak.'),
     ]),
-    T('amazon', 'The Amazon', '🌿', [
+    T('amazon', 'The Amazon', [
       F('What is the largest tropical rainforest on Earth?', 'Amazon', ['Congo', 'Daintree', 'Borneo'],
         'The Amazon is the largest tropical rainforest on Earth.'),
       F('Which country holds most of the Amazon rainforest?', 'Brazil', ['Peru', 'Colombia', 'Venezuela'],
@@ -34,7 +34,7 @@ export default {
       F('Which dark river meets the sandy Solimões near Manaus without mixing?', 'Rio Negro', ['Madeira', 'Tapajós', 'Xingu'],
         'Near Manaus, the dark Rio Negro and the sandy Solimões flow side by side for miles without mixing.'),
     ]),
-    T('sahara', 'The Sahara', '🐪', [
+    T('sahara', 'The Sahara', [
       F('What is the largest hot desert in the world?', 'Sahara', ['Gobi', 'Kalahari', 'Arabian'],
         'The Sahara is the largest hot desert in the world.'),
       F('On which continent is the Sahara?', 'Africa', ['Asia', 'Australia', 'South America'],
@@ -48,7 +48,7 @@ export default {
       F('Sahara dust blown across the Atlantic helps fertilize which rainforest?', 'the Amazon', ['the Congo', 'the Daintree', 'Borneo'],
         'Dust blown from the Sahara crosses the Atlantic and helps fertilize the Amazon rainforest.'),
     ]),
-    T('australia', 'Australia', '🦘', [
+    T('australia', 'Australia', [
       F('What is the world’s largest coral reef system, off Queensland?', 'Great Barrier Reef', ['Ningaloo Reef', 'Belize Barrier Reef', 'Red Sea Reef'],
         'The Great Barrier Reef stretches over 2,300 km along Queensland’s coast.'),
       F('What is the capital of Australia?', 'Canberra', ['Sydney', 'Melbourne', 'Perth'],
@@ -62,7 +62,7 @@ export default {
       F('What shape is wombat poop?', 'cubes', ['spirals', 'spheres', 'rings'],
         'Wombats produce poop in cubes, which helps it stay put on rocks and logs.'),
     ]),
-    T('iceland', 'Iceland', '🧊', [
+    T('iceland', 'Iceland', [
       F('What is the capital of Iceland?', 'Reykjavík', ['Oslo', 'Helsinki', 'Nuuk'],
         'Reykjavík is the world’s northernmost capital of a sovereign state.'),
       F('Iceland is the land of fire and ice: volcanoes and what?', 'glaciers', ['deserts', 'rainforests', 'coral reefs'],
@@ -76,7 +76,7 @@ export default {
       F('Which Icelandic volcano grounded flights across Europe in 2010?', 'Eyjafjallajökull', ['Hekla', 'Katla', 'Grímsvötn'],
         'The 2010 eruption of Eyjafjallajökull shut down much of Europe’s airspace.'),
     ]),
-    T('japan', 'Japan', '🗾', [
+    T('japan', 'Japan', [
       F('What is the capital of Japan?', 'Tokyo', ['Kyoto', 'Osaka', 'Seoul'],
         'Tokyo is Japan’s capital and its largest city.'),
       F('What is Japan’s highest mountain?', 'Mount Fuji', ['Mount Aso', 'Mount Takao', 'Mount Kita'],
@@ -90,7 +90,7 @@ export default {
       F('A 2023 survey counted roughly how many islands in Japan?', '14,000', ['400', '4,000', '40,000'],
         'A 2023 survey counted over 14,000 islands in Japan.'),
     ]),
-    T('oceans', 'Oceans & Seas', '🌊', [
+    T('oceans', 'Oceans & Seas', [
       F('What is the largest ocean on Earth?', 'Pacific', ['Atlantic', 'Indian', 'Arctic'],
         'The Pacific is the largest and deepest ocean on Earth.'),
       F('About what percentage of Earth’s surface is covered by ocean?', '71%', ['51%', '61%', '81%'],
@@ -104,7 +104,7 @@ export default {
       F('Which of the five oceans is the saltiest?', 'Atlantic', ['Pacific', 'Indian', 'Arctic'],
         'The Atlantic is the saltiest of the world’s five oceans.'),
     ]),
-    T('microstates', 'Tiny Countries', '🏰', [
+    T('microstates', 'Tiny Countries', [
       F('What is the smallest country in the world?', 'Vatican City', ['Monaco', 'San Marino', 'Liechtenstein'],
         'Vatican City, at about 0.44 km², is the world’s smallest country.'),
       F('Which tiny country on the French Riviera hosts a famous Grand Prix?', 'Monaco', ['Andorra', 'Malta', 'San Marino'],

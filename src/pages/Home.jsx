@@ -7,6 +7,7 @@ import { CATEGORY_BY_ID } from '../game/content/index.js';
 import CategoryPicker from '../components/CategoryPicker.jsx';
 import { MAX_DIVE_POINTS } from '../game/tiers.js';
 import PixelSprite from '../components/PixelSprite.jsx';
+import Icon from '../components/Icon.jsx';
 
 export default function Home() {
   const cat = useProgress((s) => s.category);
@@ -44,14 +45,14 @@ export default function Home() {
         <button className="btn btn-cat" onClick={() => setPicking(true)} aria-haspopup="dialog">
           <span className="btn-cat-label">Category</span>
           <span>
-            {category.emoji} {category.name}
+            <Icon name={category.icon} /> {category.name}
           </span>
           <span aria-hidden="true">▾</span>
         </button>
         <div className="home-meta">
           <span>ASCENT #{dayNumber(today)}</span>
           <span>{prettyDate(today)}</span>
-          {streak > 0 && <span className="streak">🔥 {streak}-day streak</span>}
+          {streak > 0 && <span className="streak"><Icon name="icon-flame" /> {streak}-day streak</span>}
           {done && <span className="done-badge">✓ {done.points}/{MAX_DIVE_POINTS}</span>}
         </div>
         <div className="home-links">

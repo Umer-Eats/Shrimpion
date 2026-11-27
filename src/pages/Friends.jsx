@@ -15,6 +15,7 @@ import {
 } from '../firebase/api.js';
 import { todayKey, addDays } from '../game/daily.js';
 import { MAX_DIVE_POINTS } from '../game/tiers.js';
+import Icon from '../components/Icon.jsx';
 
 function friendStreak(stats = {}) {
   const today = todayKey();
@@ -139,7 +140,9 @@ export default function Friends() {
                     </div>
                     <div>
                       <dt>Streak</dt>
-                      <dd>🔥 {friendStreak(s)}</dd>
+                      <dd>
+                        <Icon name="icon-flame" /> {friendStreak(s)}
+                      </dd>
                     </div>
                     <div>
                       <dt>Facts</dt>

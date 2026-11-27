@@ -48,7 +48,7 @@ function Feedback({ ok, fact, extra }) {
       {extra}
       <p className="feedback-fact">
         <span className="topic-chip small">
-          {fact.topicEmoji} {fact.topic}
+          {fact.topic}
         </span>{' '}
         {fact.f}
       </p>
@@ -64,7 +64,7 @@ function NextButton({ seq }) {
   if (!seq.answered) return null;
   return (
     <button ref={ref} className="btn btn-primary" onClick={seq.next}>
-      {seq.isLast ? 'See how you did ▲' : 'Next ▶'}
+      {seq.isLast ? 'See how you did ▲' : 'Next ►'}
     </button>
   );
 }
@@ -430,7 +430,7 @@ function ChoiceTest({ test, onComplete, mode }) {
       ) : (
         <>
           <span className="topic-chip">
-            {it.fact.topicEmoji} {it.fact.topic}
+            {it.fact.topic}
           </span>
           <p className="prompt prompt-big">{it.fact.q}</p>
         </>

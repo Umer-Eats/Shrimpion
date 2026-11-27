@@ -9,4 +9,4 @@
 export const F = (q, a, d, f) => ({ q, a, d, f });
 
 /** Topic with six facts, ordered from common knowledge (level 1) to deep niche (level 6). */
-export const T = (id, name, emoji, facts) => ({ id, name, emoji, facts });
+export const T = (id, name, facts) => ({ id, name, facts });

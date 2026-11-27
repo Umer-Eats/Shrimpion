@@ -11,7 +11,7 @@ export const CATEGORY_PACKS = [classic, words, movies, sports, geography, music]
 export const RANDOM_CATEGORY = {
   id: 'random',
   name: 'Daily Random',
-  emoji: '🎲',
+  icon: 'icon-dice',
   blurb: 'A mix from every category. Same seven topics for everyone today.',
 };
 
@@ -30,7 +30,6 @@ export const ALL_TOPICS = CATEGORY_PACKS.flatMap((cat) =>
       id: `${cat.id}.${t.id}.${i + 1}`,
       level: i + 1,
       topic: t.name,
-      topicEmoji: t.emoji,
       cat: cat.id,
     })),
   })),

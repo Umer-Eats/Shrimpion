@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import PageShell from './PageShell.jsx';
 import { TIERS, ASCENT_MAX, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { TEST_TYPES } from '../game/tests.js';
+import Icon, { TierIcon } from '../components/Icon.jsx';
 
 const QA = [
   {
@@ -43,7 +44,7 @@ const QA = [
         <ul>
           {TIERS.map((t) => (
             <li key={t.id}>
-              {t.emoji} <strong style={{ color: t.color }}>{t.name}</strong>: {t.min}+ points
+              <TierIcon tier={t} /> <strong style={{ color: t.color }}>{t.name}</strong>: {t.min}+ points
             </li>
           ))}
         </ul>
@@ -106,7 +107,7 @@ export default function FAQ() {
         </p>
         <p>Shrimpion follows the same idea: good learning tools should reach everyone, free.</p>
         <a className="btn btn-primary" href="https://heyumerqureshi.com" target="_blank" rel="noopener noreferrer">
-          heyumerqureshi.com ↗
+          heyumerqureshi.com →
         </a>
       </section>
 

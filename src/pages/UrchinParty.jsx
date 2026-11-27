@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import PageShell from './PageShell.jsx';
 import PixelSprite from '../components/PixelSprite.jsx';
+import Icon from '../components/Icon.jsx';
 
 export default function UrchinParty() {
   return (
@@ -29,7 +30,7 @@ export default function UrchinParty() {
         </ul>
         <div className="stage-actions">
           <Link to="/friends" className="btn btn-primary">
-            Line up your friends ♥
+            Line up your friends <Icon name="icon-heart" />
           </Link>
           <Link to="/" className="btn">
             ▲ Ascend solo for now

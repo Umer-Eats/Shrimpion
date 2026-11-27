@@ -1,5 +1,6 @@
 import PixelSprite from './PixelSprite.jsx';
 import { PFP_BY_ID } from '../data/pfps.js';
+import Icon from './Icon.jsx';
 
 /** A shrimp profile picture in a little porthole frame. */
 export default function Pfp({ id = 'basic', size = 'md', locked = false, online }) {
@@ -9,7 +10,7 @@ export default function Pfp({ id = 'basic', size = 'md', locked = false, online 
     <span className={`pfp pfp-${size} pfp-${pfp.id} ${locked ? 'is-locked' : ''}`} title={pfp.name}>
       {pfp.id === 'crowned' && <PixelSprite name="crown" scale={scale} className="pfp-crown" />}
       <PixelSprite name="shrimp" variant={pfp.id} scale={scale} title={pfp.name} />
-      {locked && <span className="pfp-lock" aria-hidden="true">🔒</span>}
+      {locked && <Icon name="icon-lock" scale={2} className="pfp-lock" />}
       {online !== undefined && <span className={`online-dot ${online ? 'is-on' : ''}`} aria-label={online ? 'online' : 'offline'} />}
     </span>
   );

@@ -3,6 +3,7 @@ import DiveRunner from '../dive/DiveRunner.jsx';
 import { useProgress, actions } from '../data/progress.js';
 import { CATEGORIES } from '../game/content/index.js';
 import { scene } from '../scene/sceneStore.js';
+import Icon from '../components/Icon.jsx';
 
 export default function Unlimited() {
   const savedCat = useProgress((s) => s.category);
@@ -32,7 +33,7 @@ export default function Unlimited() {
         <div className="chip-row" role="radiogroup" aria-label="Category">
           {CATEGORIES.map((c) => (
             <button key={c.id} role="radio" aria-checked={cat === c.id} className={`chip ${cat === c.id ? 'is-on' : ''}`} onClick={() => setCat(c.id)}>
-              {c.emoji} {c.name}
+              <Icon name={c.icon} /> {c.name}
             </button>
           ))}
         </div>

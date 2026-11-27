@@ -3,10 +3,10 @@ import { F, T } from './helpers.js';
 export default {
   id: 'music',
   name: 'Music',
-  emoji: '🎵',
+  icon: 'icon-note',
   blurb: 'From the charts to the concert hall to the deep cuts.',
   topics: [
-    T('beatles', 'The Beatles', '🎸', [
+    T('beatles', 'The Beatles', [
       F('Which city were the Beatles from?', 'Liverpool', ['London', 'Manchester', 'Birmingham'],
         'The Beatles formed in Liverpool, England, in 1960.'),
       F('How many members were in the classic Beatles lineup?', '4', ['3', '5', '6'],
@@ -20,7 +20,7 @@ export default {
       F('Who was the Beatles’ drummer just before Ringo joined?', 'Pete Best', ['Stuart Sutcliffe', 'Jimmie Nicol', 'Brian Epstein'],
         'Pete Best drummed for the Beatles until Ringo Starr replaced him in 1962.'),
     ]),
-    T('mozart', 'Mozart', '🎼', [
+    T('mozart', 'Mozart', [
       F('Which composer wrote the opera “The Magic Flute”?', 'Mozart', ['Beethoven', 'Bach', 'Haydn'],
         'Mozart wrote the opera “The Magic Flute” in 1791.'),
       F('In which city was Mozart born?', 'Salzburg', ['Vienna', 'Prague', 'Munich'],
@@ -34,7 +34,7 @@ export default {
       F('Which guarded piece did a teenage Mozart write out from memory in the Sistine Chapel?', 'Miserere', ['Ave Maria', 'Gloria', 'Te Deum'],
         'At 14, Mozart reportedly wrote out Allegri’s guarded “Miserere” from memory after hearing it in the Sistine Chapel.'),
     ]),
-    T('piano', 'The Piano', '🎹', [
+    T('piano', 'The Piano', [
       F('How many keys does a standard piano have?', '88', ['76', '92', '64'],
         'A standard modern piano has 88 keys.'),
       F('Inside a piano, what strikes the strings?', 'hammers', ['plectrums', 'bows', 'springs'],
@@ -48,7 +48,7 @@ export default {
       F('Who invented the piano in Italy around 1700?', 'Bartolomeo Cristofori', ['Antonio Stradivari', 'Ignace Pleyel', 'Johann Stein'],
         'Bartolomeo Cristofori invented the piano in Italy around 1700.'),
     ]),
-    T('beethoven', 'Beethoven', '🎻', [
+    T('beethoven', 'Beethoven', [
       F('Which composer kept writing masterpieces after losing his hearing?', 'Beethoven', ['Mozart', 'Chopin', 'Vivaldi'],
         'Beethoven kept composing masterpieces even after he lost his hearing.'),
       F('Which Beethoven symphony opens with “da-da-da-DUM”?', 'Fifth', ['Ninth', 'Third', 'Seventh'],
@@ -62,7 +62,7 @@ export default {
       F('What did Beethoven call the unknown woman in his famous love letter?', 'Immortal Beloved', ['Eternal Muse', 'Dearest Angel', 'Secret Rose'],
         'Beethoven’s famous unsent letter is addressed to an unidentified “Immortal Beloved”.'),
     ]),
-    T('jazz', 'Jazz', '🎷', [
+    T('jazz', 'Jazz', [
       F('Which U.S. city is known as the birthplace of jazz?', 'New Orleans', ['Chicago', 'New York', 'Memphis'],
         'Jazz was born in New Orleans in the early 1900s.'),
       F('Which jazz trumpeter recorded “What a Wonderful World”?', 'Louis Armstrong', ['Miles Davis', 'Dizzy Gillespie', 'Chet Baker'],
@@ -76,7 +76,7 @@ export default {
       F('What is unusual about Dizzy Gillespie’s signature trumpet?', 'bent upward', ['coiled twice', 'double-belled', 'made of glass'],
         'Dizzy Gillespie played a trumpet with its bell bent upward.'),
     ]),
-    T('elvis', 'Elvis Presley', '🕺', [
+    T('elvis', 'Elvis Presley', [
       F('Who is known as the “King of Rock and Roll”?', 'Elvis Presley', ['Chuck Berry', 'Little Richard', 'Buddy Holly'],
         'Elvis Presley is known as the King of Rock and Roll.'),
       F('What was the name of Elvis’s Memphis mansion?', 'Graceland', ['Neverland', 'Paisley Park', 'Sun Manor'],
@@ -90,7 +90,7 @@ export default {
       F('What was the name of Elvis’s identical twin brother?', 'Jesse', ['Aaron', 'Vernon', 'Lyle'],
         'Elvis had an identical twin, Jesse, who was stillborn.'),
     ]),
-    T('orchestra', 'The Orchestra', '🎺', [
+    T('orchestra', 'The Orchestra', [
       F('Which orchestra section includes violins and cellos?', 'strings', ['brass', 'woodwinds', 'percussion'],
         'Violins and cellos belong to the strings section.'),
       F('Which brass instrument changes pitch with a slide?', 'trombone', ['trumpet', 'tuba', 'French horn'],
@@ -104,7 +104,7 @@ export default {
       F('What are timpani also called?', 'kettledrums', ['snare drums', 'bongos', 'tom-toms'],
         'Timpani are also called kettledrums because of their large copper bowls.'),
     ]),
-    T('mj', 'Michael Jackson', '🧤', [
+    T('mj', 'Michael Jackson', [
       F('Who is known as the “King of Pop”?', 'Michael Jackson', ['Prince', 'Elvis Presley', 'Justin Timberlake'],
         'Michael Jackson is widely known as the King of Pop.'),
       F('What is the best-selling album of all time?', 'Thriller', ['Back in Black', 'Bad', 'Rumours'],

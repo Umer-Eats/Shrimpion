@@ -4,6 +4,7 @@ import TierReveal from './TierReveal.jsx';
 import { TIER_BY_ID, tierForDive, MAX_DIVE_POINTS } from '../game/tiers.js';
 import { categoryName } from '../game/content/index.js';
 import { dayNumber, todayKey } from '../game/daily.js';
+import Icon, { TierIcon } from '../components/Icon.jsx';
 
 /** Shown when you break the surface on a daily or archive ascent. */
 export default function Summary({ record, submitted, signedIn, onSignIn }) {
@@ -14,7 +15,8 @@ export default function Summary({ record, submitted, signedIn, onSignIn }) {
 
   const shareText = [
     `Shrimpion #${dayNumber(record.date)} · ${categoryName(record.cat)}`,
-    `${record.tiers.map((t) => TIER_BY_ID[t]?.emoji || '⬛').join('')} ${record.points}/${MAX_DIVE_POINTS}`,
+    `${record.points}/${MAX_DIVE_POINTS} pts · ${overall.name}`,
+    `Ascents: ${(record.perAscent || []).join(' · ')}`,
     `${pct}% accuracy · learned ${record.learned} facts`,
     window.location.origin,
   ].join('\n');
@@ -47,7 +49,7 @@ export default function Summary({ record, submitted, signedIn, onSignIn }) {
       <div className="ascent-row">
         {record.tiers.map((t, i) => (
           <span key={i} className="ascent-cell" style={{ '--tier': TIER_BY_ID[t]?.color }} title={TIER_BY_ID[t]?.name}>
-            <span aria-hidden="true">{TIER_BY_ID[t]?.emoji}</span>
+            <TierIcon tier={TIER_BY_ID[t]} />
             <small>{record.perAscent?.[i] ?? ''}</small>
           </span>
         ))}
