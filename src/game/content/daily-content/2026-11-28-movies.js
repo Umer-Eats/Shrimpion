@@ -1,0 +1,60 @@
+import { F, T } from '../helpers.js';
+
+export default [
+  T('back-to-the-future', 'Back to the Future', [
+    F("What car is converted into a time machine in Back to the Future?", "DeLorean", ["Mustang", "Camaro", "Corvette"], "Doc Brown builds his time machine out of a DeLorean."),
+    F("What speed must the car reach to make its first time jump?", "88 mph", ["55 mph", "77 mph", "100 mph"], "The time machine must reach 88 mph to make a jump."),
+    F("Which year does Marty first travel to from 1985?", "1955", ["1945", "1965", "1975"], "Marty's first trip from 1985 takes him to 1955."),
+    F("Which instrument does Marty play at the school dance?", "guitar", ["trumpet", "bassoon", "piano"], "At the school dance, Marty plays guitar with the band."),
+    F("What is the name of Doc Brown's dog in 1985?", "Einstein", ["Newton", "Galileo", "Edison"], "The dog Einstein is Doc Brown's first time traveler."),
+    F("What is the name of the shopping mall before Marty changes its history?", "Twin Pines Mall", ["Hill Valley Plaza", "Lone Pine Mall", "Peabody Galleria"], "Doc first demonstrates the car at Twin Pines Mall."),
+  ]),
+  T('the-matrix', 'The Matrix', [
+    F("Which character offers Neo a choice between two pills?", "Morpheus", ["Trinity", "Cypher", "Tank"], "Morpheus presents Neo with the choice between a red pill and a blue pill."),
+    F("Who plays Neo in the first Matrix film?", "Keanu Reeves", ["Laurence Fishburne", "Hugo Weaving", "Will Smith"], "Keanu Reeves plays the hacker who takes the name Neo."),
+    F("Which program is the lead agent pursuing Neo?", "Agent Smith", ["Agent Jones", "Agent Brown", "the Oracle"], "Agent Smith interrogates Neo early in the film."),
+    F("What is the name of the simulated space used to load training programs?", "the Construct", ["Zion", "the Source", "the Mainframe"], "The crew refers to its loading program as the Construct."),
+    F("What food does the Oracle offer Neo after they speak?", "a cookie", ["a sandwich", "a doughnut", "an apple"], "Before Neo leaves her apartment, the Oracle offers him a cookie."),
+    F("What is the name of Morpheus's ship?", "Nebuchadnezzar", ["Logos", "Icarus", "Hammer"], "The Nebuchadnezzar carries Morpheus and his crew."),
+  ]),
+  T('lion-king', 'The Lion King', [
+    F("What is the young lion prince named in the 1994 film?", "Simba", ["Mufasa", "Kovu", "Timon"], "Simba is the lion cub who grows up to challenge his uncle for the throne."),
+    F("Which animal is Pumbaa?", "warthog", ["meerkat", "hyena", "mandrill"], "Pumbaa is a warthog who befriends the exiled prince."),
+    F("Who is Simba's childhood friend and eventual queen?", "Nala", ["Sarabi", "Sarafina", "Shenzi"], "Nala reunites with the adult Simba and urges him to return home."),
+    F("Who performs Simba's presentation at Pride Rock?", "Rafiki", ["Zazu", "Mufasa", "Timon"], "Rafiki lifts the infant prince before the assembled animals."),
+    F("Who voices Scar in the 1994 English-language film?", "Jeremy Irons", ["James Earl Jones", "Nathan Lane", "Rowan Atkinson"], "Jeremy Irons provides Scar's speaking voice in the 1994 film."),
+    F("Who composed the 1994 film's instrumental score?", "Hans Zimmer", ["Alan Menken", "Howard Shore", "Danny Elfman"], "Hans Zimmer composed the instrumental score for the original animated film."),
+  ]),
+  T('shrek', 'Shrek', [
+    F("What kind of creature is Shrek?", "ogre", ["troll", "goblin", "giant"], "Shrek is an ogre who lives in a swamp."),
+    F("Whom does Shrek rescue from the dragon-guarded tower?", "Princess Fiona", ["Cinderella", "Sleeping Beauty", "Snow White"], "Shrek and Donkey journey to the tower to rescue Princess Fiona."),
+    F("What is the name of the kingdom ruled by Lord Farquaad?", "Duloc", ["Far Far Away", "Corona", "Arendelle"], "Duloc is ruled by Lord Farquaad in the first film."),
+    F("Who voices Donkey in the original English-language film?", "Eddie Murphy", ["Chris Rock", "Mike Myers", "John Lithgow"], "Eddie Murphy provides Donkey's voice."),
+    F("What food does Shrek use to explain that ogres have layers?", "onions", ["cakes", "parfaits", "cabbages"], "Shrek compares ogres to onions while explaining that both have layers."),
+    F("Who wrote the picture book on which the first Shrek film is based?", "William Steig", ["Roald Dahl", "Maurice Sendak", "Chris Van Allsburg"], "The movie was adapted from a picture book by William Steig."),
+  ]),
+  T('et', 'E.T. the Extra-Terrestrial', [
+    F("Who directed E.T. the Extra-Terrestrial?", "Steven Spielberg", ["Robert Zemeckis", "George Lucas", "James Cameron"], "Steven Spielberg directed the story of a stranded visitor from another planet."),
+    F("What is the name of the boy who befriends E.T.?", "Elliott", ["Michael", "Greg", "Tyler"], "Elliott finds the alien hiding near his family's house."),
+    F("What candy does Elliott use to lure the alien?", "Reese's Pieces", ["Skittles", "M&M's", "Junior Mints"], "Elliott lays a trail of Reese's Pieces to lure the alien out of hiding."),
+    F("What holiday helps the children move E.T. outdoors in disguise?", "Halloween", ["Thanksgiving", "New Year's Eve", "Valentine's Day"], "The children use a Halloween costume to disguise the alien."),
+    F("Who plays Elliott's younger sister, Gertie?", "Drew Barrymore", ["Dakota Fanning", "Mara Wilson", "Christina Ricci"], "Drew Barrymore plays Elliott's younger sister."),
+    F("Who wrote the screenplay for E.T. the Extra-Terrestrial?", "Melissa Mathison", ["Nora Ephron", "Carrie Fisher", "Lawrence Kasdan"], "The screenplay was written by Melissa Mathison."),
+  ]),
+  T('the-princess-bride', 'The Princess Bride', [
+    F("What is the princess in The Princess Bride named?", "Buttercup", ["Rose", "Fiona", "Daisy"], "The farm girl Buttercup is engaged to Prince Humperdinck."),
+    F("What is the name of Buttercup's true love?", "Westley", ["Inigo", "Vizzini", "Fezzik"], "Westley leaves the farm to seek his fortune and eventually returns."),
+    F("What weapon does Inigo Montoya excel at using?", "sword", ["bow", "spear", "axe"], "Inigo Montoya uses a sword in his duel atop the Cliffs of Insanity."),
+    F("What is the name of the giant played by Andre the Giant?", "Fezzik", ["Vizzini", "Count Rugen", "Miracle Max"], "Fezzik is the gentle giant recruited to help kidnap the princess."),
+    F("Where do Westley and Buttercup encounter rodents of unusual size?", "Fire Swamp", ["Pit of Despair", "Cliffs of Insanity", "Miracle Max's hut"], "Westley and Buttercup cross the Fire Swamp while fleeing the prince."),
+    F("Who wrote the original novel and the film's screenplay?", "William Goldman", ["Rob Reiner", "Nora Ephron", "Aaron Sorkin"], "William Goldman adapted his own novel into the screenplay."),
+  ]),
+  T('home-alone', 'Home Alone', [
+    F("What is the first name of the boy accidentally left behind in Home Alone?", "Kevin", ["Buzz", "Fuller", "Jeff"], "Kevin is left behind when his extended family leaves for the airport."),
+    F("Which city is the family flying to in the first film?", "Paris", ["London", "Rome", "New York"], "The family boards a flight to Paris for Christmas."),
+    F("What nickname does Marv give the pair of burglars in the first film?", "Wet Bandits", ["Sticky Bandits", "Midnight Bandits", "Holiday Bandits"], "Marv calls the pair the Wet Bandits because he leaves taps running in the homes they hit."),
+    F("What animal falls onto Marv's face during the break-in?", "tarantula", ["scorpion", "snake", "gerbil"], "Kevin places a tarantula on Marv's face to get away."),
+    F("Which character reunites with his granddaughter at the end?", "Marley", ["Gus", "Uncle Frank", "Officer Balzak"], "The neighbor Marley reconciles with his family by Christmas morning."),
+    F("Who directed the original Home Alone film?", "Chris Columbus", ["John Hughes", "Harold Ramis", "Rob Reiner"], "Chris Columbus directed the original film from a screenplay by John Hughes."),
+  ]),
+];

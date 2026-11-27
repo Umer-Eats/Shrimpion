@@ -1,0 +1,60 @@
+import { F, T } from '../helpers.js';
+
+export default [
+  T('sound-devices', 'Sound Devices', [
+    F("What is the repetition of an initial consonant sound in nearby words?", "alliteration", ["irony", "hyperbole", "metonymy"], "The repeated s sound in 'silver sails' is an example of alliteration."),
+    F("What device is used when a word such as 'buzz' imitates a sound?", "onomatopoeia", ["allegory", "personification", "understatement"], "Words that imitate sounds, such as 'buzz,' are examples of onomatopoeia."),
+    F("What device repeats vowel sounds in nearby words?", "assonance", ["allusion", "metaphor", "litotes"], "The long o sound in 'go slow' creates assonance."),
+    F("What term describes the pattern of stresses and beats in a line of verse?", "meter", ["diction", "syntax", "register"], "In poetry, meter organizes beats into a recurring rhythmic pattern."),
+    F("What is a metrical foot with an unstressed beat followed by a stressed beat?", "iamb", ["trochee", "dactyl", "spondee"], "An iamb moves from an unstressed syllable to a stressed syllable."),
+    F("What term describes a pause within a line of verse?", "caesura", ["enjambment", "refrain", "couplet"], "A caesura is a pause inside a line of poetry."),
+  ]),
+  T('book-parts', 'Parts of a Book', [
+    F("What section lists chapter titles with their page numbers?", "table of contents", ["index", "preface", "glossary"], "A table of contents shows the order and location of chapters in a book."),
+    F("What section defines specialized words used in a book?", "glossary", ["dedication", "abstract", "bibliography"], "A glossary explains terms readers may encounter in a book."),
+    F("What section lists topics alphabetically with locators?", "index", ["appendix", "epigraph", "foreword"], "An index directs readers to pages about specific topics."),
+    F("What kind of introduction is typically written by someone other than the author?", "foreword", ["afterword", "footnote", "endnote"], "A foreword often introduces a book from the perspective of a guest writer."),
+    F("What is a quotation placed before a book or chapter called?", "epigraph", ["epilogue", "caption", "endpaper"], "An epigraph can introduce a theme before the main text begins."),
+    F("What book section can record details of its printing or production?", "colophon", ["prologue", "erratum", "synopsis"], "A colophon may name the typeface, printer, or production methods used for a book."),
+  ]),
+  T('word-building', 'Building Words', [
+    F("What part of 'unhappy' is 'un-'?", "prefix", ["suffix", "root", "compound"], "The prefix 'un-' comes before the base word 'happy.'"),
+    F("What part of 'kindness' is '-ness'?", "suffix", ["prefix", "root", "clause"], "The suffix '-ness' changes 'kind' into a noun."),
+    F("What kind of word is 'sunflower,' formed from two standalone words?", "compound", ["pronoun", "contraction", "acronym"], "A compound such as 'sunflower' combines bases that can stand as words on their own."),
+    F("What is the smallest unit of language that carries meaning or a grammatical function?", "morpheme", ["phoneme", "syllable", "sentence"], "The plural ending in 'cats' is a morpheme that marks number."),
+    F("Adding '-ed' to 'walk' to mark tense is an example of what process?", "inflection", ["derivation", "borrowing", "blending"], "The inflection in 'walked' changes tense while preserving the verb's basic identity."),
+    F("What term describes forming a word by removing an apparent ending, as in 'edit' from 'editor'?", "back-formation", ["abbreviation", "reduplication", "conversion"], "The development of 'edit' from 'editor' is an example of back-formation."),
+  ]),
+  T('noun-grammar', 'Nouns and Their Roles', [
+    F("What kind of noun is the name 'Canada'?", "proper noun", ["common noun", "abstract noun", "mass noun"], "A proper noun identifies a particular person, place, or other named entity."),
+    F("What kind of noun names an idea, quality, or feeling such as 'courage'?", "abstract noun", ["proper noun", "collective noun", "possessive noun"], "An abstract noun can name a quality such as courage."),
+    F("What is a noun like 'flock' that names a group as one unit?", "collective noun", ["mass noun", "pronoun", "verbal noun"], "The word 'flock' is a collective noun because it names a group."),
+    F("What is 'water' in the phrase 'some water,' where it isn't counted individually?", "mass noun", ["proper noun", "count noun", "collective noun"], "The substance 'water' is treated as a mass noun in 'some water.'"),
+    F("What role does 'a bicycle' have in 'Mina repaired a bicycle'?", "direct object", ["subject", "indirect object", "adverbial"], "In 'Mina repaired a bicycle,' the phrase 'a bicycle' is the direct object of the verb."),
+    F("What is 'a pilot' called when it renames 'Sam' in 'Sam, a pilot, waved'?", "appositive", ["vocative", "subject complement", "participle"], "An appositive noun phrase, such as 'a pilot' in that sentence, renames a nearby noun."),
+  ]),
+  T('storytelling', 'Storytelling Terms', [
+    F("What is the time and place of a story called?", "setting", ["plot", "theme", "conflict"], "A story's setting includes where and when its events take place."),
+    F("What is the central character around whom a story is organized?", "protagonist", ["antagonist", "narrator", "foil"], "The protagonist is the central character in a story."),
+    F("What device hints early at an event that happens later?", "foreshadowing", ["flashback", "satire", "paradox"], "A detail that hints at a future event is an instance of foreshadowing."),
+    F("What is a character called when their differences highlight another character's traits?", "foil", ["extra", "narrator", "deuteragonist"], "A foil contrasts with another character to make certain traits stand out."),
+    F("What is the contrast called when an audience knows a fact the character does not?", "dramatic irony", ["verbal irony", "analogy", "symbolism"], "A secret known to the audience and hidden from a character can create dramatic irony."),
+    F("What Latin phrase describes opening a story in the midst of the action?", "in medias res", ["carpe diem", "de facto", "ex libris"], "An opening that starts amid events begins in medias res."),
+  ]),
+  T('sentence-patterns', 'Sentence Patterns', [
+    F("Which part of speech typically describes a noun?", "adjective", ["adverb", "preposition", "conjunction"], "An adjective can describe a noun, as 'cold' describes 'rain' in 'cold rain.'"),
+    F("Which part of speech is 'quickly' in 'she ran quickly'?", "adverb", ["noun", "adjective", "pronoun"], "The word 'quickly' functions as an adverb that modifies 'ran.'"),
+    F("What kind of word joins words or clauses, as 'and' does?", "conjunction", ["article", "interjection", "verb"], "A conjunction such as 'and' can link words or clauses."),
+    F("What type of clause can stand on its own as a complete sentence?", "independent clause", ["dependent clause", "relative clause", "nonfinite clause"], "An independent clause can form a complete sentence by itself."),
+    F("What is 'which lives nearby' in 'the fox which lives nearby'?", "relative clause", ["main clause", "verb phrase", "prepositional phrase"], "The words 'which lives nearby' form a relative clause modifying 'the fox.'"),
+    F("What grammatical construction begins 'The work finished, everyone went home'?", "absolute phrase", ["direct object", "noun complement", "coordinated clause"], "The opening words 'The work finished' form an absolute phrase modifying the sentence as a whole."),
+  ]),
+  T('dictionary-reading', 'Reading a Dictionary', [
+    F("What does a dictionary's pronunciation guide tell you?", "how words sound", ["where words appear", "how words rhyme", "where words originated"], "A pronunciation guide shows how words sound."),
+    F("What is a word closest in meaning to another word?", "synonym", ["antonym", "homograph", "homophone"], "A synonym has the same or nearly the same meaning as another word."),
+    F("What term describes the head entry word printed before its definitions?", "headword", ["guide word", "citation", "sense number"], "A dictionary's headword is the word being defined."),
+    F("What are separately listed meanings of a dictionary entry called?", "senses", ["syllables", "phonemes", "affixes"], "A dictionary may number the distinct senses of a word."),
+    F("What part of an entry describes a word's historical origins?", "etymology", ["usage label", "pronunciation", "inflection table"], "An etymology traces how a word developed from earlier forms or languages."),
+    F("What is the practice of compiling dictionaries called?", "lexicography", ["calligraphy", "typography", "orthography"], "The work of planning and writing dictionaries is called lexicography."),
+  ]),
+];

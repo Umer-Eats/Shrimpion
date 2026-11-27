@@ -1,0 +1,60 @@
+import { F, T } from '../helpers.js';
+
+export default [
+  T('andes', 'The Andes', [
+    F("Which continent contains the Andes mountain range?", "South America", ["North America", "Africa", "Asia"], "The Andes run along the western side of South America."),
+    F("Which country contains the Inca site of Machu Picchu?", "Peru", ["Chile", "Ecuador", "Argentina"], "Machu Picchu is an Inca site in the mountains of Peru."),
+    F("What is the highest mountain in the Andes?", "Aconcagua", ["Chimborazo", "Huascaran", "Cotopaxi"], "Aconcagua is the highest peak in the Andes and in the Western Hemisphere."),
+    F("Which large lake lies high in the Andes on the Peru-Bolivia border?", "Lake Titicaca", ["Lake Maracaibo", "Lake Poopo", "Lake Valencia"], "Lake Titicaca is shared by Peru and Bolivia at an elevation of about 3,810 meters."),
+    F("What is the name of the large salt flat in the Bolivian Andes?", "Salar de Uyuni", ["Salinas Grandes", "Salar de Atacama", "Bonneville Salt Flats"], "The Salar de Uyuni is a vast salt flat in southwestern Bolivia."),
+    F("What is the high plateau between parallel Andean ranges in Bolivia and Peru called?", "Altiplano", ["Pampas", "Patagonia", "Gran Chaco"], "The Altiplano is the broad high plateau surrounding Lake Titicaca."),
+  ]),
+  T('danube', 'The Danube', [
+    F("Which continent does the Danube River flow through?", "Europe", ["Africa", "Asia", "North America"], "The Danube flows through central and southeastern Europe."),
+    F("Into which sea does the Danube empty?", "Black Sea", ["Baltic Sea", "Adriatic Sea", "North Sea"], "The Danube reaches the Black Sea through a broad delta."),
+    F("Which Hungarian capital spans both banks of the Danube?", "Budapest", ["Vienna", "Bratislava", "Belgrade"], "The Danube separates the historic Buda and Pest sides of Budapest."),
+    F("In which country do the Danube's source streams rise?", "Germany", ["Austria", "Switzerland", "Italy"], "The rivers that join to form the Danube rise in Germany."),
+    F("Which Serbian capital sits where the Sava meets the Danube?", "Belgrade", ["Novi Sad", "Sofia", "Zagreb"], "Belgrade stands at the confluence of the Sava and the Danube."),
+    F("What is the gorge section of the Danube between Serbia and Romania called?", "Iron Gates", ["Rhine Gorge", "Bicaz Gorge", "Samaria Gorge"], "The Iron Gates form a gorge system along the Serbia-Romania border."),
+  ]),
+  T('nile', 'The Nile', [
+    F("Which sea receives the Nile at its northern end?", "Mediterranean Sea", ["Red Sea", "Arabian Sea", "Black Sea"], "The Nile empties into the Mediterranean Sea through its delta."),
+    F("Which Egyptian capital lies on the Nile?", "Cairo", ["Alexandria", "Luxor", "Aswan"], "The Egyptian capital, Cairo, lies on the Nile near the beginning of the delta."),
+    F("Which two major branches meet to form the main Nile?", "White and Blue Nile", ["Black and Red Nile", "Upper and Lower Nile", "East and West Nile"], "The White and Blue Nile meet in Sudan."),
+    F("In which country does the Blue Nile leave Lake Tana?", "Ethiopia", ["Sudan", "Uganda", "Kenya"], "The Blue Nile flows out of Lake Tana in the highlands of Ethiopia."),
+    F("Which city lies where the two main branches of the Nile meet?", "Khartoum", ["Juba", "Addis Ababa", "Kampala"], "The main branches of the Nile meet at Khartoum."),
+    F("What is the large wetland along the White Nile system in South Sudan called?", "Sudd", ["Okavango", "Pantanal", "Everglades"], "The Sudd is a vast wetland in South Sudan."),
+  ]),
+  T('antarctica', 'Antarctica', [
+    F("Which geographic pole lies on the Antarctic continent?", "South Pole", ["North Pole", "North Magnetic Pole", "Geomagnetic North"], "The geographic South Pole sits on the Antarctic ice sheet."),
+    F("Which flightless seabirds breed in colonies on and around Antarctica?", "penguins", ["ostriches", "kiwis", "emus"], "Several species of penguins breed on or near Antarctica."),
+    F("What ocean surrounds Antarctica?", "Southern Ocean", ["Indian Ocean", "Arctic Ocean", "Atlantic Ocean"], "The Southern Ocean surrounds Antarctica and connects the world's great ocean basins."),
+    F("Which research station is at the geographic South Pole?", "Amundsen-Scott", ["McMurdo", "Palmer", "Rothera"], "The Amundsen-Scott station sits at the geographic South Pole."),
+    F("What is the name of the highest mountain in Antarctica?", "Mount Vinson", ["Mount Erebus", "Mount Tyree", "Mount Kirkpatrick"], "Mount Vinson is the highest peak on the Antarctic continent."),
+    F("Which large Antarctic lake lies buried beneath the East Antarctic Ice Sheet?", "Lake Vostok", ["Lake Bonney", "Lake Fryxell", "Lake Hoare"], "Lake Vostok sits beneath kilometers of ice in East Antarctica."),
+  ]),
+  T('north-american-great-lakes', 'The North American Great Lakes', [
+    F("How many lakes form the North American Great Lakes group?", "five", ["four", "six", "seven"], "The Great Lakes group consists of five named lakes."),
+    F("Which Great Lake lies entirely within the United States?", "Lake Michigan", ["Lake Erie", "Lake Huron", "Lake Ontario"], "Lake Michigan is the only Great Lake entirely inside the United States."),
+    F("Which Great Lake is the largest by surface area?", "Lake Superior", ["Lake Michigan", "Lake Erie", "Lake Ontario"], "Lake Superior covers the greatest surface area of the five Great Lakes."),
+    F("Which Great Lake drains directly into the St. Lawrence River?", "Lake Ontario", ["Lake Erie", "Lake Huron", "Lake Superior"], "Water leaves Lake Ontario through the St. Lawrence River."),
+    F("Which river carries water from Lake Erie over Niagara Falls?", "Niagara River", ["Detroit River", "Chicago River", "St. Clair River"], "The Niagara River flows from Lake Erie to Lake Ontario and passes over Niagara Falls."),
+    F("What straits connect Lake Michigan and Lake Huron?", "Straits of Mackinac", ["Strait of Belle Isle", "Strait of Georgia", "Strait of Canso"], "The Straits of Mackinac connect Lake Michigan to Lake Huron."),
+  ]),
+  T('new-zealand', 'New Zealand', [
+    F("What city is New Zealand's capital?", "Wellington", ["Auckland", "Christchurch", "Dunedin"], "Wellington is the capital of New Zealand."),
+    F("On which of New Zealand's two main islands is Auckland?", "North Island", ["South Island", "Stewart Island", "Waiheke Island"], "Auckland is on the upper North Island."),
+    F("Which sea lies between New Zealand and Australia?", "Tasman Sea", ["Coral Sea", "Timor Sea", "Arafura Sea"], "The Tasman Sea separates New Zealand from southeastern Australia."),
+    F("Which national park contains Milford Sound?", "Fiordland", ["Tongariro", "Abel Tasman", "Arthur's Pass"], "Milford Sound cuts into the mountains of Fiordland National Park."),
+    F("What is New Zealand's highest mountain called?", "Aoraki", ["Ruapehu", "Taranaki", "Aspiring"], "The country's highest mountain is Aoraki, also known as Mount Cook."),
+    F("Which strait separates the North Island from the South Island?", "Cook Strait", ["Foveaux Strait", "Bass Strait", "Torres Strait"], "Cook Strait separates New Zealand's two largest islands."),
+  ]),
+  T('the-alps', 'The Alps', [
+    F("On which continent are the Alps?", "Europe", ["Australia", "Asia", "North America"], "The Alps stretch across several countries in central Europe."),
+    F("What is the highest mountain in the Alps?", "Mont Blanc", ["Matterhorn", "Grossglockner", "Jungfrau"], "Mont Blanc is the highest peak in the Alps."),
+    F("Which Swiss resort town lies below the Matterhorn?", "Zermatt", ["Davos", "Interlaken", "Lucerne"], "Zermatt is a Swiss resort town near the base of the Matterhorn."),
+    F("Which Alpine country has Innsbruck as the capital of its Tyrol state?", "Austria", ["Italy", "France", "Slovenia"], "Innsbruck is the capital of the western state of Tyrol in Austria."),
+    F("What range around Cortina d'Ampezzo forms part of the southern Alps?", "Dolomites", ["Apennines", "Carpathians", "Pyrenees"], "The Dolomites form a mountain range in northeastern Italy."),
+    F("Which mountain is the highest point in Germany?", "Zugspitze", ["Watzmann", "Brocken", "Feldberg"], "The Zugspitze is the highest peak in Germany and sits on the Austrian border."),
+  ]),
+];

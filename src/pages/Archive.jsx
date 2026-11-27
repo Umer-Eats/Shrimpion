@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import PageShell from './PageShell.jsx';
 import ArchiveReview, { ArchiveDate } from './ArchiveReview.jsx';
 import { pastDays, dayNumber, prettyDate, todayKey } from '../game/daily.js';
+import { hasDailyPlan } from '../game/plan.js';
 import { CATEGORIES, categoryName } from '../game/content/index.js';
 import { useProgress, actions } from '../data/progress.js';
 import { TIER_BY_ID, MAX_DIVE_POINTS } from '../game/tiers.js';
@@ -20,7 +21,7 @@ export default function Archive() {
   const ascents = Object.values(history).filter((record) => record.mode === 'daily')
     .sort((a, b) => (b.at || Date.parse(b.date)) - (a.at || Date.parse(a.date)) || b.date.localeCompare(a.date));
   const today = todayKey();
-  const days = [today, ...pastDays(today)];
+  const days = [today, ...pastDays(today)].filter((date) => hasDailyPlan(date) || runs[`daily:${date}:${cat}`]);
 
   return (
     <PageShell v={3} kicker="⟲ The logbook" title="Archive" intro="Review your finished ascents or play a past daily ascent for practice.">

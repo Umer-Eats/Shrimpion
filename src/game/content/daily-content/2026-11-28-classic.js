@@ -1,0 +1,60 @@
+import { F, T } from '../helpers.js';
+
+export default [
+  T('mars', 'Mars', [
+    F("Which planet is nicknamed the Red Planet?", "Mars", ["Venus", "Jupiter", "Mercury"], "Mars gets its reddish color from iron oxides in its dust and rocks."),
+    F("Which Martian moon orbits closer to the planet?", "Phobos", ["Deimos", "Europa", "Triton"], "Phobos orbits closer to the planet than the other Martian moon."),
+    F("What is the name of the giant shield volcano on Mars?", "Olympus Mons", ["Mauna Loa", "Mount Etna", "Pavonis Planitia"], "Olympus Mons is a shield volcano on Mars and the largest volcano in the solar system."),
+    F("Which gas makes up most of the Martian atmosphere?", "carbon dioxide", ["oxygen", "nitrogen", "hydrogen"], "The thin atmosphere of Mars consists chiefly of carbon dioxide."),
+    F("What informal term describes a Martian solar day?", "sol", ["lunation", "eon", "sidereal year"], "A sol lasts a little over 24 hours and 39 minutes on Mars."),
+    F("What is the name of the Martian canyon system that includes Melas Chasma?", "Valles Marineris", ["Jezero", "Gale", "Hellas Planitia"], "Melas Chasma is part of Valles Marineris, an immense system of canyons near the Martian equator."),
+  ]),
+  T('bats', 'Bats', [
+    F("What class of animals do bats belong to?", "mammals", ["birds", "reptiles", "amphibians"], "Bats are the only mammals capable of sustained powered flight."),
+    F("What method do many bats use to find prey by listening for echoes?", "echolocation", ["thermoregulation", "camouflage", "pollination"], "Many hunting bats use echolocation to locate prey in the dark."),
+    F("What are young bats commonly called?", "pups", ["chicks", "joeys", "calves"], "Baby bats are called pups and receive milk from their mothers."),
+    F("Which structures support most of a bat's wing membrane?", "fingers", ["ribs", "toes", "ear bones"], "A bat's wing membrane stretches across elongated fingers."),
+    F("What term describes a bat's brief drop in body temperature and metabolism?", "torpor", ["molting", "migration", "brumation"], "Some bats enter torpor to conserve energy when conditions are unfavorable."),
+    F("What is the scientific order that includes all bats?", "Chiroptera", ["Rodentia", "Carnivora", "Primates"], "Chiroptera is the order of mammals that contains all bats."),
+  ]),
+  T('magnets', 'Magnets', [
+    F("Which two poles are found on a bar magnet?", "north and south", ["east and west", "up and down", "left and right"], "A bar magnet has north and south poles."),
+    F("Which common metal is strongly attracted to a magnet?", "iron", ["aluminum", "copper", "zinc"], "A magnet strongly attracts iron, which is ferromagnetic at room temperature."),
+    F("Which navigating instrument has a magnetized needle?", "compass", ["altimeter", "sextant", "chronometer"], "A magnetic compass uses a needle that aligns with Earth's local magnetic field."),
+    F("What is a magnet made by passing current through a wire coil called?", "electromagnet", ["insulator", "permanent magnet", "capacitor"], "An electromagnet produces a magnetic field when current flows through its coil."),
+    F("What is the SI unit of magnetic flux density?", "tesla", ["watt", "weber", "ohm"], "Magnetic flux density is measured in the tesla in the SI system."),
+    F("What temperature marks the loss of spontaneous ferromagnetic order?", "Curie temperature", ["triple point", "dew point", "flash point"], "A ferromagnet loses its spontaneous magnetic order above its Curie temperature."),
+  ]),
+  T('water-cycle', 'The Water Cycle', [
+    F("What turns liquid water at a puddle's surface into water vapor?", "evaporation", ["freezing", "condensation", "precipitation"], "A puddle shrinks through evaporation as water molecules escape from the surface."),
+    F("What process forms liquid droplets from water vapor?", "condensation", ["sublimation", "infiltration", "transpiration"], "Dew forms through condensation when water vapor becomes liquid on a cool surface."),
+    F("What term covers rain, snow, sleet, and hail falling from clouds?", "precipitation", ["humidity", "runoff", "filtration"], "Rain and snow are forms of precipitation that deliver water to the ground."),
+    F("What is the release of water vapor from plant leaves called?", "transpiration", ["respiration", "deposition", "erosion"], "Water vapor escapes through pores in plant leaves during transpiration."),
+    F("What is the entry of surface water into soil called?", "infiltration", ["runoff", "distillation", "saturation"], "During infiltration, water at the ground surface enters the soil."),
+    F("Which process turns atmospheric water vapor directly into ice crystals?", "deposition", ["melting", "sublimation", "boiling"], "Frost can form by deposition when water vapor turns directly into ice."),
+  ]),
+  T('glass', 'Glass', [
+    F("Which raw material commonly supplies silica for window glass?", "sand", ["chalk", "limestone", "gypsum"], "Ordinary silica-rich sand is a common raw material for window glass."),
+    F("What structure does ordinary glass have?", "amorphous", ["crystalline", "fibrous", "cellular"], "Glass is an amorphous solid whose atoms lack long-range crystalline order."),
+    F("What gas do glassblowers introduce to expand a hot glass bubble by mouth?", "air", ["helium", "argon", "hydrogen"], "A glassblower sends air down a hollow pipe to inflate softened glass."),
+    F("What metal supports molten glass in the float glass process?", "tin", ["lead", "silver", "aluminum"], "In the float process, molten glass spreads across a bath of liquid tin."),
+    F("What process cools hot glass gradually to relieve internal stress?", "annealing", ["electroplating", "galvanizing", "etching"], "Controlled cooling during annealing reduces internal stress in glass."),
+    F("Which element is added as an oxide to make borosilicate glass?", "boron", ["sodium", "copper", "magnesium"], "An oxide of boron helps make borosilicate glass resistant to thermal shock."),
+  ]),
+  T('bridges', 'Bridges', [
+    F("What curved load-bearing shape gives one bridge type its name?", "arch", ["truss", "beam", "deck"], "An arch transfers loads toward the supports at either end of its curve."),
+    F("In a suspension bridge, what carries the deck through hanging vertical links?", "main cables", ["guardrails", "expansion joints", "paving stones"], "A suspension bridge's main cables carry loads from the deck through vertical suspenders."),
+    F("Which shape is commonly repeated in a truss bridge?", "triangle", ["circle", "oval", "square"], "A triangle is the basic rigid unit of many bridge trusses."),
+    F("What are the structures supporting the two ends of a bridge called?", "abutments", ["girders", "parapets", "bents"], "Bridge abutments support the ends of a span and can retain the approach embankments."),
+    F("What feature lets bridge deck sections move as temperatures change?", "expansion joints", ["anchor bolts", "gusset plates", "safety rails"], "Bridge expansion joints accommodate movement caused by temperature changes."),
+    F("What type of beam is fixed at one end and free at the other?", "cantilever", ["tie rod", "column", "compression arch"], "A cantilever extends from a fixed support with no support at its free end."),
+  ]),
+  T('flytraps', 'Venus Flytraps', [
+    F("What kind of plant is a Venus flytrap?", "carnivorous", ["parasitic", "epiphytic", "nonvascular"], "The Venus flytrap is a carnivorous plant that captures small animals."),
+    F("What part of the Venus flytrap forms its snap trap?", "leaf", ["flower", "root", "stem"], "A modified leaf forms each snap trap on a Venus flytrap."),
+    F("What structures inside the trap sense a prey animal's movement?", "trigger hairs", ["pollen sacs", "root hairs", "seed coats"], "Movement bends trigger hairs inside the trap and can initiate closure."),
+    F("Which US region contains the Venus flytrap's native range?", "the Carolinas", ["the Great Plains", "New England", "the Pacific Northwest"], "The Venus flytrap is native to a small coastal region of the Carolinas."),
+    F("Which element required for proteins can flytraps obtain from captured prey?", "nitrogen", ["helium", "sodium", "neon"], "Captured prey supplies nitrogen to flytraps growing in nutrient-poor environments."),
+    F("What is the genus name of the Venus flytrap?", "Dionaea", ["Drosera", "Nepenthes", "Sarracenia"], "Dionaea muscipula is the scientific name of the Venus flytrap."),
+  ]),
+];

@@ -38,8 +38,9 @@ function reviewQuestion(type, item, given) {
 /** Rebuild the tests with the same facts, order, and seeds as the original dive. */
 export function buildDiveReview(record) {
   const plan = dailyPlan(record.date, record.cat);
-  const seed = record.seed ?? plan.seed;
-  const blocks = record.topics?.length ? [{ topics: record.topics }] : plan.blocks;
+  const seed = record.seed ?? plan?.seed;
+  const blocks = record.topics?.length ? [{ topics: record.topics }] : plan?.blocks;
+  if (!blocks) return [];
   return Array.from({ length: ASCENTS_PER_DIVE }, (_, ascent) => {
     const result = record.results?.find((entry) => entry.ascent === ascent);
     const type = testTypeForAscent(ascent);

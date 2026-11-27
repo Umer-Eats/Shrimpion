@@ -1,0 +1,60 @@
+import { F, T } from '../helpers.js';
+
+export default [
+  T('badminton', 'Badminton', [
+    F("What object do badminton players hit over the net?", "shuttlecock", ["tennis ball", "squash ball", "puck"], "A badminton shuttlecock has a rounded base and a flared skirt."),
+    F("How many players are on each side in badminton doubles?", "two", ["one", "three", "four"], "Badminton doubles is played with two players on each side."),
+    F("How many points normally win a standard badminton game under the 21-point system?", "21", ["11", "15", "25"], "A game normally ends when a side reaches 21 points with a lead of at least two."),
+    F("From which court does a badminton player serve when their score is even?", "right", ["left", "center", "back"], "A badminton player serves from the right service court when their side has an even score."),
+    F("Which stroke sends the shuttle sharply downward with force?", "smash", ["clear", "lift", "net shot"], "An overhead smash sends the shuttle steeply downward toward the opponent's court."),
+    F("What is the badminton world team championship trophy for men's teams called?", "Thomas Cup", ["Uber Cup", "Sudirman Cup", "Davis Cup"], "The Thomas Cup is the world team championship trophy for men's badminton."),
+  ]),
+  T('volleyball', 'Indoor Volleyball', [
+    F("How many players per team are on court in standard indoor volleyball?", "six", ["four", "five", "seven"], "Each indoor volleyball team fields six players at a time."),
+    F("What action puts the ball in play to start a volleyball rally?", "serve", ["dig", "set", "block"], "A serve sends the ball over the net to start a volleyball rally."),
+    F("What is a forceful overhead attack at the net commonly called?", "spike", ["dig", "bump", "roll"], "A spike typically sends the ball forcefully down toward the opposing court."),
+    F("What specialized defender wears a contrasting jersey?", "libero", ["setter", "middle blocker", "opposite"], "The libero wears a contrasting jersey so officials can identify the specialized defender."),
+    F("Which direction does a volleyball team rotate after gaining the right to serve?", "clockwise", ["counterclockwise", "diagonally", "toward the bench"], "A team rotates clockwise when it wins the right to serve from its opponent."),
+    F("What was volleyball originally called by its inventor, William G. Morgan?", "Mintonette", ["Netball", "Touchball", "Faustball"], "William G. Morgan originally called his new game Mintonette."),
+  ]),
+  T('ice-hockey', 'Ice Hockey', [
+    F("What do ice hockey players shoot into the goal?", "puck", ["rubber ball", "shuttlecock", "stone"], "Players use sticks to move a puck across the ice."),
+    F("How many regulation periods does an NHL hockey game have?", "three", ["two", "four", "five"], "An NHL game has three regulation periods of 20 minutes each."),
+    F("What is the NHL championship trophy called?", "Stanley Cup", ["Calder Cup", "Grey Cup", "Presidents' Trophy"], "The NHL playoff champion wins the Stanley Cup."),
+    F("What is the restart called when an official drops the puck between two players?", "faceoff", ["jump ball", "scrum", "drop shot"], "An official drops the puck between opposing players at a faceoff."),
+    F("What is a team said to have when it has a skater advantage because of an opponent's penalty?", "power play", ["line change", "penalty kill", "delayed offside"], "A team on a power play usually has more skaters than its opponent."),
+    F("What NHL penalty can be called for impeding an opponent with the blade of the stick?", "hooking", ["charging", "boarding", "clipping"], "An official can call hooking when a player uses their stick like a hook to restrain an opponent."),
+  ]),
+  T('handball', 'Team Handball', [
+    F("What body part do court players mainly use to pass the ball in team handball?", "hands", ["feet", "knees", "head"], "Players use their hands to pass and shoot in team handball."),
+    F("How many players per team normally start on the court, including the goalkeeper?", "seven", ["five", "six", "eight"], "A standard team handball lineup puts seven players on the court."),
+    F("How far from the goal is the penalty throw taken in team handball?", "7 meters", ["4 meters", "6 meters", "9 meters"], "The handball penalty throw is taken from 7 meters out."),
+    F("What is the maximum number of steps a player holding the ball can take before dribbling, passing, or shooting?", "three", ["two", "four", "five"], "The handball rules let a player take up to three steps while holding the ball."),
+    F("How long is a standard senior handball half?", "30 minutes", ["20 minutes", "25 minutes", "45 minutes"], "Each half of a standard senior handball game lasts 30 minutes."),
+    F("What is the dashed arc nine meters from a handball goal called?", "free-throw line", ["goal-area line", "center line", "goalkeeper's restraining line"], "The dashed free-throw line is nine meters from the goal."),
+  ]),
+  T('rugby-union', 'Rugby Union', [
+    F("What shape is a rugby union ball?", "oval", ["spherical", "flat", "cylindrical"], "Rugby union uses an oval ball that can bounce unpredictably."),
+    F("What score is awarded when an attacker legally grounds the ball in the opponent's in-goal area?", "try", ["conversion", "drop goal", "penalty goal"], "An attacker can score a try by legally grounding the ball in the opponent's in-goal area."),
+    F("How many points does a standard rugby union try score?", "five", ["three", "four", "six"], "A try is worth five points in rugby union."),
+    F("What kick at goal can a team attempt immediately after scoring a try?", "conversion", ["free kick", "drop goal", "punt"], "After a try, the scoring team can attempt a conversion worth two more points."),
+    F("What set piece restarts play with opposing forwards lined up near the touchline?", "lineout", ["scrum", "maul", "ruck"], "At a lineout, opposing forwards form lines near the touchline."),
+    F("Which player traditionally wears number 9 in fifteen-a-side rugby union?", "scrum-half", ["fly-half", "fullback", "hooker"], "The scrum-half traditionally wears number 9 and puts the ball into scrums."),
+  ]),
+  T('table-tennis', 'Table Tennis', [
+    F("What divides the two halves of a table tennis table?", "net", ["center post", "wall", "service box"], "A net divides the two ends of a table tennis table."),
+    F("What object does a table tennis player hold to strike the ball?", "racket", ["baton", "mitt", "cue"], "A table tennis player strikes the ball with a racket."),
+    F("How many points normally win a regulation table tennis game?", "11", ["7", "15", "21"], "A table tennis game normally goes to 11 points, with a two-point winning margin."),
+    F("Which bounce must happen first when a table tennis player serves?", "on the server's side", ["on the receiver's side", "on the center line", "off the net"], "A legal serve bounces on the server's side before bouncing at the opposite end."),
+    F("How high must the ball be tossed at minimum for a legal international table tennis serve?", "16 cm", ["6 cm", "10 cm", "25 cm"], "Before striking a serve, the player must toss the ball at least 16 cm into the air."),
+    F("What diameter does a regulation table tennis ball have?", "40 mm", ["30 mm", "35 mm", "45 mm"], "The official table tennis ball measures 40 mm in diameter."),
+  ]),
+  T('curling', 'Curling', [
+    F("What do players slide down the ice in curling?", "stones", ["pucks", "cones", "discs"], "Curlers slide granite stones toward a target on the ice."),
+    F("What tool do curlers use to sweep the ice ahead of a moving stone?", "broom", ["shovel", "stick", "scraper"], "A curling broom sweeps the ice ahead of a stone to influence its travel."),
+    F("What is the circular scoring target called in curling?", "house", ["crease", "slot", "green"], "The house consists of concentric circles marked on the ice."),
+    F("What is the center of the curling target called?", "button", ["bull ring", "tee box", "hammer"], "Curlers aim to put their scoring stones close to the button at the center."),
+    F("What is the last stone of a curling end called?", "hammer", ["skip", "draw", "blank"], "The team holding the hammer throws the final stone of an end."),
+    F("What mark must a delivered curling stone fully cross at the far end to remain in play unless it hits a stone already in play?", "hog line", ["back line", "tee line", "center line"], "A delivered stone generally must clear the far hog line to stay in play."),
+  ]),
+];

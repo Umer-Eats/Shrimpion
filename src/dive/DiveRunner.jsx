@@ -33,7 +33,7 @@ function newRun(mode, { date, cat, id }) {
     mode: 'unlimited',
     cat,
     seed,
-    blocks: [unlimitedBlock(seed, cat, 0)],
+    blocks: [unlimitedBlock(seed, cat)],
     block: 0,
     ascent: 0,
     phase: 'learn',
@@ -196,7 +196,7 @@ export default function DiveRunner({ mode, date, cat }) {
     const nextBlock = run.block + 1;
     update({
       block: nextBlock,
-      blocks: [...run.blocks, unlimitedBlock(run.seed, run.cat, nextBlock)],
+      blocks: [...run.blocks, unlimitedBlock(run.seed, run.cat, run.blocks)],
       ascent: 0,
       phase: 'learn',
     });

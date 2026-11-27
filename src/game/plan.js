@@ -1,33 +1,50 @@
 import { rngFor, shuffle } from './rng.js';
-import { topicsFor, TOPIC_BY_KEY } from './content/index.js';
+import { DAILY_TOPICS_BY_DATE, topicsFor, TOPIC_BY_KEY } from './content/index.js';
+import { EPOCH, todayKey } from './daily.js';
 
 export const TOPICS_PER_DIVE = 7;
 export const LEARN_ASCENTS = 6; // ascents 1–6 teach; ascent 7 is the surface exam
 export const FINAL_BASE_QUESTIONS = 14;
 
+// Released ascents keep their original topics and test order in the Archive.
+export const LAST_LEGACY_DATE = '2026-11-27';
+
+export function hasDailyPlan(date) {
+  return (date >= EPOCH && date <= LAST_LEGACY_DATE)
+    || Object.hasOwn(DAILY_TOPICS_BY_DATE, date);
+}
+
 /** The daily ascent: same seven topics for every player on a given day + category. */
 export function dailyPlan(date, cat = 'random') {
+  if (!hasDailyPlan(date)) return null;
   const seed = `shrimpion|${date}|${cat}`;
   const rng = rngFor(seed);
-  const topics = shuffle(topicsFor(cat), rng)
+  const scheduled = DAILY_TOPICS_BY_DATE[date];
+  // Daily Random draws from the same date's packs, so changing categories can't
+  // expose material reserved for a different day.
+  const pool = scheduled ? scheduled.filter((t) => cat === 'random' || t.cat === cat) : topicsFor(cat);
+  const topics = shuffle(pool, rng)
     .slice(0, TOPICS_PER_DIVE)
     .map((t) => t.key);
   return { id: `daily:${date}:${cat}`, mode: 'daily', date, cat, seed, blocks: [{ topics }] };
 }
 
-/** Unlimited: an endless run of 7-ascent blocks. Topics cycle through the whole pool. */
-export function unlimitedBlock(runSeed, cat, blockIndex) {
-  const pool = topicsFor(cat);
-  const out = [];
-  let cursor = blockIndex * TOPICS_PER_DIVE;
-  while (out.length < TOPICS_PER_DIVE) {
-    const cycle = Math.floor(cursor / pool.length);
-    const order = shuffle(pool, rngFor(`${runSeed}|cycle|${cycle}`));
-    const t = order[cursor % pool.length];
-    if (!out.includes(t.key)) out.push(t.key);
-    cursor++;
-  }
-  return { topics: out };
+/** Shuffle each block, favoring topics that the player hasn't seen in this run. */
+export function unlimitedBlock(runSeed, cat, previousBlocks = [], today = todayKey()) {
+  const released = Object.entries(DAILY_TOPICS_BY_DATE)
+    .filter(([date]) => date <= today)
+    .flatMap(([, topics]) => topics.filter((topic) => cat === 'random' || topic.cat === cat));
+  const pool = [...topicsFor(cat), ...released];
+  const lastSeen = new Map();
+  previousBlocks.forEach((block, index) => {
+    block.topics.forEach((key) => lastSeen.set(key, index));
+  });
+  const rng = rngFor(`${runSeed}|block|${previousBlocks.length}`);
+  const topics = shuffle(pool, rng)
+    .sort((a, b) => (lastSeen.get(a.key) ?? -1) - (lastSeen.get(b.key) ?? -1))
+    .slice(0, TOPICS_PER_DIVE)
+    .map((topic) => topic.key);
+  return { topics: shuffle(topics, rng) };
 }
 
 export function topicsOf(block) {

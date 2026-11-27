@@ -1,0 +1,60 @@
+import { F, T } from '../helpers.js';
+
+export default [
+  T('guitar', 'The Guitar', [
+    F("How many strings does a standard guitar have?", "six", ["four", "five", "eight"], "A standard guitar has six strings."),
+    F("What is the highest open string in standard guitar tuning?", "high E", ["high B", "high G", "high D"], "Standard tuning puts high E on the thinnest guitar string."),
+    F("What device clamps the strings against a fret so familiar chord shapes sound higher?", "capo", ["slide", "bridge", "pickup"], "A capo clamps the strings to raise the pitch of their open positions."),
+    F("What part of an electric guitar converts string vibration into an electrical signal?", "pickup", ["saddle", "fret", "tuning peg"], "A magnetic pickup converts the vibration of a guitar string into an electrical signal."),
+    F("What is the loose end of a guitar string wound around during installation on the headstock?", "tuning post", ["bridge pin", "fret marker", "strap button"], "A guitar string is wound around a tuning post to adjust and hold its tension."),
+    F("What adjustable rod inside many guitar necks controls curvature?", "truss rod", ["tailpiece", "tone bar", "saddle screw"], "A truss rod counteracts the pull of the strings and helps adjust the neck's curve."),
+  ]),
+  T('violin', 'The Violin', [
+    F("How many strings does a standard acoustic violin have?", "four", ["three", "five", "six"], "A standard acoustic violin has four strings."),
+    F("What is the lowest open string on a standard violin?", "G", ["C", "D", "A"], "The standard violin uses G as its lowest open note."),
+    F("What substance is rubbed onto bow hair so it grips the strings?", "rosin", ["wax", "graphite", "oil"], "Violinists use rosin to give the bow hair enough grip to move the strings."),
+    F("What playing technique directs a violinist to pluck a string?", "pizzicato", ["tremolo", "glissando", "legato"], "A violinist plucks the strings with the fingers when the music calls for pizzicato."),
+    F("What is the piece at the held end of a violin bow called?", "frog", ["nut", "scroll", "heel plate"], "The frog holds the bow hair at the end the player grips."),
+    F("What small wooden cylinder inside a violin transmits vibrations between its plates?", "soundpost", ["endpin", "tailpiece", "chin rest"], "A violin's soundpost fits between its front and back plates near the bridge."),
+  ]),
+  T('flute', 'The Flute', [
+    F("What instrument family includes the modern concert flute?", "woodwinds", ["brass", "strings", "percussion"], "A metal concert flute still belongs to the woodwinds."),
+    F("What is the small flute that sounds an octave above the concert flute?", "piccolo", ["fife", "recorder", "alto flute"], "The piccolo sounds an octave above the written pitch."),
+    F("What flute section contains the mouth opening?", "headjoint", ["footjoint", "body joint", "tailpiece"], "A flutist blows across the opening in the headjoint."),
+    F("What type of concert flute is pitched in G below the standard C flute?", "alto flute", ["piccolo", "bass flute", "concert fife"], "The alto flute is pitched a perfect fourth below the standard concert flute."),
+    F("What lower section of a modern flute carries keys for the bottom notes?", "footjoint", ["headjoint", "lip plate", "crown"], "The footjoint at the end of the flute contains keys for the lowest notes."),
+    F("Which flute maker is associated with the key system used on modern concert flutes?", "Theobald Boehm", ["Adolphe Sax", "Antonio Stradivari", "Bartolomeo Cristofori"], "Theobald Boehm redesigned the flute's bore and keywork in the nineteenth century."),
+  ]),
+  T('trumpet', 'The Trumpet', [
+    F("What do trumpet players vibrate against the mouthpiece to produce sound?", "lips", ["teeth", "tongue", "a reed"], "A trumpet player's vibrating lips start the sound in the mouthpiece."),
+    F("How many valves does a standard modern trumpet usually have?", "three", ["one", "two", "four"], "A standard trumpet uses three valves to change the effective length of its tubing."),
+    F("What is the widely used transposing trumpet pitched a whole step below written notes?", "B-flat trumpet", ["C trumpet", "D trumpet", "E-flat trumpet"], "A written C on a B-flat trumpet sounds as a concert B-flat."),
+    F("What piece fits into a trumpet bell to change its sound?", "mute", ["ligature", "reed", "slide grease"], "A trumpet mute changes the instrument's tone when inserted into its bell."),
+    F("Which kind of trumpet valve moves straight down when pressed?", "piston valve", ["rotary valve", "slide valve", "butterfly valve"], "A piston valve slides down in its casing when its button is pressed."),
+    F("What does pressing a trumpet valve normally do to the air path?", "lengthens it", ["shortens it", "seals it completely", "widens the bell"], "Opening the path through extra tubing lengthens it and lowers the pitch."),
+  ]),
+  T('clarinet', 'The Clarinet', [
+    F("What vibrates against the clarinet mouthpiece to make the sound?", "a single reed", ["a double reed", "a metal tongue", "a lip plate"], "A clarinet uses a single reed that vibrates against the mouthpiece."),
+    F("What piece secures the clarinet reed to its mouthpiece?", "ligature", ["barrel", "bell", "thumb rest"], "The ligature holds the reed against the mouthpiece."),
+    F("What clarinet section connects the mouthpiece to the upper joint?", "barrel", ["bell", "lower joint", "key guard"], "The barrel fits between the clarinet's mouthpiece and upper joint."),
+    F("Which key helps the clarinet jump to its upper register?", "register key", ["water key", "pedal key", "octave vent lever"], "Pressing the register key helps the clarinet sound in a higher register."),
+    F("What interval does a clarinet generally overblow when its register vent is opened?", "a twelfth", ["an octave", "a fifth", "a sixth"], "A clarinet generally overblows at a twelfth, an octave plus a fifth."),
+    F("What is the clarinet's low register called?", "chalumeau", ["altissimo", "clarion", "falsetto"], "The chalumeau is the lowest register of the modern clarinet."),
+  ]),
+  T('harp', 'The Harp', [
+    F("How does a harpist normally set the strings vibrating?", "plucking", ["bowing", "blowing", "scraping"], "A harpist makes notes by plucking the strings with the fingers."),
+    F("Which letter identifies the red strings on a conventional pedal harp?", "C", ["D", "E", "G"], "A conventional pedal harp marks C strings in red for quick identification."),
+    F("How many pedals does a modern concert harp have?", "seven", ["five", "six", "eight"], "A concert harp has seven pedals, one for each note name."),
+    F("What effect is made by sweeping rapidly across a series of harp strings?", "glissando", ["vibrato", "staccato", "tremolo"], "A harpist creates a glissando by sliding one or more fingers across a series of strings."),
+    F("What is the tall front pillar of a modern concert harp called?", "column", ["neck", "soundboard", "pedal box"], "The column supports the neck against some of the pull of the strings."),
+    F("What range of accidentals can each pedal of a double-action harp set?", "flat, natural, or sharp", ["flat or double flat", "natural or sharp only", "sharp or double sharp"], "A double-action pedal can set its note class to flat, natural, or sharp."),
+  ]),
+  T('drum-kit', 'The Drum Kit', [
+    F("What large drum at floor level is commonly played by a foot pedal?", "bass drum", ["snare drum", "rack tom", "floor tom"], "A foot pedal drives the beater against the bass drum."),
+    F("What paired cymbals are opened and closed by a pedal?", "hi-hat", ["ride", "splash", "crash"], "A hi-hat mounts a pair of cymbals on a pedal-operated stand."),
+    F("Which drum has wires that rattle against its bottom head?", "snare drum", ["bass drum", "rack tom", "floor tom"], "Wires under the snare drum vibrate against its bottom head and give it a sharp sound."),
+    F("What is a strike that hits a drumhead and its rim together called?", "rimshot", ["cross-stick", "flam", "drag"], "A rimshot is produced by striking the head and rim at the same time."),
+    F("Which cymbal is usually played to keep a steady beat, especially in jazz?", "ride cymbal", ["crash cymbal", "splash cymbal", "China cymbal"], "A drummer can keep a repeating rhythm on the ride cymbal."),
+    F("What are the threaded parts called that a drummer turns to tighten a drumhead?", "tension rods", ["snare wires", "bearing edges", "hoop claws"], "A drummer tightens the tension rods to pull the hoop down and increase head tension."),
+  ]),
+];
