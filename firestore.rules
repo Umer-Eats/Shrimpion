@@ -1,0 +1,57 @@
+rules_version = '2';
+
+// Shrimpion Firestore rules. Paste into Firebase console → Firestore → Rules,
+// or deploy with `firebase deploy --only firestore:rules`.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+    function requestExists(from, to) {
+      return exists(/databases/$(database)/documents/friendRequests/$(from + '_' + to));
+    }
+
+    // Profiles: readable by signed-in players (friends list, leaderboards), writable by the owner.
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isMe(uid);
+
+      // Friendships are written in pairs when a request is accepted.
+      match /friends/{fid} {
+        allow read: if isMe(uid);
+        allow create: if (isMe(uid) && requestExists(fid, uid)) || (isMe(fid) && requestExists(uid, fid));
+        allow delete: if isMe(uid) || isMe(fid);
+      }
+    }
+
+    // Unique usernames.
+    match /usernames/{name} {
+      allow read: if true;
+      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    match /friendRequests/{id} {
+      allow read: if signedIn() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.from == request.auth.uid
+        && id == request.auth.uid + '_' + request.resource.data.to;
+      allow delete: if signedIn() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+
+    // The 7 Seas: daily boards accept one score per player per board.
+    match /daily/{board}/scores/{uid} {
+      allow read: if true;
+      allow create: if isMe(uid)
+        && request.resource.data.points is int
+        && request.resource.data.points >= 0
+        && request.resource.data.points <= 700;
+    }
+
+    // Unlimited: best run per player, only ever goes up.
+    match /unlimited/{uid} {
+      allow read: if true;
+      allow create: if isMe(uid) && request.resource.data.points is int && request.resource.data.points >= 0;
+      allow update: if isMe(uid) && request.resource.data.points > resource.data.points;
+    }
+  }
+}
