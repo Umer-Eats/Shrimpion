@@ -175,6 +175,7 @@ export const SPRITES = {
   },
 
   crab: {
+    faces: 'right', // drawn facing right; swimming creatures flip from this
     rows: [
       '.....ssss.......',
       '...sstttss......',
@@ -209,6 +210,7 @@ export const SPRITES = {
   },
 
   turtle: {
+    faces: 'right', // drawn facing right; swimming creatures flip from this
     rows: [
       '......oooooo........',
       '....oossssssoo......',
@@ -224,6 +226,7 @@ export const SPRITES = {
   },
 
   dolphin: {
+    faces: 'right', // drawn facing right; swimming creatures flip from this
     rows: [
       '..........o...........',
       '.........obo..........',
@@ -268,6 +271,7 @@ export const SPRITES = {
   },
 
   seahorse: {
+    faces: 'right', // drawn facing right; swimming creatures flip from this
     rows: [
       '...ooo....',
       '..obbbo...',

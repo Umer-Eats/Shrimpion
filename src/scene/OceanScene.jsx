@@ -680,7 +680,9 @@ export default function OceanScene() {
         if (py < -50 || py > lh + 50) continue;
         const { w, h } = spriteSize(e.name);
         const px = e.x * lw;
-        drawHi(e.name, px, py - (h * e.scale) / 2, { scale: e.scale, variant: e.variant, flip: e.dir > 0, alpha: e.layer });
+        // Face the way it swims: most sprites are drawn facing left, a few facing right.
+        const facesRight = SPRITES[e.name].faces === 'right';
+        drawHi(e.name, px, py - (h * e.scale) / 2, { scale: e.scale, variant: e.variant, flip: e.dir > 0 !== facesRight, alpha: e.layer });
         const glow = SPRITES[e.name].glow;
         if (glow && deep > 0.15) {
           const gx = e.name === 'angler' ? (e.dir > 0 ? px + w - 1 : px) : px + (w * e.scale) / 2;
