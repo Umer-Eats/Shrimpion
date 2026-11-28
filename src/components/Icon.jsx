@@ -8,9 +8,21 @@ export default function Icon({ name, scale = 2, className = '', title }) {
 const TIER_SPRITE = {
   cucumber: { name: 'cucumber' },
   crab: { name: 'crab' },
+  seahorse: { name: 'seahorse' },
+  jelly: { name: 'jelly', variant: 'moon' },
+  squid: { name: 'squid' },
   octopus: { name: 'octopus' },
+  reef: { name: 'fish', variant: 'reef' },
+  manta: { name: 'manta', variant: 'bright' },
+  puffer: { name: 'puffer' },
+  eel: { name: 'eel' },
   turtle: { name: 'turtle' },
+  clown: { name: 'clown' },
+  tang: { name: 'fish', variant: 'blue' },
   dolphin: { name: 'dolphin' },
+  barracuda: { name: 'fish', variant: 'silver' },
+  shark: { name: 'shark' },
+  whale: { name: 'whale', variant: 'humpback' },
   shrimpion: { name: 'shrimp', variant: 'golden' },
 };
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TierReveal from './TierReveal.jsx';
-import { FINAL_ASCENT_INDEX, MAX_DIVE_POINTS, TIER_BY_ID, ascentMax, tierForAscent, tierForDive } from '../game/tiers.js';
+import { FINAL_ASCENT_INDEX, MAX_DIVE_POINTS, SHRIMPION_ACCURACY, TIER_BY_ID, ascentMax, tierForAscent, tierForDive } from '../game/tiers.js';
 import { categoryName } from '../game/content/index.js';
 import { dayNumber, todayKey } from '../game/daily.js';
 import Icon, { TierIcon } from '../components/Icon.jsx';
@@ -11,10 +11,13 @@ export default function Summary({ record, submitted, signedIn, onSignIn }) {
   const [copied, setCopied] = useState(false);
   const pct = record.total ? Math.round((record.correct / record.total) * 100) : 0;
   const finalResult = record.results?.find((result) => result.ascent === FINAL_ASCENT_INDEX);
-  // Older daily records only store round points. With 14 questions, full points require a perfect score.
+  // Older daily records only store round points: points are accuracy × max, so 95% accuracy ≈ 95% of max.
   const surfaceTier = finalResult
-    ? tierForAscent(finalResult).id
-    : record.perAscent?.[FINAL_ASCENT_INDEX] === ascentMax(FINAL_ASCENT_INDEX) ? 'shrimpion' : undefined;
+    ? tierForAscent(finalResult, record.results).id
+    : record.perAscent?.length === FINAL_ASCENT_INDEX + 1 &&
+        record.perAscent.every((p, i) => p >= Math.round(SHRIMPION_ACCURACY * ascentMax(i)))
+      ? 'shrimpion'
+      : undefined;
   const overall = tierForDive(record.points, surfaceTier);
   const isToday = record.date === todayKey();
 

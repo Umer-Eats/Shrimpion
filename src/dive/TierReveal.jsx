@@ -5,9 +5,21 @@ import { play } from '../audio/sfx.js';
 const SPRITE_FOR = {
   cucumber: { name: 'cucumber', variant: null, scale: 7 },
   crab: { name: 'crab', variant: null, scale: 6 },
+  seahorse: { name: 'seahorse', variant: null, scale: 5 },
+  jelly: { name: 'jelly', variant: 'moon', scale: 6 },
+  squid: { name: 'squid', variant: null, scale: 5 },
   octopus: { name: 'octopus', variant: null, scale: 6 },
+  reef: { name: 'fish', variant: 'reef', scale: 8 },
+  manta: { name: 'manta', variant: 'bright', scale: 4 },
+  puffer: { name: 'puffer', variant: null, scale: 7 },
+  eel: { name: 'eel', variant: null, scale: 5 },
   turtle: { name: 'turtle', variant: null, scale: 5 },
+  clown: { name: 'clown', variant: null, scale: 8 },
+  tang: { name: 'fish', variant: 'blue', scale: 8 },
   dolphin: { name: 'dolphin', variant: null, scale: 5 },
+  barracuda: { name: 'fish', variant: 'silver', scale: 8 },
+  shark: { name: 'shark', variant: null, scale: 4 },
+  whale: { name: 'whale', variant: 'humpback', scale: 3 },
   shrimpion: { name: 'shrimp', variant: 'golden', scale: 6 },
 };
 
@@ -16,7 +28,7 @@ const SPRITE_FOR = {
  * it rises up out of the depths with a bubble trail, then settles and idles.
  */
 export default function TierReveal({ tier, big = true }) {
-  const s = SPRITE_FOR[tier.id];
+  const s = SPRITE_FOR[tier.id] || SPRITE_FOR.cucumber;
   const isTop = tier.id === 'shrimpion';
   useEffect(() => {
     const t = setTimeout(() => play(isTop ? 'shrimpion' : 'reveal'), 250);

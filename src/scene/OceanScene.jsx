@@ -37,11 +37,125 @@ const rgb = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
 // Who lives where. [sprite, variant, weight, scale]
 const POOLS = [
-  { from: -0.25, to: 1.3, density: 9, list: [['amphipod', null, 5, 1], ['snailfish', null, 3, 1], ['jelly', 'deep', 1, 1]] },
-  { from: 1.3, to: 2.7, density: 8, list: [['dumbo', null, 2, 1], ['snailfish', null, 1, 1], ['fish', 'deep', 3, 1], ['amphipod', null, 2, 1], ['jelly', 'deep', 1, 1]] },
-  { from: 2.7, to: 4.7, density: 9, list: [['angler', null, 3, 1], ['lantern', null, 4, 1], ['squid', null, 1, 1], ['whale', null, 1, 2], ['jelly', null, 2, 1]] },
-  { from: 4.7, to: 6.0, density: 9, list: [['lantern', null, 4, 1], ['jelly', null, 2, 1], ['squid', 'pale', 2, 1], ['fish', 'silver', 3, 1]] },
-  { from: 6.0, to: 7.35, density: 12, list: [['fish', 'reef', 4, 1], ['fish', 'blue', 4, 1], ['turtle', null, 1, 1], ['manta', null, 1, 1], ['dolphin', null, 1, 1], ['jelly', 'moon', 2, 1], ['seahorse', null, 1, 1]] },
+  { from: -0.25, to: 1.3, density: 12, list: [['amphipod', null, 5, 1], ['snailfish', null, 3, 1], ['jelly', 'deep', 1, 1], ['fish', 'deep', 2, 1], ['squid', 'pale', 1, 1]] },
+  { from: 1.3, to: 2.7, density: 11, list: [['dumbo', null, 2, 1], ['snailfish', null, 1, 1], ['fish', 'deep', 3, 1], ['amphipod', null, 2, 1], ['jelly', 'deep', 1, 1], ['angler', null, 1, 1], ['shark', 'deep', 1, 1]] },
+  { from: 2.7, to: 4.7, density: 12, list: [['angler', null, 3, 1], ['lantern', null, 4, 1], ['squid', null, 1, 1], ['whale', null, 1, 2], ['jelly', null, 2, 1], ['eel', null, 1, 1], ['fish', 'deep', 2, 1]] },
+  { from: 4.7, to: 6.0, density: 12, list: [['lantern', null, 4, 1], ['jelly', null, 2, 1], ['squid', 'pale', 2, 1], ['fish', 'silver', 3, 1], ['shark', 'deep', 1, 1], ['puffer', 'deep', 1, 1]] },
+  { from: 6.0, to: 7.35, density: 16, list: [['fish', 'reef', 4, 1], ['fish', 'blue', 4, 1], ['clown', null, 3, 1], ['puffer', null, 1, 1], ['turtle', null, 1, 1], ['manta', null, 1, 1], ['dolphin', null, 1, 1], ['shark', null, 1, 1], ['eel', null, 1, 1], ['jelly', 'moon', 2, 1], ['seahorse', null, 1, 1], ['whale', 'humpback', 1, 2]] },
+];
+
+// ---- Side scenery: trench rock in the deep, thinning into reef shelves near the surface ----
+// [fill, edge highlight, bevel] — bright enough to read through the deep-water vignette.
+const ROCK_DEEP = [[30, 14, 40], [92, 52, 108], [48, 24, 62]];
+const ROCK_HIGH = [[58, 44, 84], [130, 104, 160], [82, 64, 112]];
+const mix = (a, b, t) => a.map((c, i) => Math.round(c + (b[i] - c) * t));
+
+/** Wall thickness (fraction of screen width) at height v. */
+function wallProfile(v, seed) {
+  const n = Math.sin(v * 6.1 + seed) * 0.5 + Math.sin(v * 15.3 + seed * 2.3) * 0.3 + Math.sin(v * 37.7 + seed * 4.1) * 0.2;
+  const base = v < 3 ? 0.11 - v * 0.012 : v < 5.6 ? 0.074 - (v - 3) * 0.007 : 0.056;
+  const top = WATERLINE_V - 0.12;
+  const fade = v > 6.9 ? clamp((top - v) / (top - 6.9), 0, 1) : 1;
+  return Math.max(0, (base + n * base * 0.45) * fade);
+}
+
+const CORAL_COLORS = ['#ff5d8f', '#ff9f43', '#ff6b5a', '#c77dff', '#ffd166', '#4de3ff'];
+
+/** Pre-baked pixel shapes for the growth on the walls. dx grows away from the wall, dy grows up. */
+function buildDecor() {
+  const rng = rngFor('shrimpion-walls');
+  const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+  const out = [];
+  for (const side of [0, 1]) {
+    let v = FLOOR_V + 0.1;
+    while (v < 7.15) {
+      v += 0.03 + rng() * 0.06;
+      let type;
+      if (v >= 5.8) type = pick(['branch', 'branch', 'brain', 'fan', 'anemone', 'anemone', 'star', 'kelp', 'kelp']);
+      else if (v >= 5.0) type = pick(['kelp', 'sponge', 'fan', 'star']);
+      else if (v >= 3.2) type = pick(['sponge', 'crinoid', 'lump', 'glow']);
+      else type = pick(['tube', 'tube', 'glow', 'crinoid', 'lump', 'glow']);
+      const px = [];
+      const sway = type === 'kelp' || type === 'anemone' || type === 'crinoid';
+      if (type === 'branch') {
+        const c = pick(CORAL_COLORS);
+        const h = 6 + Math.floor(rng() * 7);
+        for (let y = 0; y < h; y++) px.push([0, y, c]);
+        const nb = 2 + Math.floor(rng() * 3);
+        for (let b = 0; b < nb; b++) {
+          const at = 1 + Math.floor(rng() * (h - 2));
+          const dir = rng() < 0.75 ? 1 : -1;
+          const len = 1 + Math.floor(rng() * 3);
+          for (let i = 1; i <= len; i++) px.push([i * dir, at, c]);
+          const up = 2 + Math.floor(rng() * 3);
+          for (let i = 1; i <= up; i++) px.push([len * dir, at + i, c]);
+        }
+      } else if (type === 'brain') {
+        const c1 = pick(['#ffb347', '#ff9fb4', '#a8e063']);
+        const r = 3 + Math.floor(rng() * 3);
+        for (let x = -1; x <= r * 2; x++)
+          for (let y = 0; y <= r; y++) {
+            const dx = x - r + 0.5;
+            if (dx * dx + (y * 1.6) ** 2 <= r * r) px.push([x, y, (x + y) % 3 === 0 ? '#5a2a3a' : c1]);
+          }
+      } else if (type === 'fan') {
+        const c = pick(['#9b5de5', '#c77dff', '#ff5d8f']);
+        const h = 7 + Math.floor(rng() * 6);
+        for (let y = 0; y < h; y++) {
+          const w = Math.round((y / h) * 6);
+          for (let x = 0; x <= w; x++) if (x === 0 || x === w || (x + y) % 2 === 0) px.push([x, y + 1, c]);
+        }
+      } else if (type === 'anemone') {
+        const c = pick(['#ff9fb4', '#ffd166', '#4ff0c8', '#ff7ab8']);
+        for (let x = 0; x < 4; x++) px.push([x, 0, '#7a2440'], [x, 1, '#b0405e']);
+        for (let x = -1; x < 5; x += 1) {
+          const th = 2 + Math.floor(rng() * 3);
+          for (let y = 2; y < 2 + th; y++) px.push([x, y, y === 1 + th ? '#fff0f4' : c]);
+        }
+      } else if (type === 'kelp') {
+        const strands = 2 + Math.floor(rng() * 2);
+        for (let s = 0; s < strands; s++) {
+          const h = 14 + Math.floor(rng() * 26);
+          for (let y = 0; y < h; y++) px.push([s * 3, y, y % 5 === 2 ? '#7fd05a' : '#3f8f3a']);
+          for (let y = 4; y < h; y += 5) px.push([s * 3 + 1, y, '#6abf4b']);
+        }
+      } else if (type === 'sponge') {
+        const c = pick(['#a86b3a', '#8a4a5a', '#c08a4a']);
+        const n = 2 + Math.floor(rng() * 2);
+        for (let s = 0; s < n; s++) {
+          const h = 4 + Math.floor(rng() * 6);
+          for (let y = 0; y < h; y++) px.push([s * 3, y, c], [s * 3 + 1, y, y === h - 1 ? '#2a1418' : c]);
+        }
+      } else if (type === 'crinoid') {
+        const h = 6 + Math.floor(rng() * 6);
+        for (let y = 0; y < h; y++) px.push([0, y, '#c9b88f']);
+        for (const [dx, dy] of [[-2, 1], [-1, 1], [1, 1], [2, 1], [-2, 2], [2, 2], [-1, 0], [1, 0], [-3, 3], [3, 3]]) px.push([dx, h + dy, '#f0d8b8']);
+      } else if (type === 'tube') {
+        const n = 3 + Math.floor(rng() * 3);
+        for (let s = 0; s < n; s++) {
+          const h = 3 + Math.floor(rng() * 6);
+          for (let y = 0; y < h; y++) px.push([s * 2, y, '#d8d2c4']);
+          px.push([s * 2, h, '#ff3b4f'], [s * 2 + 1, h, '#ff3b4f']);
+        }
+      } else if (type === 'lump') {
+        const r = 2 + Math.floor(rng() * 4);
+        for (let x = -r; x <= r; x++) for (let y = 0; y <= r; y++) if (x * x + (y * 1.4) ** 2 <= r * r) px.push([x + r, y, y === r || x === -r ? '#3a2a46' : '#1a0f22']);
+      } else if (type === 'glow') {
+        const n = 2 + Math.floor(rng() * 4);
+        for (let i = 0; i < n; i++) px.push([Math.floor(rng() * 6), Math.floor(rng() * 8), pick(['#7cf6ff', '#c77dff', '#4ff0c8'])]);
+      }
+      out.push({ side, v, type, px, sway, phase: rng() * 6 });
+    }
+  }
+  return out;
+}
+
+// Wrecks rest on rock shelves at fixed depths. [sprite, v, side (0 = left), scale, alpha]
+const WRECKS = [
+  ['wreck', vAtDepth(3800), 1, 2, 0.85], // the Titanic marker on the ruler
+  ['sub', 4.35, 0, 1, 0.8],
+  ['wreck', 6.3, 0, 2, 1],
+  ['anchor', 5.85, 1, 1, 0.9],
 ];
 
 function buildWorld() {
@@ -61,7 +175,7 @@ function buildWorld() {
         }
       }
       const [name, variant, , scale] = entry;
-      const school = name === 'fish' && rng() < 0.55 ? 3 + Math.floor(rng() * 4) : 1;
+      const school = (name === 'fish' || name === 'clown') && rng() < 0.55 ? 3 + Math.floor(rng() * 4) : 1;
       const base = {
         name,
         variant,
@@ -124,6 +238,7 @@ export default function OceanScene() {
     const low = document.createElement('canvas');
     const lc = low.getContext('2d');
     const world = buildWorld();
+    const decor = buildDecor();
     let W, H, PIX, lw, lh, floor, snow;
     let dpr = 1;
     const bubbles = [];
@@ -233,6 +348,89 @@ export default function OceanScene() {
       drawSprite(lc, 'tripod', lw * 0.42, ground(0.42) - 8, { scale: 1, flip: true, alpha: 0.7 });
     }
 
+    function drawWalls(t, cam, unit, sy, yOf, light) {
+      const sw = W < 700 ? 0.55 : 1;
+      const wallL = (v) => Math.round(wallProfile(v, 1.7) * lw * sw);
+      const wallR = (v) => Math.round(wallProfile(v, 4.2) * lw * sw * 0.8);
+      // Row by row in world coordinates, so the rock texture stays pixel-stable while the camera moves.
+      const off = Math.round(cam * unit + sy);
+      for (let y = 0; y < lh; y++) {
+        const k = off - y;
+        const v = k / unit;
+        if (v > WATERLINE_V - 0.1 || v < FLOOR_V - 0.6) continue;
+        const tv = clamp(v / 7, 0, 1);
+        const fill = rgb(mix(ROCK_DEEP[0], ROCK_HIGH[0], tv));
+        const edge = rgb(mix(ROCK_DEEP[1], ROCK_HIGH[1], tv));
+        const bevel = rgb(mix(ROCK_DEEP[2], ROCK_HIGH[2], tv));
+        const h = Math.imul(k, 2654435761) >>> 0;
+        const l = wallL(v);
+        const r = wallR(v);
+        if (l > 0) {
+          lc.fillStyle = fill;
+          lc.fillRect(0, y, l, 1);
+          lc.fillStyle = bevel;
+          lc.fillRect(Math.max(0, l - 4), y, 3, 1);
+          if (h % 4 === 0) lc.fillRect(h % Math.max(1, l), y, 3, 1);
+          lc.fillStyle = edge;
+          lc.fillRect(l - 1, y, 1, 1);
+          if (h % 23 === 0) lc.fillRect((h >>> 7) % Math.max(1, l), y, 1, 1);
+        }
+        if (r > 0) {
+          lc.fillStyle = fill;
+          lc.fillRect(lw - r, y, r, 1);
+          lc.fillStyle = bevel;
+          lc.fillRect(lw - r + 1, y, Math.min(3, r), 1);
+          if ((h >>> 3) % 4 === 0) lc.fillRect(lw - 1 - ((h >>> 5) % Math.max(1, r)), y, 3, 1);
+          lc.fillStyle = edge;
+          lc.fillRect(lw - r, y, 1, 1);
+          if ((h >>> 2) % 23 === 0) lc.fillRect(lw - 1 - ((h >>> 9) % Math.max(1, r)), y, 1, 1);
+        }
+      }
+
+      // Growth on the walls: coral and kelp up top, sponges in the twilight, tube worms and glow in the trench.
+      for (const d of decor) {
+        const by = Math.round(yOf(d.v));
+        if (by < -50 || by > lh + 10) continue;
+        const edgeX = d.side === 0 ? wallL(d.v) - 1 : lw - wallR(d.v);
+        if (d.side === 0 ? edgeX < 2 : edgeX > lw - 3) continue;
+        const dir = d.side === 0 ? 1 : -1;
+        if (d.type === 'star') {
+          drawSprite(lc, 'starfish', edgeX - (d.side === 0 ? 4 : 0), by - 5, { scale: 1 });
+          continue;
+        }
+        const glow = d.type === 'glow';
+        if (glow) {
+          lc.save();
+          lc.globalCompositeOperation = 'lighter';
+          lc.globalAlpha = 0.45 + 0.45 * Math.sin(t * 1.7 + d.phase);
+        }
+        for (const [dx, dy, c] of d.px) {
+          const s = d.sway ? Math.round(Math.sin(t * 1.3 + d.phase + dy * 0.18) * dy * 0.08) : 0;
+          lc.fillStyle = c;
+          lc.fillRect(edgeX + (dx + s) * dir, by - dy, 1, 1);
+        }
+        if (glow) lc.restore();
+      }
+
+      // Wrecks on rock shelves.
+      for (const [name, v, side, scale, alpha] of WRECKS) {
+        const by = Math.round(yOf(v));
+        const { w, h } = spriteSize(name);
+        if (by < -20 || by - h * scale > lh + 20) continue;
+        const shelf = (side === 0 ? wallL(v) : wallR(v)) + Math.round(w * scale * 0.85);
+        const tv = clamp(v / 7, 0, 1);
+        lc.fillStyle = rgb(mix(ROCK_DEEP[0], ROCK_HIGH[0], tv));
+        const sx = side === 0 ? 0 : lw - shelf;
+        lc.fillRect(sx, by, shelf, 4);
+        lc.fillRect(side === 0 ? 0 : lw - shelf + 3, by + 4, shelf - 3, 3);
+        lc.fillStyle = rgb(mix(ROCK_DEEP[1], ROCK_HIGH[1], tv));
+        lc.fillRect(sx, by, shelf, 1);
+        lc.fillRect(side === 0 ? shelf - 1 : sx, by, 1, 4);
+        const x = side === 0 ? shelf - w * scale - 2 : lw - shelf + 2;
+        drawSprite(lc, name, x, by - h * scale + 1, { scale, flip: side === 1, alpha: alpha * (0.55 + 0.45 * Math.max(light, tv)) });
+      }
+    }
+
     function drawSky(waterY, t) {
       const g = lc.createLinearGradient(0, waterY - lh * 0.7, 0, waterY);
       g.addColorStop(0, '#ff9fcf');
@@ -323,6 +521,8 @@ export default function OceanScene() {
           lc.restore();
         }
       }
+
+      drawWalls(t, cam, unit, sy, yOf, light);
 
       const floorY = yOf(FLOOR_V);
       if (floorY - 120 < lh) drawFloor(floorY, t);

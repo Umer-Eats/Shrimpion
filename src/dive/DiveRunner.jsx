@@ -55,7 +55,7 @@ export default function DiveRunner({ mode, date, cat }) {
   const finalizing = useRef(false);
   const savedResults = run?.results;
   const results = useMemo(
-    () => savedResults?.map((result) => ({ ...result, tier: tierForAscent(result).id })) ?? [],
+    () => savedResults?.map((result) => ({ ...result, tier: tierForAscent(result, savedResults).id })) ?? [],
     [savedResults],
   );
 
@@ -296,7 +296,7 @@ export default function DiveRunner({ mode, date, cat }) {
               missIds: misses.map((f) => f.id),
               answers,
             };
-            result.tier = tierForAscent(result).id;
+            result.tier = tierForAscent(result, results).id;
             actions.recordAscent(result, learning ? TOPICS_PER_DIVE : 0);
             update({ results: [...results, result], phase: 'result' });
           }}

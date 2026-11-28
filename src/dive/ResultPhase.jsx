@@ -45,7 +45,7 @@ export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testN
           const isShrimpion = t.id === 'shrimpion';
           const locked = isShrimpion ? !isLast : t.min > max;
           const label = isShrimpion
-            ? 'One in a Shrimpion requires a perfect Surface Exam'
+            ? 'One in a Shrimpion requires 95% or higher on every section of the dive'
             : locked ? `Requires ${t.min} points on a later ascent` : t.name;
           return (
             <span
@@ -54,14 +54,14 @@ export default function ResultPhase({ result, ascentIdx, isLast, onAscend, testN
               style={{ '--tier': t.color }}
               title={label}
             >
-              {locked ? <Icon name="icon-lock" /> : <TierIcon tier={t} />} {isShrimpion ? '100%' : `${t.min}+`}
+              {locked ? <Icon name="icon-lock" /> : <TierIcon tier={t} />} {isShrimpion ? '95% all' : `${t.min}+`}
             </span>
           );
         })}
       </div>
       {tier.id !== 'shrimpion' && (
         <p className="muted small center">
-          Answer every question correctly on the Surface Exam to earn One in a Shrimpion.
+          Score 95% or higher on every section, Surface Exam included, to earn One in a Shrimpion.
         </p>
       )}
 

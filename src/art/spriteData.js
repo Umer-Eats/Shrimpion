@@ -288,6 +288,115 @@ export const SPRITES = {
     pal: { o: '#7a3d00', b: '#ffb347', e: '#140612', d: '#ffe0a8' },
   },
 
+  shark: {
+    rows: [
+      '..........oo..........',
+      '.........obo..........',
+      '........obbo.........o',
+      '..ooooooobbboooooo..ob',
+      '.obbbbbbbbbbbbbbbbooob',
+      'obebbbbbbbbbbbbbbbbbbo',
+      'owwwbbbbbbbbbbbbbbooob',
+      '.oowwwwwwwbbbboooo..ob',
+      '...ooooooooobo.......o',
+      '...........oo.........',
+    ],
+    pal: { o: '#1c2a3a', b: '#6b88a3', w: '#e3ecf4', e: '#0b1520' },
+  },
+
+  eel: {
+    rows: [
+      '..oooooooooooooooooo....',
+      '.obbbbbbbbbbbbbbbbbbboo.',
+      'obebbbbbbbbbbbbbbbbbbbbo',
+      '.oddddbbbbbbbbbbbbbbboo.',
+      '..oooooooooooooooooo....',
+    ],
+    pal: { o: '#1e3312', b: '#6b8f2a', d: '#a8c35a', e: '#ffd166' },
+  },
+
+  puffer: {
+    rows: [
+      '..s.s.s....',
+      '.ooooooo...',
+      'obbsbbbbo.o',
+      'oebbbsbbboo',
+      'owwwwwwwo.o',
+      '.ooooooo...',
+      '..s.s.s....',
+    ],
+    pal: { o: '#7a5a00', b: '#ffd84a', s: '#c9a227', e: '#140612', w: '#fff3c4' },
+  },
+
+  clown: {
+    rows: [
+      '...ooo...',
+      '.oawabo.o',
+      'oeawabaoo',
+      '.oawabo.o',
+      '...ooo...',
+    ],
+    pal: { o: '#2a0e00', a: '#ff7a1a', b: '#ff7a1a', w: '#ffffff', e: '#140612' },
+  },
+
+  starfish: {
+    rows: ['..o..', '.ooo.', 'ooooo', '.o.o.', 'o...o'],
+    pal: { o: '#ff6b5a' },
+  },
+
+  anchor: {
+    rows: [
+      '..ooo..',
+      '..o.o..',
+      '..ooo..',
+      'ooooooo',
+      '...o...',
+      '...o...',
+      '...o...',
+      'o..o..o',
+      'oo.o.oo',
+      '.ooooo.',
+    ],
+    pal: { o: '#4a3a3a' },
+  },
+
+  wreck: {
+    rows: [
+      '..............m.....................',
+      '..............m.......m.............',
+      '.............mmm......m.............',
+      '..............m......mm.............',
+      '..............m.......m.............',
+      '..............m.......m.............',
+      '.....rrrrrrrrrmrrrrrrrmrrrrrr.......',
+      '....rddddddddddddddddddddddddrr.....',
+      '...rdhhhhhhhhhhhhhhhhhhhhhhhhhdr....',
+      '..rdhhpkhhhhpkhhhhpkhhhhpkhhhhdr....',
+      '.rddhhhhhhhhhhhhhhhhhhhhhhhhhhhdr...',
+      'rdhhhhhhhhhhh..hhhhhhhhhhhhhhhhdr...',
+      '.rdhhhhhhhhh....hhhhhhhhhhhhhhdr....',
+      '..rddhhhhhhhh..hhhhhhhhhhhhhddr.....',
+      '....rrdddddddddddddddddddddrr.......',
+      '......rrrrrrrrrrrrrrrrrrrrr.........',
+    ],
+    pal: { m: '#3a2a1e', r: '#120a0e', d: '#4a3226', h: '#2e2019', p: '#8a7448', k: '#0a0608' },
+  },
+
+  sub: {
+    rows: [
+      '...........oo...........',
+      '..........obbo..........',
+      '..........obbo..........',
+      '....oooooooobboooooo....',
+      '..oobbbbbbbbbbbbbbbboo.o',
+      '.obbpbbbpbbbbpbbbbbbbbob',
+      'obbbbbbbbbbbbbbbbbbbbbbo',
+      '.oobbbbbbbbbbbbbbbbbboob',
+      '...oooooooooooooooooo..o',
+    ],
+    pal: { o: '#0c0f14', b: '#3a3f2a', p: '#8fa36a' },
+  },
+
   // ---- UI icons (used everywhere instead of emoji) ----
   'icon-dice': {
     rows: [
@@ -472,6 +581,10 @@ export const CREATURE_VARIANTS = {
   'jelly:moon': { o: '#bcd7ff', b: '#9fc0e8', l: '#ffffff', t: '#cfe2ff' },
   'jelly:deep': { o: '#ff4d6d', b: '#b0243f', l: '#ff9fb4', t: '#ff6b85' },
   'squid:pale': { o: '#7a5a6a', b: '#e7c9d6', e: '#140612', t: '#c9a9b8' },
+  'manta:bright': { o: '#1d3a5c', b: '#5d8fc2', e: '#ffffff', w: '#cfe2f5' },
+  'whale:humpback': { o: '#0f2240', b: '#3f6fa8', e: '#ffffff', w: '#a8c6e8' },
+  'shark:deep': { o: '#06101f', b: '#1c2a3d', w: '#3a4a62', e: '#5c7fa8' },
+  'puffer:deep': { o: '#3a2a10', b: '#6b5a2a', s: '#4a3a1a', w: '#8a7a4a' },
 };
 
 /** The urchin: generated so its spikes radiate evenly. */

@@ -15,7 +15,10 @@ export default function Archive() {
   const history = useProgress((s) => s.history);
   const runs = useProgress((s) => s.runs);
   const reviewId = params.get('review');
-  useEffect(() => window.scrollTo(0, 0), [reviewId]);
+  // braces matter: newer browsers return a Promise from scrollTo, and React would call it as the cleanup
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [reviewId]);
   if (reviewId) return <ArchiveReview key={reviewId} record={Object.hasOwn(history, reviewId) ? history[reviewId] : null} />;
 
   const ascents = Object.values(history).filter((record) => record.mode === 'daily')

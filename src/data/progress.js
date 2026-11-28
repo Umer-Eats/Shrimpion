@@ -16,7 +16,7 @@ export const DEFAULT_STATS = {
   correct: 0,
   answered: 0,
   bestDaily: 0,
-  shrimpions: 0, // perfect Surface Exams earned under the current rule, plus prior awards
+  shrimpions: 0, // One in a Shrimpion awards (95%+ on every section), plus prior awards
   unlimitedBest: 0,
   unlimitedRuns: 0,
 };
@@ -159,7 +159,8 @@ export const actions = {
         correct: s.correct + correct,
         answered: s.answered + total,
         factsLearned: s.factsLearned + (learned || 0),
-        shrimpions: s.shrimpions + (tierForAscent(result).id === 'shrimpion' ? 1 : 0),
+        // DiveRunner sets result.tier with the whole dive in view (Shrimpion needs 95%+ on every section).
+        shrimpions: s.shrimpions + ((result.tier ?? tierForAscent(result).id) === 'shrimpion' ? 1 : 0),
       },
     });
   },

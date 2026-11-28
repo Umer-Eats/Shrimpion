@@ -46,7 +46,7 @@ const QA = [
           {TIERS.map((t) => (
             <li key={t.id}>
               <TierIcon tier={t} /> <strong style={{ color: t.color }}>{t.name}</strong>
-              {' · '}{t.id === 'shrimpion' ? '100% on the Surface Exam (Ascent 7)' : `${t.min}+ points`}
+              {' · '}{t.id === 'shrimpion' ? '95% or higher on every section of the dive, awarded on the Surface Exam (Ascent 7)' : `${t.min}+ points`}
             </li>
           ))}
         </ul>
@@ -71,7 +71,7 @@ const QA = [
   },
   {
     q: 'How do I unlock new profile shrimp?',
-    a: 'Keep learning! There are ten shrimp to collect, earned through streaks, facts learned, ascents finished and perfect Surface Exams. See them all on My Shrimpion.',
+    a: 'Keep learning! There are ten shrimp to collect, earned through streaks, facts learned, ascents finished and One in a Shrimpion awards. See them all on My Shrimpion.',
   },
   {
     q: 'What is Urchin Party?',
