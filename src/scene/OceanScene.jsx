@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { scene } from './sceneStore.js';
 import { MARKERS, WATERLINE_V, FLOOR_V, vAtDepth } from './depth.js';
-import { drawSprite, spriteSize } from '../art/render.js';
+import { drawSprite, spriteSize, spriteCanvas } from '../art/render.js';
 import { SPRITES } from '../art/spriteData.js';
 import { rngFor } from '../game/rng.js';
 
@@ -50,31 +50,82 @@ const ROCK_DEEP = [[30, 14, 40], [92, 52, 108], [48, 24, 62]];
 const ROCK_HIGH = [[58, 44, 84], [130, 104, 160], [82, 64, 112]];
 const mix = (a, b, t) => a.map((c, i) => Math.round(c + (b[i] - c) * t));
 
+// Trench walls only exist in the hadal levels; above this the water opens up.
+const WALL_TOP = 2.7;
+
 /** Wall thickness (fraction of screen width) at height v. */
 function wallProfile(v, seed) {
+  if (v >= WALL_TOP) return 0;
   const n = Math.sin(v * 6.1 + seed) * 0.5 + Math.sin(v * 15.3 + seed * 2.3) * 0.3 + Math.sin(v * 37.7 + seed * 4.1) * 0.2;
-  const base = v < 3 ? 0.11 - v * 0.012 : v < 5.6 ? 0.074 - (v - 3) * 0.007 : 0.056;
-  const top = WATERLINE_V - 0.12;
-  const fade = v > 6.9 ? clamp((top - v) / (top - 6.9), 0, 1) : 1;
-  return Math.max(0, (base + n * base * 0.45) * fade);
+  const base = 0.12 - v * 0.012;
+  const fade = v > 1.9 ? clamp((WALL_TOP - v) / (WALL_TOP - 1.9), 0, 1) : 1;
+  return Math.max(0, (base + n * base * 0.45) * Math.sqrt(fade));
 }
 
 const CORAL_COLORS = ['#ff5d8f', '#ff9f43', '#ff6b5a', '#c77dff', '#ffd166', '#4de3ff'];
 
-/** Pre-baked pixel shapes for the growth on the walls. dx grows away from the wall, dy grows up. */
+/** Growth types by height: trench, abyss, twilight, reef. */
+function growthTypeAt(v, pick) {
+  if (v >= 5.8) return pick(['branch', 'branch', 'brain', 'fan', 'anemone', 'anemone', 'star', 'kelp']);
+  if (v >= 5.0) return pick(['kelp', 'sponge', 'fan', 'star']);
+  if (v >= 2.6) return pick(['sponge', 'crinoid', 'lump', 'glow']);
+  return pick(['tube', 'tube', 'glow', 'crinoid', 'lump', 'glow']);
+}
+
+/** Pre-baked growth on the trench walls (the walls only exist down in the trench). */
 function buildDecor() {
   const rng = rngFor('shrimpion-walls');
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
   const out = [];
   for (const side of [0, 1]) {
     let v = FLOOR_V + 0.1;
-    while (v < 7.15) {
+    while (v < WALL_TOP - 0.15) {
       v += 0.03 + rng() * 0.06;
-      let type;
-      if (v >= 5.8) type = pick(['branch', 'branch', 'brain', 'fan', 'anemone', 'anemone', 'star', 'kelp', 'kelp']);
-      else if (v >= 5.0) type = pick(['kelp', 'sponge', 'fan', 'star']);
-      else if (v >= 3.2) type = pick(['sponge', 'crinoid', 'lump', 'glow']);
-      else type = pick(['tube', 'tube', 'glow', 'crinoid', 'lump', 'glow']);
+      const type = growthTypeAt(v, pick);
+      out.push({ side, v, type, ...makeGrowth(type, rng, pick), phase: rng() * 6 });
+    }
+  }
+  return out;
+}
+
+/** Reef mounds and rock outcrops out in open water. x is a fraction of screen width, w/peak in low-res pixels. */
+const MOUNDS = [
+  // abyss: bare rock outcrops carrying the wrecks
+  { v: vAtDepth(3800), x: 0.8, w: 110, peak: 6, wreck: ['wreck', 2, 0.85] }, // the Titanic marker on the ruler
+  { v: 4.35, x: 0.25, w: 80, peak: 5, wreck: ['sub', 1, 0.8] },
+  // sunlit reef: just three wide, low reefs
+  { v: 5.95, x: 0.62, w: 150, peak: 7, wreck: ['anchor', 1, 0.9] },
+  { v: 6.4, x: 0.3, w: 170, peak: 8, wreck: ['wreck', 2, 1] },
+  { v: 6.9, x: 0.75, w: 140, peak: 7 },
+];
+
+function buildMounds() {
+  const rng = rngFor('shrimpion-mounds');
+  const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+  return MOUNDS.map((m) => {
+    const half = Math.round(m.w / 2);
+    // Column heights: a rounded reef top with sloping skirts on both sides, so it reads as a hill, not a pillar.
+    const skirt = Math.round(m.w * 0.3);
+    const ext = half + skirt;
+    const cols = [];
+    for (let dx = -ext; dx <= ext; dx++) {
+      const a = Math.abs(dx);
+      const hgt = a <= half ? Math.pow(Math.max(0, 1 - (dx / half) ** 2), 0.5) * m.peak : -((a - half) ** 1.15) * 0.6;
+      cols.push(Math.round(hgt + (rng() - 0.5) * 2));
+    }
+    const growth = [];
+    const wreckW = m.wreck ? spriteSize(m.wreck[0]).w * m.wreck[1] : 0;
+    for (let dx = -half + 3; dx < half - 3; dx += 4 + Math.floor(rng() * 5)) {
+      if (m.wreck && Math.abs(dx) < wreckW / 2 + 2) continue; // leave room for the wreck
+      const type = growthTypeAt(m.v, pick);
+      growth.push({ dx, type, ...makeGrowth(type, rng, pick), phase: rng() * 6 });
+    }
+    return { ...m, half, ext, cols, growth };
+  });
+}
+
+/** Pre-baked pixel shape for one piece of growth. dx grows sideways, dy grows up. */
+function makeGrowth(type, rng, pick) {
       const px = [];
       const sway = type === 'kelp' || type === 'anemone' || type === 'crinoid';
       if (type === 'branch') {
@@ -144,19 +195,8 @@ function buildDecor() {
         const n = 2 + Math.floor(rng() * 4);
         for (let i = 0; i < n; i++) px.push([Math.floor(rng() * 6), Math.floor(rng() * 8), pick(['#7cf6ff', '#c77dff', '#4ff0c8'])]);
       }
-      out.push({ side, v, type, px, sway, phase: rng() * 6 });
-    }
-  }
-  return out;
+  return { px, sway };
 }
-
-// Wrecks rest on rock shelves at fixed depths. [sprite, v, side (0 = left), scale, alpha]
-const WRECKS = [
-  ['wreck', vAtDepth(3800), 1, 2, 0.85], // the Titanic marker on the ruler
-  ['sub', 4.35, 0, 1, 0.8],
-  ['wreck', 6.3, 0, 2, 1],
-  ['anchor', 5.85, 1, 1, 0.9],
-];
 
 function buildWorld() {
   const rng = rngFor('shrimpion-world');
@@ -235,10 +275,17 @@ export default function OceanScene() {
   useEffect(() => {
     const canvas = ref.current;
     const ctx = canvas.getContext('2d');
-    const low = document.createElement('canvas');
-    const lc = low.getContext('2d');
+    // Two low-res layers: background (water, reefs) and foreground (rock, sky, effects); creatures and the
+    // shrimp are drawn between them at full resolution so they move smoothly.
+    const bg = document.createElement('canvas');
+    const bgc = bg.getContext('2d');
+    const fg = document.createElement('canvas');
+    const fgc = fg.getContext('2d');
+    const vignette = document.createElement('canvas');
+    let lc = bgc;
     const world = buildWorld();
     const decor = buildDecor();
+    const mounds = buildMounds();
     let W, H, PIX, lw, lh, floor, snow;
     let dpr = 1;
     const bubbles = [];
@@ -253,15 +300,27 @@ export default function OceanScene() {
       H = Math.max(64, window.innerHeight);
       PIX = W < 700 ? 2 : 3;
       // Back the canvas with real device pixels so the browser never stretches (and blurs) it.
-      dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       lw = Math.ceil(W / PIX);
       lh = Math.ceil(H / PIX);
-      low.width = lw;
-      low.height = lh;
+      for (const c of [bg, fg]) {
+        c.width = lw;
+        c.height = lh + 2; // a spare row above and below for sub-pixel scrolling
+      }
       // Resizing a canvas resets its context state, so re-disable smoothing every time.
-      lc.imageSmoothingEnabled = false;
+      bgc.imageSmoothingEnabled = false;
+      fgc.imageSmoothingEnabled = false;
+      // The vignette only changes on resize; its strength is applied with globalAlpha each frame.
+      vignette.width = lw;
+      vignette.height = lh;
+      const vc = vignette.getContext('2d');
+      const vg = vc.createRadialGradient(lw / 2, lh / 2, Math.min(lw, lh) * 0.3, lw / 2, lh / 2, Math.max(lw, lh) * 0.75);
+      vg.addColorStop(0, 'rgba(10,0,12,0)');
+      vg.addColorStop(1, 'rgba(10,0,12,1)');
+      vc.fillStyle = vg;
+      vc.fillRect(0, 0, lw, lh);
       ctx.imageSmoothingEnabled = false;
       floor = buildFloor(lw, lh);
       snow = buildSnow(lw, lh, Math.round((lw * lh) / 900));
@@ -348,86 +407,132 @@ export default function OceanScene() {
       drawSprite(lc, 'tripod', lw * 0.42, ground(0.42) - 8, { scale: 1, flip: true, alpha: 0.7 });
     }
 
-    function drawWalls(t, cam, unit, sy, yOf, light) {
+    // Rock colors by height, cached so the per-row loop never builds color strings.
+    const rockCache = new Map();
+    function rockAt(v) {
+      const key = Math.round(clamp(v / 7, 0, 1) * 64);
+      let c = rockCache.get(key);
+      if (!c) {
+        const tv = key / 64;
+        c = ROCK_DEEP.map((col, i) => rgb(mix(col, ROCK_HIGH[i], tv)));
+        rockCache.set(key, c);
+      }
+      return c; // [fill, edge, bevel]
+    }
+
+    function drawGrowth(d, x, by, t) {
+      if (d.type === 'star') {
+        drawSprite(lc, 'starfish', x - 2, by - 4, { scale: 1 });
+        return;
+      }
+      const glow = d.type === 'glow';
+      if (glow) {
+        lc.save();
+        lc.globalCompositeOperation = 'lighter';
+        lc.globalAlpha = 0.45 + 0.45 * Math.sin(t * 1.7 + d.phase);
+      }
+      const dir = d.dir || 1;
+      for (const [dx, dy, c] of d.px) {
+        const s = d.sway ? Math.round(Math.sin(t * 1.3 + d.phase + dy * 0.18) * dy * 0.08) : 0;
+        lc.fillStyle = c;
+        lc.fillRect(x + (dx + s) * dir, by - dy, 1, 1);
+      }
+      if (glow) lc.restore();
+    }
+
+    function drawWalls(t, cam, unit, sy, yOf) {
+      // Nothing to draw once the trench is off screen.
+      if (yOf(WALL_TOP) > lh) return;
       const sw = W < 700 ? 0.55 : 1;
       const wallL = (v) => Math.round(wallProfile(v, 1.7) * lw * sw);
       const wallR = (v) => Math.round(wallProfile(v, 4.2) * lw * sw * 0.8);
       // Row by row in world coordinates, so the rock texture stays pixel-stable while the camera moves.
       const off = Math.round(cam * unit + sy);
-      for (let y = 0; y < lh; y++) {
+      const yStart = Math.max(0, Math.floor(yOf(WALL_TOP)));
+      for (let y = yStart; y < lh; y++) {
         const k = off - y;
         const v = k / unit;
-        if (v > WATERLINE_V - 0.1 || v < FLOOR_V - 0.6) continue;
-        const tv = clamp(v / 7, 0, 1);
-        const fill = rgb(mix(ROCK_DEEP[0], ROCK_HIGH[0], tv));
-        const edge = rgb(mix(ROCK_DEEP[1], ROCK_HIGH[1], tv));
-        const bevel = rgb(mix(ROCK_DEEP[2], ROCK_HIGH[2], tv));
-        const h = Math.imul(k, 2654435761) >>> 0;
+        if (v < FLOOR_V - 0.6) break;
         const l = wallL(v);
         const r = wallR(v);
+        if (l <= 0 && r <= 0) continue;
+        const [fill, edge, bevel] = rockAt(v);
+        const h = Math.imul(k, 2654435761) >>> 0;
         if (l > 0) {
           lc.fillStyle = fill;
           lc.fillRect(0, y, l, 1);
           lc.fillStyle = bevel;
           lc.fillRect(Math.max(0, l - 4), y, 3, 1);
-          if (h % 4 === 0) lc.fillRect(h % Math.max(1, l), y, 3, 1);
+          if (h % 4 === 0) lc.fillRect(h % l, y, 3, 1);
           lc.fillStyle = edge;
           lc.fillRect(l - 1, y, 1, 1);
-          if (h % 23 === 0) lc.fillRect((h >>> 7) % Math.max(1, l), y, 1, 1);
+          if (h % 23 === 0) lc.fillRect((h >>> 7) % l, y, 1, 1);
         }
         if (r > 0) {
           lc.fillStyle = fill;
           lc.fillRect(lw - r, y, r, 1);
           lc.fillStyle = bevel;
           lc.fillRect(lw - r + 1, y, Math.min(3, r), 1);
-          if ((h >>> 3) % 4 === 0) lc.fillRect(lw - 1 - ((h >>> 5) % Math.max(1, r)), y, 3, 1);
+          if ((h >>> 3) % 4 === 0) lc.fillRect(lw - 1 - ((h >>> 5) % r), y, 3, 1);
           lc.fillStyle = edge;
           lc.fillRect(lw - r, y, 1, 1);
-          if ((h >>> 2) % 23 === 0) lc.fillRect(lw - 1 - ((h >>> 9) % Math.max(1, r)), y, 1, 1);
+          if ((h >>> 2) % 23 === 0) lc.fillRect(lw - 1 - ((h >>> 9) % r), y, 1, 1);
         }
       }
 
-      // Growth on the walls: coral and kelp up top, sponges in the twilight, tube worms and glow in the trench.
+      // Tube worms, crinoids and glow on the trench walls.
       for (const d of decor) {
         const by = Math.round(yOf(d.v));
         if (by < -50 || by > lh + 10) continue;
         const edgeX = d.side === 0 ? wallL(d.v) - 1 : lw - wallR(d.v);
         if (d.side === 0 ? edgeX < 2 : edgeX > lw - 3) continue;
-        const dir = d.side === 0 ? 1 : -1;
-        if (d.type === 'star') {
-          drawSprite(lc, 'starfish', edgeX - (d.side === 0 ? 4 : 0), by - 5, { scale: 1 });
-          continue;
-        }
-        const glow = d.type === 'glow';
-        if (glow) {
-          lc.save();
-          lc.globalCompositeOperation = 'lighter';
-          lc.globalAlpha = 0.45 + 0.45 * Math.sin(t * 1.7 + d.phase);
-        }
-        for (const [dx, dy, c] of d.px) {
-          const s = d.sway ? Math.round(Math.sin(t * 1.3 + d.phase + dy * 0.18) * dy * 0.08) : 0;
-          lc.fillStyle = c;
-          lc.fillRect(edgeX + (dx + s) * dir, by - dy, 1, 1);
-        }
-        if (glow) lc.restore();
+        d.dir = d.side === 0 ? 1 : -1;
+        drawGrowth(d, edgeX, by, t);
       }
+    }
 
-      // Wrecks on rock shelves.
-      for (const [name, v, side, scale, alpha] of WRECKS) {
-        const by = Math.round(yOf(v));
-        const { w, h } = spriteSize(name);
-        if (by < -20 || by - h * scale > lh + 20) continue;
-        const shelf = (side === 0 ? wallL(v) : wallR(v)) + Math.round(w * scale * 0.85);
-        const tv = clamp(v / 7, 0, 1);
-        lc.fillStyle = rgb(mix(ROCK_DEEP[0], ROCK_HIGH[0], tv));
-        const sx = side === 0 ? 0 : lw - shelf;
-        lc.fillRect(sx, by, shelf, 4);
-        lc.fillRect(side === 0 ? 0 : lw - shelf + 3, by + 4, shelf - 3, 3);
-        lc.fillStyle = rgb(mix(ROCK_DEEP[1], ROCK_HIGH[1], tv));
-        lc.fillRect(sx, by, shelf, 1);
-        lc.fillRect(side === 0 ? shelf - 1 : sx, by, 1, 4);
-        const x = side === 0 ? shelf - w * scale - 2 : lw - shelf + 2;
-        drawSprite(lc, name, x, by - h * scale + 1, { scale, flip: side === 1, alpha: alpha * (0.55 + 0.45 * Math.max(light, tv)) });
+    /** Reef mounds and rock outcrops in open water, with wrecks resting on some of them. */
+    function drawMounds(t, yOf, light) {
+      const sc = W < 700 ? 0.7 : 1;
+      for (const m of mounds) {
+        const top = Math.round(yOf(m.v));
+        const depth = Math.round(30 * sc);
+        if (top - 60 > lh || top + depth < 0) continue;
+        const cx = Math.round(m.x * lw);
+        const [fill, edge, bevel] = rockAt(m.v);
+        // The hill fades into the water below, so it reads as the top of a seamount far beneath.
+        const g = lc.createLinearGradient(0, top - m.peak, 0, top + depth);
+        g.addColorStop(0, fill);
+        g.addColorStop(0.4, fill);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        const half = Math.round(m.half * sc);
+        const ext = Math.round(m.ext * sc);
+        const colAt = (i) => m.cols[Math.round(((i + ext) / (2 * ext)) * (m.cols.length - 1))] * sc;
+        for (let i = -ext; i <= ext; i++) {
+          const ch = colAt(i);
+          const y0 = Math.round(top - ch);
+          if (y0 >= top + depth) continue;
+          lc.fillStyle = g;
+          lc.fillRect(cx + i, y0, 1, top + depth - y0);
+          lc.fillStyle = Math.abs(i) > half ? bevel : edge;
+          lc.fillRect(cx + i, y0, 1, 1);
+          if ((i * 7 + m.half) % 9 === 0) {
+            lc.fillStyle = bevel;
+            lc.fillRect(cx + i, y0 + 3 + ((i * 13) & 7), 2, 1);
+          }
+        }
+        const colTop = (dx) => Math.round(top - colAt(clamp(Math.round(dx * sc), -ext, ext)));
+        for (const d of m.growth) drawGrowth(d, cx + Math.round(d.dx * sc), colTop(d.dx) + 1, t);
+        if (m.wreck) {
+          const [name, scale, alpha] = m.wreck;
+          const { w, h } = spriteSize(name);
+          const tv = clamp(m.v / 7, 0, 1);
+          drawSprite(lc, name, cx - Math.round((w * scale) / 2), colTop(0) - h * scale + 3, {
+            scale,
+            flip: m.x > 0.5,
+            alpha: alpha * (0.55 + 0.45 * Math.max(light, tv)),
+          });
+        }
       }
     }
 
@@ -473,25 +578,100 @@ export default function OceanScene() {
       });
     }
 
+    // Soft glows, pre-rendered once per color instead of building a gradient for every creature every frame.
+    const glowCache = new Map();
+    function glowCanvas(color, r) {
+      const key = `${color}|${r}`;
+      let c = glowCache.get(key);
+      if (!c) {
+        c = document.createElement('canvas');
+        c.width = c.height = r * 2;
+        const g = c.getContext('2d');
+        const rg = g.createRadialGradient(r, r, 0, r, r, r);
+        // Hex colors get a soft 40% core; rgba() colors carry their own alpha.
+        const hex = color.startsWith('#');
+        rg.addColorStop(0, hex ? color + '66' : color);
+        rg.addColorStop(1, hex ? color + '00' : color.replace(/[\d.]+\)$/, '0)'));
+        g.fillStyle = rg;
+        g.fillRect(0, 0, r * 2, r * 2);
+        glowCache.set(key, c);
+      }
+      return c;
+    }
+
+    /** Draws a sprite on the full-resolution canvas at a fractional low-res position, so motion is smooth. */
+    function drawHi(name, x, y, { scale = 1, variant = null, flip = false, alpha = 1, rotate = 0 } = {}) {
+      const cv = spriteCanvas(name, { variant, flip });
+      const k = PIX;
+      const w = cv.width * scale * k;
+      const h = cv.height * scale * k;
+      // Snap to device pixels: crisp edges, but steps of one device pixel instead of one art pixel.
+      const sx = Math.round(x * k * dpr) / dpr;
+      const sy = Math.round(y * k * dpr) / dpr;
+      ctx.globalAlpha = alpha;
+      if (rotate) {
+        ctx.save();
+        ctx.translate(sx + w / 2, sy + h / 2);
+        ctx.rotate(rotate);
+        ctx.drawImage(cv, -w / 2, -h / 2, w, h);
+        ctx.restore();
+      } else {
+        ctx.drawImage(cv, sx, sy, w, h);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawGlowHi(color, cx, cy, r, alpha) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = alpha;
+      ctx.imageSmoothingEnabled = true;
+      const k = PIX;
+      ctx.drawImage(glowCanvas(color, r), (cx - r) * k, (cy - r) * k, r * 2 * k, r * 2 * k);
+      ctx.restore();
+    }
+
+    /** Blits a low-res layer (one spare row above and below) to the screen, shifted by a sub-pixel amount. */
+    function blit(layer, shift) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(layer, 0, Math.round((shift - 1) * PIX * dpr) / dpr, lw * PIX, (lh + 2) * PIX);
+    }
+
+    function useLayer(c) {
+      lc = c;
+      lc.setTransform(1, 0, 0, 1, 0, 1); // row -1 is the spare row above the screen
+    }
+
     function draw(t, dt, vel) {
       const cam = scene.camV;
-      const sy = lh * 0.6;
+      const sy = Math.round(lh * 0.6);
       const unit = lh * 0.95;
-      const yOf = (v) => sy - (v - cam) * unit;
-      const vOf = (y) => cam + (sy - y) / unit;
+      // Low-res layers render at a whole-row camera and are shifted by the leftover fraction when blitted,
+      // so scrolling is smooth while the pixel art stays on its grid.
+      const camRow = cam * unit;
+      const frac = camRow - Math.round(camRow);
+      const camQ = Math.round(camRow) / unit;
+      const yOf = (v) => sy - (v - cam) * unit; // exact (full-res drawing, ruler)
+      const yOfQ = (v) => sy - (v - camQ) * unit; // whole rows (low-res layers)
+      const vOf = (y) => camQ + (sy - y) / unit;
       const light = clamp((cam - 4.3) / 3, 0, 1);
       const deep = 1 - clamp(cam / 5.5, 0, 1);
-
-      // water
-      const g = lc.createLinearGradient(0, 0, 0, lh);
-      for (let i = 0; i <= 8; i++) g.addColorStop(i / 8, rgb(waterRGB(vOf((i / 8) * lh))));
-      lc.fillStyle = g;
-      lc.fillRect(0, 0, lw, lh);
-
       const waterY = yOf(WATERLINE_V);
-      if (light > 0.01) drawRays(t, light, waterY);
+      const waterYQ = yOfQ(WATERLINE_V);
 
-      // creatures
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // 1. background: water, light rays, reef mounds
+      useLayer(bgc);
+      const g = lc.createLinearGradient(0, -1, 0, lh + 1);
+      for (let i = 0; i <= 8; i++) g.addColorStop(i / 8, rgb(waterRGB(vOf((i / 8) * (lh + 2) - 1))));
+      lc.fillStyle = g;
+      lc.fillRect(0, -1, lw, lh + 2);
+      if (light > 0.01) drawRays(t, light, waterYQ);
+      drawMounds(t, yOfQ, light);
+      blit(bg, frac);
+
+      // 2. creatures, full resolution
       for (const e of world) {
         e.x += (e.dir * e.speed * dt) / lw;
         if (e.x > 1.2) e.x = -0.2;
@@ -500,63 +680,42 @@ export default function OceanScene() {
         if (py < -50 || py > lh + 50) continue;
         const { w, h } = spriteSize(e.name);
         const px = e.x * lw;
-        drawSprite(lc, e.name, px, py - (h * e.scale) / 2, {
-          scale: e.scale,
-          variant: e.variant,
-          flip: e.dir > 0,
-          alpha: e.layer,
-        });
+        drawHi(e.name, px, py - (h * e.scale) / 2, { scale: e.scale, variant: e.variant, flip: e.dir > 0, alpha: e.layer });
         const glow = SPRITES[e.name].glow;
         if (glow && deep > 0.15) {
-          lc.save();
-          lc.globalCompositeOperation = 'lighter';
           const gx = e.name === 'angler' ? (e.dir > 0 ? px + w - 1 : px) : px + (w * e.scale) / 2;
           const gy = e.name === 'angler' ? py - (h * e.scale) / 2 : py;
-          const rg = lc.createRadialGradient(gx, gy, 0, gx, gy, 12);
-          rg.addColorStop(0, glow + '66');
-          rg.addColorStop(1, glow + '00');
-          lc.globalAlpha = Math.min(1, deep * 1.3) * e.layer;
-          lc.fillStyle = rg;
-          lc.fillRect(gx - 12, gy - 12, 24, 24);
-          lc.restore();
+          drawGlowHi(glow, gx, gy, 12, Math.min(1, deep * 1.3) * e.layer);
         }
       }
 
-      drawWalls(t, cam, unit, sy, yOf, light);
-
-      const floorY = yOf(FLOOR_V);
+      // 3. foreground rock: trench walls, floor, sky
+      useLayer(fgc);
+      lc.clearRect(0, -1, lw, lh + 2);
+      drawWalls(t, camQ, unit, sy, yOfQ);
+      const floorY = yOfQ(FLOOR_V);
       if (floorY - 120 < lh) drawFloor(floorY, t);
-      if (waterY > -4) drawSky(waterY, t);
+      if (waterYQ > -4) drawSky(waterYQ, t);
+      blit(fg, frac);
 
-      // the shrimp
+      // 4. the shrimp, full resolution
       const swimming = scene.swimming;
       const shrimpScale = 2;
       const ss = spriteSize('shrimp');
       const shX = Math.round(lw * (W < 700 ? 0.07 : 0.14));
       const bob = Math.sin(t * 2.2) * (swimming ? 1 : 2.5);
-      const shY = Math.round(sy - (ss.h * shrimpScale) / 2 + bob);
+      const shY = sy - (ss.h * shrimpScale) / 2 + bob;
       if (scene.shrimpVisible) {
-        if (deep > 0.05) {
-          lc.save();
-          lc.globalCompositeOperation = 'lighter';
-          const cx = shX + ss.w;
-          const cy = shY + ss.h;
-          const rg = lc.createRadialGradient(cx, cy, 0, cx, cy, 46);
-          rg.addColorStop(0, `rgba(255,79,160,${0.13 * deep})`);
-          rg.addColorStop(1, 'rgba(255,79,160,0)');
-          lc.fillStyle = rg;
-          lc.fillRect(cx - 46, cy - 46, 92, 92);
-          lc.restore();
-        }
-        // No idle wobble: a sub-pixel rotation smears every pixel. Tilt only while actually swimming.
+        if (deep > 0.05) drawGlowHi('rgba(255,79,160,0.13)', shX + ss.w, shY + ss.h, 46, deep);
+        // Tilt only while actually swimming.
         const tilt = swimming ? (vel > 0 ? -0.38 : vel < 0 ? 0.38 : 0) : 0;
-        drawSprite(lc, 'shrimp', shX, shY, { scale: shrimpScale, variant: scene.shrimpVariant, rotate: tilt });
-        if (scene.shrimpVariant === 'crowned') {
-          drawSprite(lc, 'crown', shX + 20, shY - 4, { scale: 1, rotate: tilt });
-        }
+        drawHi('shrimp', shX, shY, { scale: shrimpScale, variant: scene.shrimpVariant, rotate: tilt });
+        if (scene.shrimpVariant === 'crowned') drawHi('crown', shX + 20, shY - 4, { scale: 1, rotate: tilt });
       }
 
-      // bubbles from the shrimp
+      // 5. screen-space effects: bubbles, sparkles, marine snow, vignette
+      useLayer(fgc);
+      lc.clearRect(0, -1, lw, lh + 2);
       bubbleTimer -= dt;
       if (scene.shrimpVisible && bubbleTimer <= 0) {
         bubbleTimer = swimming ? 0.05 : 0.7 + Math.random() * 0.8;
@@ -575,6 +734,7 @@ export default function OceanScene() {
           if (gold) sparkles.push({ x: shX + 20, y: shY + 12, vx: (Math.random() - 0.5) * 80, vy: (Math.random() - 0.5) * 80, life: 1 + Math.random() });
         }
       }
+      lc.fillStyle = 'rgba(210,240,255,0.75)';
       for (let i = bubbles.length - 1; i >= 0; i--) {
         const b = bubbles[i];
         b.y += (b.vy + vel * unit) * dt;
@@ -583,14 +743,15 @@ export default function OceanScene() {
           bubbles.splice(i, 1);
           continue;
         }
-        lc.fillStyle = 'rgba(210,240,255,0.75)';
+        const x = Math.round(b.x);
+        const y = Math.round(b.y);
         if (b.r === 2) {
-          lc.fillRect(Math.round(b.x), Math.round(b.y), 2, 1);
-          lc.fillRect(Math.round(b.x) - 1, Math.round(b.y) + 1, 1, 2);
-          lc.fillRect(Math.round(b.x) + 2, Math.round(b.y) + 1, 1, 2);
-          lc.fillRect(Math.round(b.x), Math.round(b.y) + 3, 2, 1);
+          lc.fillRect(x, y, 2, 1);
+          lc.fillRect(x - 1, y + 1, 1, 2);
+          lc.fillRect(x + 2, y + 1, 1, 2);
+          lc.fillRect(x, y + 3, 2, 1);
         } else {
-          lc.fillRect(Math.round(b.x), Math.round(b.y), 1, 1);
+          lc.fillRect(x, y, 1, 1);
         }
       }
       for (let i = sparkles.length - 1; i >= 0; i--) {
@@ -610,30 +771,22 @@ export default function OceanScene() {
         lc.fillRect(x - 1, y, 3, 1);
         lc.fillRect(x, y - 1, 1, 3);
       }
-
-      // marine snow
       const streak = Math.min(14, Math.abs(vel) * 9);
+      const snowBoost = 0.5 + deep * 0.6;
       for (const p of snow) {
         p.y += (p.spd + vel * unit) * dt;
         p.x += Math.sin(t * 0.4 + p.drift) * 0.05;
         if (p.y > lh + 16) p.y = -16;
         if (p.y < -16) p.y = lh + 16;
         if (p.y < waterY) continue;
-        lc.fillStyle = `rgba(245,225,250,${p.a * (0.5 + deep * 0.6)})`;
+        lc.globalAlpha = p.a * snowBoost;
+        lc.fillStyle = '#f5e1fa';
         lc.fillRect(Math.round(p.x), Math.round(p.y - streak), 1, 1 + Math.round(streak));
       }
-
-      // vignette
-      const vg = lc.createRadialGradient(lw / 2, lh / 2, Math.min(lw, lh) * 0.3, lw / 2, lh / 2, Math.max(lw, lh) * 0.75);
-      vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, `rgba(10,0,12,${0.25 + deep * 0.45})`);
-      lc.fillStyle = vg;
-      lc.fillRect(0, 0, lw, lh);
-
-      // upscale
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(low, 0, 0, lw * PIX, lh * PIX);
+      lc.globalAlpha = 0.25 + deep * 0.45;
+      lc.drawImage(vignette, 0, 0, lw, lh);
+      lc.globalAlpha = 1;
+      blit(fg, 0);
 
       // depth ruler (full resolution)
       const toScreen = (v) => yOf(v) * PIX;

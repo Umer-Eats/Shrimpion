@@ -193,12 +193,9 @@ export default function SeasGlobe({ selected, onPick }) {
     let legDur = 1;
     let holdUntil = performance.now() + HOLD_MS;
     let raf = 0;
-    let last = 0;
 
     const frame = (t) => {
       raf = requestAnimationFrame(frame);
-      if (t - last < 33) return; // ~30 fps is plenty for pixel art
-      last = t;
       let glow = 1;
       if (to !== from) {
         const k = Math.min(1, (t - legStart) / legDur);

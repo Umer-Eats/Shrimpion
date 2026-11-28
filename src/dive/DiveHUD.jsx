@@ -10,10 +10,16 @@ export default function DiveHUD({ results, current, points, total = 7, label }) 
 
   useEffect(() => {
     let raf;
+    let shown = -1;
     const loop = () => {
       const d = Math.round(depthAtV(scene.camV));
-      if (depthRef.current) depthRef.current.textContent = `${d.toLocaleString()}m`;
-      if (zoneRef.current) zoneRef.current.textContent = zoneFor(d);
+      // Only touch the DOM when the number changes; rewriting text every frame forces layout work.
+      if (d !== shown) {
+        shown = d;
+        if (depthRef.current) depthRef.current.textContent = `${d.toLocaleString()}m`;
+        const zone = zoneFor(d);
+        if (zoneRef.current && zoneRef.current.textContent !== zone) zoneRef.current.textContent = zone;
+      }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
